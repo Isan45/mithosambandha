@@ -23,18 +23,22 @@ import {
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase/client';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z
     .string()
-    .min(1, { message: 'Password is required.' }),
+    .min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
 export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -46,18 +50,26 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsSubmitting(true);
-    console.log('Login values:', values);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // In a real app, you would handle success/error from your auth provider
-    toast({
-      title: 'Login Successful',
-      description: "Welcome back! You're being redirected.",
-    });
-    // Redirect to a dashboard or home page after login
-    // For now, we'll just log it.
-    setIsSubmitting(false);
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: 'Login Successful',
+        description: "Welcome back! You're being redirected.",
+      });
+      router.push('/admin'); // Redirect to admin dashboard after login
+    } catch (error: any) {
+      console.error('Login Error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description:
+          error.code === 'auth/invalid-credential'
+            ? 'Invalid email or password.'
+            : 'An unexpected error occurred. Please try again.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -126,7 +138,10 @@ export default function LoginPage() {
               <div className="mt-6 text-center text-sm text-muted-foreground">
                 <p>
                   Don't have an account?{' '}
-                  <Link href="/join" className="font-semibold text-primary hover:underline">
+                  <Link
+                    href="/join"
+                    className="font-semibold text-primary hover:underline"
+                  >
                     Sign up
                   </Link>
                 </p>
