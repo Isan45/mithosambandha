@@ -113,14 +113,16 @@ export default function PhotosPage() {
             return;
         }
         setter(filesArray);
-        const newPreviews = filesArray.map(file => URL.createObjectURL(file));
-        // When selecting new gallery photos, revoke old ones to prevent memory leaks
+        // When selecting new gallery photos, revoke old ones and create new ones
         galleryPreviews.forEach(p => URL.revokeObjectURL(p));
+        const newPreviews = filesArray.map(file => URL.createObjectURL(file));
         previewSetter(newPreviews);
       } else {
         const file = e.target.files[0];
         setter(file);
-        if(profilePreview) URL.revokeObjectURL(profilePreview);
+        // Revoke the old preview URL before creating a new one
+        if (profilePreview) URL.revokeObjectURL(profilePreview);
+        if (idPreview) URL.revokeObjectURL(idPreview);
         previewSetter(URL.createObjectURL(file));
       }
     }
@@ -248,7 +250,7 @@ export default function PhotosPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><ImageIcon className="text-primary"/> Profile Photo</CardTitle>
+              <CardTitle className="flex items-center gap-2"><ImageIcon className="text-primary"/> Profile Photo (Required)</CardTitle>
               <CardDescription>
                 This is the first impression. Please upload your fully visible single photo.
               </CardDescription>
@@ -306,7 +308,7 @@ export default function PhotosPage() {
           
           <Button
             onClick={handleSubmit}
-            disabled={isUploading || !profilePhoto || authLoading}
+            disabled={isUploading || authLoading}
             className="w-full"
             size="lg"
           >
