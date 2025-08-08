@@ -1,8 +1,24 @@
+
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
+import { useAuth } from '@/hooks/use-auth';
+import { auth } from '@/lib/firebase/client';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { LogOut, LayoutDashboard } from 'lucide-react';
 
 export function Header() {
+  const { user, isAdmin } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push('/');
+  };
+
   return (
     <header className="sticky top-0 z-40 border-b border-primary/10 bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
@@ -18,19 +34,36 @@ export function Header() {
             Mitho Sambandha
           </span>
         </Link>
-        <nav className="hidden items-center gap-4 md:flex">
-          <Button variant="ghost" asChild>
-            <Link href="/">Home</Link>
-          </Button>
-          <Button variant="ghost" asChild>
-            <Link href="/login">Login</Link>
-          </Button>
-          <Button
-            asChild
-            className="bg-accent text-accent-foreground hover:bg-accent/90"
-          >
-            <Link href="/join">Join Now</Link>
-          </Button>
+        <nav className="hidden items-center gap-2 md:flex">
+          {user ? (
+            <>
+              <Button variant="ghost" asChild>
+                <Link href={isAdmin ? "/admin" : "/dashboard"}>
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Link>
+              </Button>
+              <Button variant="ghost" onClick={handleLogout}>
+                 <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+               <Button variant="ghost" asChild>
+                <Link href="/">Home</Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button
+                asChild
+                className="bg-accent text-accent-foreground hover:bg-accent/90"
+              >
+                <Link href="/join">Join Now</Link>
+              </Button>
+            </>
+          )}
         </nav>
         {/* Add a mobile menu trigger here if needed in the future */}
       </div>
