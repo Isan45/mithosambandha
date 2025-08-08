@@ -1,8 +1,7 @@
 
 'use client';
 
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
@@ -24,15 +23,10 @@ import {
   Edit,
   MapPin,
   Cake,
-  Briefcase,
-  Globe,
-  Soup,
-  Cigarette,
-  GlassWater,
-  Sparkles,
-  Award,
-  BookUser,
-  Scale,
+  Search,
+  MessageCircle,
+  Crown,
+  Trophy,
 } from 'lucide-react';
 import type { UserProfile } from '@/types';
 import Image from 'next/image';
@@ -44,6 +38,7 @@ import Link from 'next/link';
 import { ProfileSection } from '@/components/dashboard/profile-section';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 const DetailItem = ({ icon: Icon, label, value, action }: any) => (
   <div className="flex items-start justify-between py-3 border-b border-border/50">
@@ -58,14 +53,12 @@ const DetailItem = ({ icon: Icon, label, value, action }: any) => (
   </div>
 );
 
-
 const InfoPill = ({ label, value }: { label: string, value: string | number | null | undefined }) => (
-    <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm text-secondary-foreground">
-      <span className="font-semibold">{label}:</span>
-      <span>{value || 'N/A'}</span>
-    </div>
-  );
-
+  <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm text-secondary-foreground">
+    <span className="font-semibold">{label}:</span>
+    <span>{value || 'N/A'}</span>
+  </div>
+);
 
 const VerificationStatus = ({ verified, onVerify }: { verified?: boolean; onVerify?: () => void; }) =>
   verified ? (
@@ -78,20 +71,51 @@ const VerificationStatus = ({ verified, onVerify }: { verified?: boolean; onVeri
     </Button>
   );
 
-const AnalyticsCard = ({ icon: Icon, value, title, period }: { icon: React.ElementType, value: string, title: string, period: string }) => (
-    <Card>
-        <CardHeader className="pb-2">
-            <CardDescription className="flex items-center justify-between">
-                <span>{title}</span>
-                <Icon className="h-5 w-5 text-muted-foreground" />
-            </CardDescription>
-            <CardTitle className="text-3xl font-bold">{value}</CardTitle>
-        </CardHeader>
-        <CardContent>
-             <p className="text-xs text-muted-foreground">{period}</p>
-        </CardContent>
-    </Card>
-)
+// MOCK DATA FOR NEW SECTIONS
+const MOCK_ACTIVITY_DATA = {
+    profileViews: { total: 125, daily: 5 },
+    messagesReceived: 8,
+    interestsSent: 15,
+    interestsReceived: 12,
+    pendingRequests: 3,
+    streak: 7,
+    badges: ['First Message Sent', 'Popular Member'],
+};
+
+const MOCK_MATCHES = [
+    {
+        id: '1',
+        name: 'Anjali Sharma',
+        age: 28,
+        location: 'Kathmandu',
+        tagline: 'Loves hiking and traveling.',
+        photo: 'https://placehold.co/300x300.png',
+    },
+    {
+        id: '2',
+        name: 'Prakash Thapa',
+        age: 30,
+        location: 'Pokhara',
+        tagline: 'Aspiring entrepreneur and foodie.',
+        photo: 'https://placehold.co/300x300.png',
+    },
+    {
+        id: '3',
+        name: 'Sabina Rai',
+        age: 27,
+        location: 'Biratnagar',
+        tagline: 'Into yoga and reading books.',
+        photo: 'https://placehold.co/300x300.png',
+    },
+    {
+        id: '4',
+        name: 'Deepak Limbu',
+        age: 32,
+        location: 'Chitwan',
+        tagline: 'Searching for a travel partner.',
+        photo: 'https://placehold.co/300x300.png',
+    },
+];
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -162,99 +186,169 @@ export default function DashboardPage() {
   }
 
   const p = profile.profile;
-  const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
-
-  const isSectionIncomplete = (section: string) => {
-      // For now, always allow editing as per the new request.
-      // This logic can be expanded later if needed.
-      return true;
-  };
-  
   const pp = p.partnerPreferences;
+  const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
+  const profileCompleteness = 75; // Mock data for now
 
   return (
     <div className="min-h-screen bg-secondary/30">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="mb-6">
-          <h1 className="font-headline text-4xl font-bold">
-            Welcome, {profile.fullName}
-          </h1>
-          <p className="text-muted-foreground">
-            This is your personal dashboard. Let's find your Mitho Sambandha.
-          </p>
+        
+        {/* Main Profile Card (Merged Design) */}
+        <Card className="mb-8 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              {/* Left Side: Photo & Verification */}
+              <div className="md:col-span-4 lg:col-span-3 space-y-4">
+                  <Image
+                      src={profilePhotoUrl}
+                      alt="Profile Photo"
+                      width={400}
+                      height={400}
+                      className="aspect-square w-full rounded-lg object-cover shadow-md"
+                      data-ai-hint="person portrait"
+                  />
+                  <div className="space-y-1">
+                      <DetailItem icon={Mail} label="Email" value={profile.email} action={<VerificationStatus verified={user?.emailVerified} />} />
+                      <DetailItem icon={Phone} label="Phone" value={p.phoneNumber} action={<VerificationStatus verified={!!p.phoneNumber} />} />
+                      <DetailItem icon={ShieldCheck} label="ID" value={p.idVerified ? "Verified" : "Not Verified"} action={!p.idVerified && <Button asChild variant="outline" size="sm" className="h-8 text-xs"><Link href="/onboarding/photos">Upload ID</Link></Button>} />
+                  </div>
+              </div>
+
+              {/* Right Side: Details & Actions */}
+              <div className="md:col-span-8 lg:col-span-9 space-y-6">
+                  {/* Header */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                      <div>
+                          <h1 className="font-headline text-4xl font-bold">
+                              {profile.fullName}
+                          </h1>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            ID: {user.uid.substring(0,8).toUpperCase()} | Member since: {profile.createdAt?.toDate().toLocaleDateString() || 'N/A'}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge variant="secondary" className="text-base font-semibold">{p.membership || 'Free Membership'}</Badge>
+                            <Button asChild variant="link" size="sm" className="p-0 h-auto">
+                                <Link href="/pricing">Upgrade Plan</Link>
+                            </Button>
+                          </div>
+                      </div>
+                      <div className="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
+                        <Button asChild size="lg" className="w-full sm:w-auto">
+                            <Link href="/search"><Search className="mr-2 h-4 w-4" />Find Matches</Link>
+                        </Button>
+                         <Button asChild variant="outline" size="lg">
+                            <Link href="/onboarding/create-profile"><Edit className="mr-2 h-4 w-4" />Edit Profile</Link>
+                        </Button>
+                      </div>
+                  </div>
+
+                  {/* Profile Completeness */}
+                  <div>
+                      <Label htmlFor="profile-completeness">Profile Completeness</Label>
+                      <Progress value={profileCompleteness} id="profile-completeness" className="mt-2 h-2" />
+                      <p className="text-sm text-muted-foreground mt-1">{profileCompleteness}% complete. <Link href="/onboarding/create-profile" className="font-semibold text-primary hover:underline">Complete now</Link> for better matches.</p>
+                  </div>
+                  
+                  <Separator />
+                  
+                  {/* Bio */}
+                  <div>
+                    <h4 className="font-semibold text-primary text-lg">About Me</h4>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    {p.bio || 'No bio provided. Complete your profile to get better matches!'}
+                    </p>
+                  </div>
+                  
+                  <Separator/>
+
+                  {/* Personal Details Pills */}
+                  <div>
+                      <h4 className="font-semibold text-primary text-lg mb-3">Personal Details</h4>
+                      <div className="flex flex-wrap gap-2">
+                        <InfoPill label="Gender" value={p.gender} />
+                        <InfoPill label="Age" value={p.dob ? `${new Date().getFullYear() - new Date(p.dob).getFullYear()} yrs` : null} />
+                        <InfoPill label="Height" value={p.height ? `${p.height.feet}' ${p.height.inches}"` : null} />
+                        <InfoPill label="Religion" value={p.religion} />
+                        <InfoPill label="Location" value={p.currentLocation} />
+                        <InfoPill label="Profession" value={p.career?.profession} />
+                      </div>
+                  </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* "Your Activity" section */}
+        <div className="mb-8">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline">Your Activity</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+                    <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Profile Views</p>
+                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.profileViews.total}</p>
+                        <p className="text-xs text-green-500">+{MOCK_ACTIVITY_DATA.profileViews.daily} today</p>
+                    </div>
+                    <Eye className="w-8 h-8 text-primary/60" />
+                </Card>
+                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+                    <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Messages Received</p>
+                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.messagesReceived}</p>
+                    </div>
+                    <MessageCircle className="w-8 h-8 text-primary/60" />
+                </Card>
+                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+                    <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Login Streak</p>
+                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.streak} Days</p>
+                    </div>
+                    <Trophy className="w-8 h-8 text-primary/60" />
+                </Card>
+                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+                    <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Badges Earned</p>
+                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.badges.length}</p>
+                    </div>
+                    <Crown className="w-8 h-8 text-primary/60" />
+                </Card>
+            </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-8">
-                 {/* Main Profile Card */}
-                <Card>
-                    <CardContent className="p-6">
-                      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                        <div className="md:col-span-1 space-y-4">
-                          <Image
-                            src={profilePhotoUrl}
-                            alt="Profile Photo"
-                            width={400}
-                            height={400}
-                            className="aspect-square w-full rounded-lg object-cover shadow-md"
-                            data-ai-hint="person portrait"
-                          />
-                          <div className="space-y-1">
-                           <DetailItem icon={Mail} label="Email" value={profile.email} action={<VerificationStatus verified={user?.emailVerified} />} />
-                           <DetailItem icon={Phone} label="Phone" value={p.phoneNumber} action={<VerificationStatus verified={!!p.phoneNumber} />} />
-                           <DetailItem icon={ShieldCheck} label="ID" value={p.idVerified ? "Verified" : "Not Verified"} action={!p.idVerified && <Button asChild variant="outline" size="sm" className="h-8 text-xs"><Link href="/onboarding/photos">Upload ID</Link></Button>} />
-                         </div>
+        {/* "Latest Matches" Carousel */}
+         <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl md:text-2xl font-bold font-headline">Latest Matches</h2>
+                <Button variant="link" asChild className="text-primary p-0 h-auto">
+                    <Link href="/search">See More</Link>
+                </Button>
+            </div>
+            <div className="flex space-x-4 overflow-x-auto pb-4 -m-4 p-4">
+                {MOCK_MATCHES.map((match) => (
+                    <Card key={match.id} className="min-w-[250px] w-64 rounded-2xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-105">
+                        <div className="relative h-48">
+                            <Image src={match.photo} alt={match.name} fill className="w-full h-full object-cover" data-ai-hint="portrait person" />
                         </div>
+                        <CardContent className="p-4 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="text-lg font-semibold">{match.name}, {match.age}</CardTitle>
+                                <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 transition-colors cursor-pointer" />
+                            </div>
+                            <p className="text-sm text-muted-foreground">{match.location}</p>
+                            <p className="text-xs italic text-foreground/80 line-clamp-2">"{match.tagline}"</p>
+                            <div className="flex gap-2 pt-2">
+                                <Button variant="outline" size="sm" className="flex-1 rounded-full text-xs">View Profile</Button>
+                                <Button size="sm" className="flex-1 rounded-full text-xs">Send Interest</Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </div>
 
-                        <div className="space-y-6 md:col-span-2">
-                           <div className="flex justify-between items-start">
-                              <div>
-                                <h3 className="font-headline text-3xl font-bold">
-                                    {profile.fullName}
-                                </h3>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <Badge variant="secondary" className="text-base font-semibold">{p.membership || 'Free Membership'}</Badge>
-                                    <Button asChild variant="link" size="sm" className="p-0 h-auto">
-                                        <Link href="/pricing">Upgrade Plan</Link>
-                                    </Button>
-                                </div>
-                              </div>
-                              <Button asChild variant="outline">
-                                <Link href="/onboarding/create-profile"><Edit className="mr-2 h-4 w-4" />Edit Profile</Link>
-                              </Button>
-                           </div>
 
-                          <div>
-                            <h4 className="font-semibold text-primary text-lg">About Me</h4>
-                            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                            {p.bio || 'No bio provided. Complete your profile to get better matches!'}
-                            </p>
-                          </div>
-                          
-                          <Separator/>
-
-                          <div>
-                              <h4 className="font-semibold text-primary text-lg mb-3">Personal Details</h4>
-                              <div className="flex flex-wrap gap-2">
-                                <InfoPill label="Gender" value={p.gender} />
-                                <InfoPill label="Age" value={p.dob ? `${new Date().getFullYear() - new Date(p.dob).getFullYear()} yrs` : null} />
-                                <InfoPill label="Height" value={p.height ? `${p.height.feet}' ${p.height.inches}"` : null} />
-                                <InfoPill label="Religion" value={p.religion} />
-                                <InfoPill label="Complexion" value={p.complexion} />
-                                <InfoPill label="Location" value={p.currentLocation} />
-                                <InfoPill label="Nationality" value={p.nationality} />
-                                <InfoPill label="Profession" value={p.career?.profession} />
-                                <InfoPill label="Diet" value={p.dietaryHabits} />
-                                <InfoPill label="Smoking" value={p.smokingHabits} />
-                                <InfoPill label="Drinking" value={p.drinkingHabits} />
-                              </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                </Card>
-
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-8">
                 {/* Photo Gallery Section */}
                 <ProfileSection title="Photo Gallery" icon={ImageIcon} editPath="/onboarding/photos">
                     {p.galleryPhotos && p.galleryPhotos.length > 0 ? (
@@ -289,7 +383,9 @@ export default function DashboardPage() {
                     <p><strong>Work Details:</strong> {p.career?.workDetails || 'N/A'}</p>
                     <p><strong>Income:</strong> {p.career?.income ? `NPR ${p.career.income}` : 'N/A'}</p>
                 </ProfileSection>
-
+            </div>
+            
+            <div className="space-y-8">
                 {/* Partner Preferences Section */}
                 <ProfileSection title="Partner Preferences" icon={HeartHandshake} editPath="/onboarding/partner-preferences">
                     {!p.partnerPreferences && (
@@ -309,60 +405,6 @@ export default function DashboardPage() {
                          </div>
                     )}
                 </ProfileSection>
-            </div>
-
-            {/* Right Column */}
-            <div className="space-y-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="font-headline text-xl">Activity</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <AnalyticsCard icon={HeartHandshake} value="12" title="New Matches" period="in the last 30 days" />
-                        <AnalyticsCard icon={Eye} value="150" title="Profile Views" period="in the last 7 days" />
-                        <AnalyticsCard icon={Users} value="5" title="Interests Received" period="this week" />
-                    </CardContent>
-                </Card>
-
-                <Card>
-                     <CardHeader>
-                        <CardTitle>Pending Responses</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-muted-foreground">You have 3 interests awaiting your response.</p>
-                        <Button className="w-full mt-4">View Interests</Button>
-                    </CardContent>
-                </Card>
-
-                 <Card>
-                     <CardHeader>
-                        <CardTitle>Latest Matches</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex items-center gap-4">
-                           <Avatar>
-                               <AvatarImage src="https://placehold.co/100x100.png" />
-                               <AvatarFallback>SN</AvatarFallback>
-                           </Avatar>
-                           <div>
-                                <p className="font-semibold">Sarita Neupane</p>
-                                <p className="text-xs text-muted-foreground">Matched 2 days ago</p>
-                           </div>
-                           <Button variant="outline" size="sm" className="ml-auto">View</Button>
-                        </div>
-                         <div className="flex items-center gap-4">
-                           <Avatar>
-                               <AvatarImage src="https://placehold.co/100x100.png" />
-                               <AvatarFallback>RG</AvatarFallback>
-                           </Avatar>
-                           <div>
-                                <p className="font-semibold">Rohan Ghimire</p>
-                                <p className="text-xs text-muted-foreground">Matched 5 days ago</p>
-                           </div>
-                           <Button variant="outline" size="sm" className="ml-auto">View</Button>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
         </div>
       </div>
