@@ -260,6 +260,8 @@ export default function DashboardPage() {
                     <p><strong>Highest Education:</strong> {p.education?.highestEducation || 'N/A'}</p>
                     <p><strong>College/University:</strong> {p.education?.college || 'N/A'}</p>
                     <p><strong>Profession:</strong> {p.career?.profession || 'N/A'}</p>
+                    <p><strong>Company:</strong> {p.career?.company || 'N/A'}</p>
+                    <p><strong>Work Details:</strong> {p.career?.workDetails || 'N/A'}</p>
                     <p><strong>Income:</strong> {p.career?.income ? `NPR ${p.career.income}` : 'N/A'}</p>
                 </ProfileSection>
 
@@ -280,6 +282,31 @@ export default function DashboardPage() {
                              <p><strong>Education:</strong> {pp.education || 'Any'}</p>
                              <p><strong>Occupation:</strong> {pp.occupation || 'Any'}</p>
                          </div>
+                    )}
+                </ProfileSection>
+                
+                {/* Photo Gallery Section */}
+                <ProfileSection title="Photo Gallery" icon={ImageIcon} editPath="/onboarding/photos">
+                    {p.galleryPhotos && p.galleryPhotos.length > 0 ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {p.galleryPhotos.map((photo, index) => (
+                                <div key={index} className="relative aspect-square w-full">
+                                    <Image
+                                        src={photo}
+                                        alt={`Gallery photo ${index + 1}`}
+                                        fill
+                                        className="rounded-md object-cover"
+                                        data-ai-hint="person gallery"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
+                           <ImageIcon className="h-10 w-10 mb-2"/>
+                           <p>Your photo gallery is empty.</p>
+                           <p className="text-sm">Add more photos to get more attention.</p>
+                        </div>
                     )}
                 </ProfileSection>
             </div>
