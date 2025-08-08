@@ -158,7 +158,8 @@ export default function DashboardPage() {
 
 
   const p = profile?.profile;
-  const photos = p?.galleryPhotos?.length
+  const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
+  const galleryPhotos = p?.galleryPhotos?.length
     ? p.galleryPhotos
     : ['https://placehold.co/800x600.png'];
 
@@ -204,7 +205,7 @@ export default function DashboardPage() {
                 <div className="md:col-span-1">
                   <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-md">
                     <Image
-                      src={p.profilePhoto || photos[0]}
+                      src={profilePhotoUrl}
                       alt="Profile Photo"
                       fill
                       style={{ objectFit: 'cover' }}
