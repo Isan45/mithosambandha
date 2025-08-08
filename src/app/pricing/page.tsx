@@ -71,19 +71,49 @@ const LadiesPromo = () => (
 
 export default function PricingPage() {
   return (
-    <div className="bg-background py-16 md:py-24">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="mb-12 text-center">
-          <h1 className="font-headline text-4xl font-bold md:text-5xl">
-            Choose Your Plan
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Select the plan that best suits your journey to finding a life
-            partner. We offer flexible options to meet your needs.
-          </p>
+    <div className="bg-background">
+      {/* Hero Section */}
+      <section className="relative bg-secondary/50 py-16 md:py-24">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12">
+            <div className="text-center md:text-left">
+              <h1 className="font-headline text-4xl font-bold md:text-5xl">
+                Invest in Your Forever
+              </h1>
+              <p className="mt-4 text-lg text-muted-foreground">
+                Choose a plan that aligns with your commitment to finding a
+                meaningful, lasting relationship. Your journey to a sweet union
+                starts here.
+              </p>
+            </div>
+            <div className="relative h-64 w-full md:h-80">
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
+                alt="Happy couple smiling"
+                fill
+                style={{objectFit: 'cover'}}
+                className="rounded-lg shadow-xl"
+                data-ai-hint="happy couple"
+              />
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-12">
+      {/* Pricing Plans Section */}
+      <div className="py-16 md:py-24">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="mb-12 text-center">
+            <h2 className="font-headline text-3xl font-bold md:text-4xl">
+              Choose Your Plan
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+              Select the plan that best suits your journey to finding a life
+              partner. We offer flexible options to meet your needs.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-12">
             {/* Free Plan */}
             <PlanCard
                 plan="Free"
@@ -94,12 +124,12 @@ export default function PricingPage() {
                     <><b>Profile Creation:</b> Always included</>,
                     <><b>Admin Verification:</b> Always included</>,
                     <><b>View Profile Details:</b> Basic Details Only</>,
-                    <><b>Contact & Chat:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
-                    <><b>Direct Messaging:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
-                    <><b>View Contact Info:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
-                    <><b>Photo Requests:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
-                    <><b>Priority Support:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
-                    <><b>Profile Boost:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>Contact & Chat:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
+                    <><b>Direct Messaging:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
+                    <><b>View Contact Info:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
+                    <><b>Photo Requests:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
+                    <><b>Priority Support:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
+                    <><b>Profile Boost:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
                 ]}
             />
              {/* Gold Plan */}
@@ -114,10 +144,10 @@ export default function PricingPage() {
                     <><b>View Profile Details:</b> Full Details (with consent)</>,
                     <><b>Contact & Chat:</b> Up to 10 new members/month</>,
                     <><b>Direct Messaging:</b> Limited Access</>,
-                    <><b>View Contact Info:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
-                    <><b>Photo Requests:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
-                    <><b>Priority Support:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
-                    <><b>Profile Boost:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>View Contact Info:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
+                    <><b>Photo Requests:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
+                    <><b>Priority Support:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
+                    <><b>Profile Boost:</b> <XCircle className="inline-block h-4 w-4 ml-1" /> Not Included</>,
                 ]}
             />
              {/* Platinum Plan */}
@@ -140,9 +170,11 @@ export default function PricingPage() {
                     <><b>Unlimited Admin Support:</b> Included</>,
                 ]}
             />
+          </div>
         </div>
+      </div>
 
-        <section className="mt-24 bg-secondary rounded-lg p-8 md:p-16">
+      <section className="bg-secondary rounded-lg p-8 md:p-16 mb-12 container mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="font-headline text-3xl font-bold text-primary">Our Commitment to Your Journey</h2>
@@ -166,7 +198,6 @@ export default function PricingPage() {
           </div>
         </section>
 
-      </div>
     </div>
   );
 }
