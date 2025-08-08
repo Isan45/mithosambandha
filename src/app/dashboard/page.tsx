@@ -59,12 +59,12 @@ const DetailItem = ({ icon: Icon, label, value, action }: any) => (
 );
 
 
-const InfoPill = ({ icon: Icon, value }: { icon: React.ElementType, value: string | number | null | undefined }) => (
-  <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm text-secondary-foreground">
-    <Icon className="h-4 w-4" />
-    <span className="font-medium">{value || 'N/A'}</span>
-  </div>
-);
+const InfoPill = ({ label, value }: { label: string, value: string | number | null | undefined }) => (
+    <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm text-secondary-foreground">
+      <span className="font-semibold">{label}:</span>
+      <span>{value || 'N/A'}</span>
+    </div>
+  );
 
 
 const VerificationStatus = ({ verified, onVerify }: { verified?: boolean; onVerify?: () => void; }) =>
@@ -237,17 +237,17 @@ export default function DashboardPage() {
                           <div>
                               <h4 className="font-semibold text-primary text-lg mb-3">Personal Details</h4>
                               <div className="flex flex-wrap gap-2">
-                                <InfoPill icon={User} value={p.gender} />
-                                <InfoPill icon={Cake} value={p.dob ? `${new Date().getFullYear() - new Date(p.dob).getFullYear()} yrs` : null} />
-                                <InfoPill icon={Scale} value={p.height ? `${p.height.feet}' ${p.height.inches}"` : null} />
-                                <InfoPill icon={Heart} value={p.religion} />
-                                <InfoPill icon={Sparkles} value={p.complexion} />
-                                <InfoPill icon={MapPin} value={p.currentLocation} />
-                                <InfoPill icon={Globe} value={p.nationality} />
-                                <InfoPill icon={Briefcase} value={p.career?.profession} />
-                                <InfoPill icon={Soup} value={p.dietaryHabits} />
-                                <InfoPill icon={Cigarette} value={p.smokingHabits} />
-                                <InfoPill icon={GlassWater} value={p.drinkingHabits} />
+                                <InfoPill label="Gender" value={p.gender} />
+                                <InfoPill label="Age" value={p.dob ? `${new Date().getFullYear() - new Date(p.dob).getFullYear()} yrs` : null} />
+                                <InfoPill label="Height" value={p.height ? `${p.height.feet}' ${p.height.inches}"` : null} />
+                                <InfoPill label="Religion" value={p.religion} />
+                                <InfoPill label="Complexion" value={p.complexion} />
+                                <InfoPill label="Location" value={p.currentLocation} />
+                                <InfoPill label="Nationality" value={p.nationality} />
+                                <InfoPill label="Profession" value={p.career?.profession} />
+                                <InfoPill label="Diet" value={p.dietaryHabits} />
+                                <InfoPill label="Smoking" value={p.smokingHabits} />
+                                <InfoPill label="Drinking" value={p.drinkingHabits} />
                               </div>
                           </div>
                         </div>
