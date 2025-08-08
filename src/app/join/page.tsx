@@ -106,7 +106,7 @@ export default function JoinPage() {
     <div className="flex min-h-full flex-col justify-center py-12 md:py-20">
       <div className="container mx-auto px-4 md:px-6">
         <Card className="mx-auto grid max-w-4xl grid-cols-1 overflow-hidden shadow-lg md:grid-cols-2">
-          <div className="relative hidden aspect-square md:block">
+          <div className="relative hidden md:block">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-4.avif?alt=media&token=d2fd5406-7175-419e-be6d-7da8c856f5db"
               alt="Happy couple celebrating their union"
