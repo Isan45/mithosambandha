@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase/client';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { LogOut, LayoutDashboard, Compass } from 'lucide-react';
+import { LogOut, LayoutDashboard, Compass, Search } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -53,6 +53,15 @@ export function Header() {
                 >
                   <Compass className="mr-2 h-4 w-4" />
                   Discover
+                </Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link
+                  href="/search"
+                  className={navLinkClasses('/search')}
+                >
+                  <Search className="mr-2 h-4 w-4" />
+                  Search
                 </Link>
               </Button>
               <Button variant="ghost" asChild>
