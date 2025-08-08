@@ -22,38 +22,66 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 100 }, (_, i) => currentYear - 18 - i);
+const months = [
+  { value: '01', label: 'January' },
+  { value: '02', label: 'February' },
+  { value: '03', label: 'March' },
+  { value: '04', label: 'April' },
+  { value: '05', label: 'May' },
+  { value: '06', label: 'June' },
+  { value: '07', label: 'July' },
+  { value: '08', label: 'August' },
+  { value: '09', label: 'September' },
+  { value: '10', label: 'October' },
+  { value: '11', label: 'November' },
+  { value: '12', label: 'December' },
+];
+const days = Array.from({ length: 31 }, (_, i) => (i + 1).toString().padStart(2, '0'));
+
 
 const personalInfoSchema = z.object({
   gender: z.enum(['male', 'female', 'other'], {
     required_error: 'Please select your gender.',
   }),
-  dob: z.date({ required_error: 'Your date of birth is required.' }),
-  height: z.coerce.number().min(100, "Height must be in cm."),
+  dob_day: z.string({ required_error: 'Day is required.' }),
+  dob_month: z.string({ required_error: 'Month is required.' }),
+  dob_year: z.string({ required_error: 'Year is required.' }),
+  height: z.coerce.number().min(100, 'Height must be in cm.'),
   location: z.string().min(2, 'Please enter a valid location.'),
   caste: z.string().optional(),
   religion: z.string().optional(),
+}).refine(data => {
+    const { dob_year, dob_month, dob_day } = data;
+    const date = new Date(`${dob_year}-${dob_month}-${dob_day}`);
+    return date.getDate() === parseInt(dob_day, 10);
+}, {
+    message: "The selected date is invalid.",
+    path: ["dob_day"],
 });
+
+type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
 
 export default function CreateProfilePage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof personalInfoSchema>>({
+  const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
       location: '',
@@ -62,7 +90,7 @@ export default function CreateProfilePage() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof personalInfoSchema>) {
+  async function onSubmit(values: PersonalInfoFormValues) {
     if (!user) {
       toast({
         variant: 'destructive',
@@ -71,12 +99,15 @@ export default function CreateProfilePage() {
       });
       return;
     }
+    
+    const { dob_day, dob_month, dob_year, ...restOfValues } = values;
+    const dob = new Date(`${dob_year}-${dob_month}-${dob_day}`).toISOString();
 
     try {
       const userDocRef = doc(db, 'users', user.uid);
       await updateDoc(userDocRef, {
-        ...values,
-        dob: values.dob.toISOString(),
+        ...restOfValues,
+        dob,
         profileStatus: 'in-progress-personal',
       });
 
@@ -167,47 +198,68 @@ export default function CreateProfilePage() {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="dob"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>Date of birth</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={'outline'}
-                                className={cn(
-                                  'w-full pl-3 text-left font-normal',
-                                  !field.value && 'text-muted-foreground'
-                                )}
-                              >
-                                {field.value ? (
-                                  format(field.value, 'PPP')
-                                ) : (
-                                  <span>Pick a date</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() || date < new Date('1920-01-01')
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div>
+                     <FormLabel>Date of birth</FormLabel>
+                    <div className="mt-2 grid grid-cols-3 gap-4">
+                       <FormField
+                        control={form.control}
+                        name="dob_day"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Day" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {days.map(day => <SelectItem key={day} value={day}>{day}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                       <FormField
+                        control={form.control}
+                        name="dob_month"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Month" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {months.map(month => <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                             <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="dob_year"
+                        render={({ field }) => (
+                          <FormItem>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Year" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {years.map(year => <SelectItem key={year} value={year.toString()}>{year}</SelectItem>)}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
 
                   <FormField
                     control={form.control}
