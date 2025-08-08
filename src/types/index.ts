@@ -1,3 +1,4 @@
+
 export type Profile = {
   id: string;
   name: string;
@@ -18,6 +19,7 @@ export type UserProfile = {
     | 'incomplete'
     | 'in-progress-personal'
     | 'in-progress-education'
+    | 'in-progress-career'
     | 'in-progress-about'
     | 'in-progress-photos'
     | 'pending-review'

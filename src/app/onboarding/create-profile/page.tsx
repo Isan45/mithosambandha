@@ -21,13 +21,6 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -42,6 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 const personalInfoSchema = z.object({
   gender: z.enum(['male', 'female', 'other'], {
@@ -57,6 +51,7 @@ const personalInfoSchema = z.object({
 export default function CreateProfilePage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof personalInfoSchema>>({
     resolver: zodResolver(personalInfoSchema),
@@ -81,7 +76,7 @@ export default function CreateProfilePage() {
       const userDocRef = doc(db, 'users', user.uid);
       await updateDoc(userDocRef, {
         ...values,
-        'profile.personalInfo': values, // nest under profile object
+        dob: values.dob.toISOString(),
         profileStatus: 'in-progress-personal',
       });
 
@@ -89,7 +84,7 @@ export default function CreateProfilePage() {
         title: 'Personal Info Saved!',
         description: "Let's move to the next step.",
       });
-      // Here you would navigate to the next step, e.g., router.push('/onboarding/education-work');
+      router.push('/onboarding/education');
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
@@ -117,7 +112,7 @@ export default function CreateProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle className="font-headline text-xl">
-                Step 2: Personal Information
+                Step 1: Personal Information
               </CardTitle>
               <CardDescription>
                 Tell us a little more about yourself.
