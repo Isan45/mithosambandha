@@ -5,19 +5,65 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
-import { Loader2, Edit, Settings, Upload, UserCheck } from 'lucide-react';
+import {
+  Loader2,
+  Edit,
+  User,
+  Heart,
+  MessageSquare,
+  Users,
+  Eye,
+  Camera,
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react';
 import type { UserProfile } from '@/types';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
 
-// Mock handler for button clicks until they are implemented
-const handleAction = (action: string) => {
-  alert(`Action: ${action} not implemented yet!`);
+const StatCard = ({ icon: Icon, value, label, isLoading }: any) => (
+  <Card className="text-center">
+    <CardContent className="p-4">
+      {isLoading ? (
+        <div className="flex flex-col items-center gap-2">
+           <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+           <div className="h-4 w-12 rounded-md bg-muted animate-pulse" />
+        </div>
+      ) : (
+        <>
+          <Icon className="mx-auto h-8 w-8 text-primary" />
+          <p className="mt-2 text-2xl font-bold">{value}</p>
+          <p className="text-sm text-muted-foreground">{label}</p>
+        </>
+      )}
+    </CardContent>
+  </Card>
+);
+
+const ProfileDetailItem = ({ label, value }: { label: string, value: string | number | undefined }) => {
+    if(!value) return null;
+    return (
+        <div>
+            <p className="text-sm font-medium text-muted-foreground">{label}</p>
+            <p className="mt-1 text-base">{value}</p>
+        </div>
+    )
 };
+
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -27,10 +73,6 @@ export default function DashboardPage() {
           const userDoc = await getDoc(userDocRef);
           if (userDoc.exists()) {
             setProfile(userDoc.data() as UserProfile);
-          } else {
-            // This case might happen if the user document is not created yet
-            // Redirecting to onboarding might be an option here
-            console.log("No profile document found for user.");
           }
         } catch (error) {
           console.error('Error fetching user profile:', error);
@@ -43,6 +85,9 @@ export default function DashboardPage() {
     }
     fetchProfile();
   }, [user]);
+  
+  const p = profile?.profile;
+  const photos = p?.galleryPhotos?.length ? p.galleryPhotos : ['https://placehold.co/800x600/E5E7EB/4B5563?text=Photo'];
 
   if (loading) {
     return (
@@ -52,7 +97,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!profile) {
+  if (!profile || !p) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <p className="text-muted-foreground">Could not load your profile. Please try again later.</p>
@@ -60,135 +105,126 @@ export default function DashboardPage() {
     );
   }
 
-  const photos = profile.profile?.galleryPhotos?.length > 0 ? profile.profile.galleryPhotos : ['https://placehold.co/800x600/E5E7EB/4B5563?text=Photo+1'];
-  
-  const goToNextPhoto = () => {
-    setCurrentPhotoIndex((prevIndex) => (prevIndex + 1) % photos.length);
-  };
-
-  const goToPrevPhoto = () => {
-    setCurrentPhotoIndex((prevIndex) => (prevIndex - 1 + photos.length) % photos.length);
-  };
-  
-  const p = profile.profile; // shorthand
 
   return (
-    <div className="min-h-screen bg-secondary/30 p-4 sm:p-8">
-      <div className="container mx-auto max-w-4xl">
-        <div className="bg-background rounded-2xl shadow-xl overflow-hidden">
-          
-          <div className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between border-b">
-            <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl font-bold font-headline text-foreground leading-tight">
-                Welcome, {profile.fullName}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                This is your personal dashboard.
-              </p>
-            </div>
-            <div className="mt-4 sm:mt-0 flex-shrink-0 flex space-x-3">
-              <button
-                onClick={() => handleAction('Edit Profile')}
-                className="flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition duration-300"
-              >
-                <Edit size={18} className="mr-2" />
-                <span className="hidden sm:inline">Edit Profile</span>
-              </button>
-              <button
-                onClick={() => handleAction('Manage Preferences')}
-                className="flex items-center px-4 py-2 bg-muted text-muted-foreground rounded-full shadow-lg hover:bg-muted/80 transition duration-300"
-              >
-                <Settings size={18} className="mr-2" />
-                <span className="hidden sm:inline">Preferences</span>
-              </button>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-6 sm:p-8">
-            <div>
-              <div className="relative rounded-xl overflow-hidden shadow-lg h-96">
-                <img
-                  src={photos[currentPhotoIndex]}
-                  alt={`User photo ${currentPhotoIndex + 1}`}
-                  className="w-full h-full object-cover transition-opacity duration-500"
-                  data-ai-hint="person portrait"
-                />
+    <div className="min-h-screen bg-secondary/30">
+        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 
-                {photos.length > 1 && (
-                  <>
-                    <button
-                      onClick={goToPrevPhoto}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
-                    >
-                      &#9664;
-                    </button>
-                    <button
-                      onClick={goToNextPhoto}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
-                    >
-                      &#9654;
-                    </button>
-                  </>
-                )}
-                
-                <div className="absolute bottom-4 left-4 flex space-x-2">
-                  {p?.idDocument && (
-                    <div className="flex items-center bg-green-500 text-white text-sm font-semibold px-3 py-1 rounded-full shadow-md">
-                      <UserCheck size={16} className="mr-1" />
-                      Govt Verified
+                {/* Main Content */}
+                <div className="lg:col-span-8 space-y-8">
+                    {/* My Profile Section */}
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle className="font-headline text-2xl">My Profile</CardTitle>
+                            <Button variant="outline" size="sm"><Edit className="mr-2 h-4 w-4"/>Edit Profile</Button>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="md:col-span-1">
+                                <div className="relative aspect-square w-full rounded-lg overflow-hidden shadow-md">
+                                     <Image src={p.profilePhoto || photos[0]} alt="Profile Photo" fill style={{ objectFit: 'cover' }} data-ai-hint="person portrait" />
+                                     <div className="absolute top-2 right-2">
+                                        <Button size="icon" variant="secondary" className="h-8 w-8">
+                                            <Camera className="h-4 w-4"/>
+                                        </Button>
+                                     </div>
+                                </div>
+                            </div>
+                            <div className="md:col-span-2 space-y-4">
+                                <div>
+                                    <h3 className="text-2xl font-bold font-headline">{profile.fullName}</h3>
+                                    <p className="text-muted-foreground">{p.currentLocation}</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold mb-2">About Me</h4>
+                                    <p className="text-sm text-muted-foreground leading-relaxed">{p.bio || "No bio provided."}</p>
+                                </div>
+                                <Separator />
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <ProfileDetailItem label="Age" value={p.dob ? new Date().getFullYear() - new Date(p.dob).getFullYear() : undefined} />
+                                    <ProfileDetailItem label="Profession" value={p.career?.profession} />
+                                    <ProfileDetailItem label="Education" value={p.education?.highestEducation} />
+                                    <ProfileDetailItem label="Religion" value={p.religion} />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Pending Responses Placeholder */}
+                    <Card>
+                         <CardHeader>
+                            <CardTitle className="font-headline text-2xl">Pending Responses</CardTitle>
+                        </CardHeader>
+                        <CardContent className="text-center text-muted-foreground">
+                            <p>You have no pending interest requests.</p>
+                            <Button variant="link" className="mt-2">View All</Button>
+                        </CardContent>
+                    </Card>
+
+                </div>
+
+                {/* Right Sidebar */}
+                <div className="lg:col-span-4 space-y-8">
+                    {/* Profile Status */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline text-xl">Profile Status</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                           {profile.profileStatus === 'approved' ? (
+                               <div className="flex items-center gap-3 text-green-600">
+                                   <CheckCircle className="h-5 w-5" />
+                                   <p className="font-semibold">Your profile is approved and live.</p>
+                               </div>
+                           ) : (
+                               <div className="flex items-center gap-3 text-amber-600">
+                                   <AlertCircle className="h-5 w-5" />
+                                   <p className="font-semibold">Your profile is pending review.</p>
+                               </div>
+                           )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Activity Summary */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <StatCard icon={Heart} value={12} label="New Matches" isLoading={loading} />
+                        <StatCard icon={MessageSquare} value={3} label="Interests" isLoading={loading} />
+                        <StatCard icon={Eye} value={45} label="Profile Views" isLoading={loading} />
+                        <StatCard icon={Users} value={8} label="Shortlisted" isLoading={loading} />
                     </div>
-                  )}
+
+                    {/* Latest Matches Placeholder */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="font-headline text-xl">Latest Matches</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                           {/* Placeholder for matched profiles */}
+                           <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-lg bg-muted flex-shrink-0">
+                                    <Image src="https://placehold.co/100x100.png" width={100} height={100} alt="match" className="rounded-lg" data-ai-hint="person portrait"/>
+                                </div>
+                                <div>
+                                    <p className="font-semibold">Sarita K.</p>
+                                    <p className="text-xs text-muted-foreground">28 yrs, Pokhara</p>
+                                </div>
+                           </div>
+                           <div className="flex items-center gap-4">
+                                <div className="w-16 h-16 rounded-lg bg-muted flex-shrink-0">
+                                     <Image src="https://placehold.co/100x100.png" width={100} height={100} alt="match" className="rounded-lg" data-ai-hint="person portrait"/>
+                                </div>
+                                <div>
+                                    <p className="font-semibold">Rina T.</p>
+                                    <p className="text-xs text-muted-foreground">29 yrs, Lalitpur</p>
+                                </div>
+                           </div>
+                           <Button className="w-full mt-4">View All Matches</Button>
+                        </CardContent>
+                    </Card>
+
                 </div>
-
-                <button
-                    onClick={() => handleAction('Upload Photo')}
-                    className="absolute top-4 right-4 bg-white text-gray-800 p-2 rounded-full shadow-lg hover:bg-gray-200 transition"
-                >
-                    <Upload size={20} />
-                </button>
-
-              </div>
             </div>
-
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-xl font-bold font-headline mb-2">My Bio</h2>
-                <p className="text-muted-foreground leading-relaxed">{p?.bio || "No bio provided."}</p>
-              </div>
-              
-              <div>
-                <h2 className="text-xl font-bold font-headline mb-2">My Details</h2>
-                <div className="bg-muted/50 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Age</p>
-                    <p className="mt-1 text-base">{p?.dob ? new Date().getFullYear() - new Date(p.dob).getFullYear() : 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Location</p>
-                    <p className="mt-1 text-base">{p?.currentLocation || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Wants Kids</p>
-                    <p className="mt-1 text-base capitalize">{p?.partnerPreferences?.wantsKids || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Family Type</p>
-                    <p className="mt-1 text-base capitalize">{p?.partnerPreferences?.familyType || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Education</p>
-                    <p className="mt-1 text-base">{p?.education?.highestEducation || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Religion</p>
-                    <p className="mt-1 text-base">{p?.religion || 'N/A'}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
   );
 };
