@@ -21,6 +21,7 @@ import {
   Eye,
   HeartHandshake,
   Users,
+  Edit,
 } from 'lucide-react';
 import type { UserProfile } from '@/types';
 import Image from 'next/image';
@@ -144,8 +145,31 @@ export default function DashboardPage() {
   const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
 
   const isSectionIncomplete = (section: string) => {
-    // A more robust check based on your profileStatus logic
-    return profile.profileStatus?.includes(section);
+    if (!profile.profileStatus) return true;
+    if (profile.profileStatus === 'incomplete') return true;
+
+    const sections = ['education', 'career', 'partner-preferences', 'photos'];
+    const requiredForStatus: {[key: string]: string[]} = {
+        'in-progress-education': [],
+        'in-progress-career': ['education'],
+        'in-progress-partner-preferences': ['education', 'career'],
+        'pending-review': ['education', 'career', 'partner-preferences', 'photos']
+    };
+
+    const statusKey = profile.profileStatus;
+
+    if (requiredForStatus[statusKey] && !requiredForStatus[statusKey].includes(section)) {
+        return true;
+    }
+    
+    // A simple check to see if the main objects exist
+    if (section === 'education' && !p.education) return true;
+    if (section === 'career' && !p.career) return true;
+    if (section === 'partner-preferences' && !p.partnerPreferences) return true;
+    if (section === 'photos' && (!p.galleryPhotos || p.galleryPhotos.length < 1)) return true;
+
+
+    return false;
   };
   
   const pp = p.partnerPreferences;
@@ -186,12 +210,20 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="space-y-4 md:col-span-2">
-                        <h3 className="font-headline text-2xl font-bold">
-                            {profile.fullName}
-                        </h3>
-                        <p className="text-muted-foreground">
-                            Lives in {p.currentLocation || 'N/A'}
-                        </p>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-headline text-2xl font-bold">
+                                {profile.fullName}
+                            </h3>
+                            <p className="text-muted-foreground">
+                                Lives in {p.currentLocation || 'N/A'}
+                            </p>
+                          </div>
+                          <Button asChild variant="outline" size="sm">
+                            <Link href="/onboarding/create-profile"><Edit className="mr-2 h-4 w-4" />Edit Profile</Link>
+                          </Button>
+                        </div>
+
                         <Separator />
                         <div>
                             <h4 className="font-semibold">About Me</h4>
@@ -214,7 +246,7 @@ export default function DashboardPage() {
                 </Card>
 
                 {/* Education Section */}
-                <ProfileSection title="Education & Career" icon={GraduationCap} isIncomplete={isSectionIncomplete('education') || isSectionIncomplete('career')} editPath="/onboarding/education">
+                <ProfileSection title="Education & Career" icon={GraduationCap} isIncomplete={true} editPath="/onboarding/education">
                     <p><strong>Highest Education:</strong> {p.education?.highestEducation || 'N/A'}</p>
                     <p><strong>College/University:</strong> {p.education?.college || 'N/A'}</p>
                     <p><strong>Profession:</strong> {p.career?.profession || 'N/A'}</p>
@@ -222,7 +254,7 @@ export default function DashboardPage() {
                 </ProfileSection>
 
                 {/* Partner Preferences Section */}
-                <ProfileSection title="Partner Preferences" icon={Heart} isIncomplete={!p.partnerPreferences} editPath="/onboarding/partner-preferences">
+                <ProfileSection title="Partner Preferences" icon={Heart} isIncomplete={isSectionIncomplete('partner-preferences')} editPath="/onboarding/partner-preferences">
                     {!p.partnerPreferences && (
                         <div className="flex items-center gap-3 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-amber-700">
                             <AlertCircle className="h-5 w-5 flex-shrink-0" />
