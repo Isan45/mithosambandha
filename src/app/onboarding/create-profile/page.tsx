@@ -61,7 +61,8 @@ const personalInfoSchema = z.object({
   dob_day: z.string({ required_error: 'Day is required.' }),
   dob_month: z.string({ required_error: 'Month is required.' }),
   dob_year: z.string({ required_error: 'Year is required.' }),
-  height: z.coerce.number().min(100, 'Height must be in cm.'),
+  height_ft: z.coerce.number().int().min(3, "Invalid feet value").max(7, "Invalid feet value"),
+  height_in: z.coerce.number().int().min(0, "Invalid inches value").max(11, "Invalid inches value"),
   location: z.string().min(2, 'Please enter a valid location.'),
   caste: z.string().optional(),
   religion: z.string().optional(),
@@ -100,14 +101,16 @@ export default function CreateProfilePage() {
       return;
     }
     
-    const { dob_day, dob_month, dob_year, ...restOfValues } = values;
+    const { dob_day, dob_month, dob_year, height_ft, height_in, ...restOfValues } = values;
     const dob = new Date(`${dob_year}-${dob_month}-${dob_day}`).toISOString();
+    const height = { feet: height_ft, inches: height_in };
 
     try {
       const userDocRef = doc(db, 'users', user.uid);
       await updateDoc(userDocRef, {
         ...restOfValues,
         dob,
+        height,
         profileStatus: 'in-progress-personal',
       });
 
@@ -261,19 +264,35 @@ export default function CreateProfilePage() {
                     </div>
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="height"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Height (in cm)</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="e.g. 175" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div>
+                    <FormLabel>Height</FormLabel>
+                    <div className="mt-2 grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="height_ft"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input type="number" placeholder="Feet" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="height_in"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input type="number" placeholder="Inches" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
 
                   <FormField
                     control={form.control}
