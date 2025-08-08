@@ -114,6 +114,8 @@ export default function PhotosPage() {
         }
         setter(filesArray);
         const newPreviews = filesArray.map(file => URL.createObjectURL(file));
+        // When selecting new gallery photos, revoke old ones to prevent memory leaks
+        galleryPreviews.forEach(p => URL.revokeObjectURL(p));
         previewSetter(newPreviews);
       } else {
         const file = e.target.files[0];
@@ -157,7 +159,7 @@ export default function PhotosPage() {
 
   const handleSubmit = async () => {
     if (!profilePhoto) {
-      toast({ variant: 'destructive', title: 'Profile Photo Required', description: 'Please upload a profile photo to continue.' });
+      toast({ variant: 'destructive', title: 'Profile Photo Required', description: 'Please upload a profile photo to continue. This is the main photo that represents you.' });
       return;
     }
     if (!user) {
