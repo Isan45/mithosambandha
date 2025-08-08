@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
 import { Textarea } from '@/components/ui/textarea';
@@ -59,6 +59,39 @@ const PartnerPreferencesPage = () => {
     
     // State for validation errors
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+    useEffect(() => {
+        async function fetchPreferences() {
+            if (!user) return;
+            const userDocRef = doc(db, 'users', user.uid);
+            const docSnap = await getDoc(userDocRef);
+            if (docSnap.exists() && docSnap.data().profile?.partnerPreferences) {
+                const pp = docSnap.data().profile.partnerPreferences;
+                setFormState({
+                    partnerAgeMin: pp.age?.min?.toString() || '',
+                    partnerAgeMax: pp.age?.max?.toString() || '',
+                    partnerHeightFtMin: pp.height?.minFt?.toString() || '',
+                    partnerHeightInMin: pp.height?.minIn?.toString() || '',
+                    partnerHeightFtMax: pp.height?.maxFt?.toString() || '',
+                    partnerHeightInMax: pp.height?.maxIn?.toString() || '',
+                    partnerWantsKids: pp.wantsKids || '',
+                    partnerRelocate: pp.relocate || '',
+                    partnerEarning: pp.earning || '',
+                    partnerFamilyType: pp.familyType || '',
+                    partnerEducation: pp.education || '',
+                    partnerOccupation: pp.occupation || '',
+                    partnerReligion: pp.religion || '',
+                    partnerCaste: pp.caste || '',
+                    partnerDietaryHabits: pp.dietaryHabits || '',
+                    partnerSmokingHabits: pp.smokingHabits || '',
+                    partnerDrinkingHabits: pp.drinkingHabits || '',
+                    partnerCurrentLocation: pp.currentLocation || '',
+                    additionalPreferences: pp.additionalPreferences || '',
+                });
+            }
+        }
+        fetchPreferences();
+    }, [user]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -125,14 +158,14 @@ const PartnerPreferencesPage = () => {
             const userDocRef = doc(db, 'users', user.uid);
             await setDoc(userDocRef, {
                 'profile.partnerPreferences': partnerPreferences,
-                profileStatus: 'pending-review',
+                profileStatus: 'in-progress-photos',
             }, { merge: true });
 
             toast({
-                title: 'Profile Submitted!',
-                description: "Your profile has been submitted for review. We'll notify you once it's approved.",
+                title: 'Preferences Saved!',
+                description: "Now, let's add some photos.",
             });
-            router.push('/dashboard');
+            router.push('/onboarding/photos');
         } catch (error) {
             console.error('Error updating profile:', error);
             toast({
@@ -151,7 +184,7 @@ const PartnerPreferencesPage = () => {
                 <div className="mx-auto max-w-2xl">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="font-headline text-xl">Your Partner Preferences</CardTitle>
+                            <CardTitle className="font-headline text-xl">Step 4: Your Partner Preferences</CardTitle>
                             <CardDescription>
                                 Help us understand what you're looking for in a life partner. The more details you provide, the better the matches.
                             </CardDescription>
@@ -306,7 +339,7 @@ const PartnerPreferencesPage = () => {
                                 </div>
                                 
                                 <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-                                  {isSubmitting ? 'Saving...' : 'Submit Profile for Review'}
+                                  {isSubmitting ? 'Saving...' : 'Save & Continue'}
                                 </Button>
                             </form>
                         </CardContent>
@@ -318,3 +351,5 @@ const PartnerPreferencesPage = () => {
 }
 
 export default PartnerPreferencesPage;
+
+    

@@ -24,6 +24,7 @@ export type UserProfile = {
     | 'in-progress-education'
     | 'in-progress-career'
     | 'in-progress-partner-preferences'
+    | 'in-progress-photos'
     | 'pending-review'
     | 'approved'
     | 'rejected';
