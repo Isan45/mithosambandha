@@ -261,31 +261,6 @@ export default function DashboardPage() {
 
              {/* Right Column */}
             <div className="lg:col-span-1 space-y-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Profile Status</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {profile.profileStatus === 'approved' ? (
-                             <div className="flex items-center gap-3 rounded-md bg-green-500/10 p-4 text-green-700">
-                                <CheckCircle className="h-6 w-6" />
-                                <div>
-                                    <h4 className="font-semibold">Your Profile is Live!</h4>
-                                    <p className="text-sm">Your profile is approved and visible to others.</p>
-                                </div>
-                            </div>
-                        ) : (
-                             <div className="flex items-center gap-3 rounded-md bg-amber-500/10 p-4 text-amber-700">
-                                <Loader2 className="h-6 w-6 animate-spin" />
-                                <div>
-                                    <h4 className="font-semibold">Pending Review</h4>
-                                    <p className="text-sm">Our team is reviewing your profile. You'll be notified upon approval.</p>
-                                </div>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
-
                 <div className="space-y-4">
                     <AnalyticsCard icon={HeartHandshake} value="12" title="New Matches" period="+3 this week" />
                     <AnalyticsCard icon={Eye} value="152" title="Profile Views" period="+20% this month" />
