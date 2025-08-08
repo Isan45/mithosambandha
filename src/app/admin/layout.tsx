@@ -8,6 +8,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
+  SidebarFooter,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import {
@@ -15,6 +16,7 @@ import {
   Users,
   HeartHandshake,
   LogOut,
+  Heart,
 } from 'lucide-react';
 
 export default function AdminLayout({
@@ -27,7 +29,12 @@ export default function AdminLayout({
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center justify-between">
-            <h2 className="font-headline text-2xl text-primary">Admin</h2>
+            <div className="flex items-center gap-2">
+              <Heart className="h-6 w-6 text-primary" />
+              <h2 className="font-headline text-xl text-primary">
+                Mitho Sambandha
+              </h2>
+            </div>
             <SidebarTrigger />
           </div>
         </SidebarHeader>
@@ -57,7 +64,11 @@ export default function AdminLayout({
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem className="mt-auto">
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link href="/">
                   <LogOut />
@@ -66,7 +77,7 @@ export default function AdminLayout({
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
-        </SidebarContent>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>

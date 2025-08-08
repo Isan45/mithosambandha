@@ -12,9 +12,9 @@ export function Header() {
             Mitho Sambandha
           </span>
         </Link>
-        <nav className="flex items-center gap-4">
+        <nav className="hidden items-center gap-4 md:flex">
           <Button variant="ghost" asChild>
-            <Link href="/#featured">Featured Profiles</Link>
+            <Link href="/">Home</Link>
           </Button>
           <Button variant="ghost" asChild>
             <Link href="/admin">Admin Login</Link>
@@ -26,6 +26,7 @@ export function Header() {
             <Link href="/join">Join Now</Link>
           </Button>
         </nav>
+        {/* Add a mobile menu trigger here if needed in the future */}
       </div>
     </header>
   );
