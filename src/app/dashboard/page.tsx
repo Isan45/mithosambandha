@@ -59,13 +59,13 @@ export default function DashboardPage() {
   const getProgress = () => {
     switch (profile?.profileStatus) {
       case 'incomplete':
-        return 10;
+        return 20;
       case 'in-progress-education':
-        return 25;
+        return 40;
       case 'in-progress-career':
-        return 50;
+        return 60;
       case 'in-progress-partner-preferences':
-        return 75;
+        return 80;
       case 'pending-review':
       case 'approved':
         return 100;
@@ -77,9 +77,9 @@ export default function DashboardPage() {
   const progress = getProgress();
   const steps = [
     { name: 'Create Account', completed: true },
-    { name: 'Personal Information', completed: progress > 10 },
-    { name: 'Education & Career', completed: progress > 25 },
-    { name: 'Partner Preferences', completed: progress > 50 },
+    { name: 'Personal Information', completed: progress >= 40 },
+    { name: 'Education & Career', completed: progress >= 60 },
+    { name: 'Partner Preferences', completed: progress >= 80 },
     { name: 'Profile Submitted', completed: progress === 100 },
   ];
 
@@ -93,8 +93,11 @@ export default function DashboardPage() {
         return '/onboarding/career';
       case 'in-progress-partner-preferences':
         return '/onboarding/partner-preferences';
+      case 'pending-review':
+      case 'approved':
+        return '/dashboard'; // Stay on dashboard if complete
       default:
-        return '#';
+        return '/';
     }
   }
 

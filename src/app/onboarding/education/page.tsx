@@ -68,7 +68,7 @@ export default function EducationPage() {
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
         'profile.education': values,
-        profileStatus: 'in-progress-education',
+        profileStatus: 'in-progress-career',
       }, { merge: true });
 
       toast({
