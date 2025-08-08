@@ -63,6 +63,7 @@ const personalInfoSchema = z.object({
   dob_year: z.string({ required_error: 'Year is required.' }),
   height_ft: z.coerce.number().int().min(3, "Invalid feet value").max(7, "Invalid feet value"),
   height_in: z.coerce.number().int().min(0, "Invalid inches value").max(11, "Invalid inches value"),
+  phoneNumber: z.string().optional(),
   nationality: z.string().optional(),
   currentLocation: z.string().min(2, 'Please enter a valid location.'),
   permanentAddress: z.string().optional(),
@@ -100,6 +101,7 @@ export default function CreateProfilePage() {
       dietaryHabits: '',
       smokingHabits: '',
       drinkingHabits: '',
+      phoneNumber: '',
       height_ft: undefined,
       height_in: undefined,
     },
@@ -307,6 +309,20 @@ export default function CreateProfilePage() {
                       />
                     </div>
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number (Optional)</FormLabel>
+                        <FormControl>
+                          <Input type="tel" placeholder="e.g. +1 123 456 7890" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <FormField
                       control={form.control}
