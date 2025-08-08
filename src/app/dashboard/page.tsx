@@ -39,6 +39,7 @@ import { ProfileSection } from '@/components/dashboard/profile-section';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Label } from '@/components/ui/label';
 
 const DetailItem = ({ icon: Icon, label, value, action }: any) => (
   <div className="flex items-start justify-between py-3 border-b border-border/50">
