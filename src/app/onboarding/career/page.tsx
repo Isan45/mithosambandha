@@ -69,7 +69,7 @@ export default function CareerPage() {
         title: 'Career Info Saved!',
         description: "Let's move to the next step.",
       });
-      router.push('/onboarding/about');
+      router.push('/onboarding/partner-preferences');
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
@@ -160,3 +160,5 @@ export default function CareerPage() {
     </div>
   );
 }
+
+    

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
@@ -26,6 +26,9 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { generateBio } from '@/ai/flows/generate-bio';
+import { Wand2, Loader2 } from 'lucide-react';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 100 }, (_, i) => currentYear - 18 - i);
@@ -51,6 +54,7 @@ export default function CreateProfilePage() {
     const { toast } = useToast();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isGeneratingBio, setIsGeneratingBio] = useState(false);
 
     // State for all form fields, initialized with empty strings
     const [formState, setFormState] = useState({
@@ -70,11 +74,12 @@ export default function CreateProfilePage() {
         dietaryHabits: '',
         smokingHabits: '',
         drinkingHabits: '',
+        bio: '',
     });
 
     const [errors, setErrors] = useState<any>({});
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormState(prev => ({ ...prev, [name]: value }));
     };
@@ -109,6 +114,42 @@ export default function CreateProfilePage() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+    
+    const handleGenerateBio = async () => {
+        setIsGeneratingBio(true);
+        if (!user) {
+            toast({ variant: 'destructive', title: 'Not Authenticated' });
+            setIsGeneratingBio(false);
+            return;
+        }
+
+        try {
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
+            const existingData = userDoc.exists() ? userDoc.data() : {};
+
+            const dob = new Date(`${formState.dob_year}-${formState.dob_month}-${formState.dob_day}`);
+            const age = new Date().getFullYear() - dob.getFullYear();
+
+            const bioInput = {
+                age,
+                gender: formState.gender,
+                location: formState.currentLocation,
+                education: existingData.profile?.education?.highestEducation || '',
+                profession: existingData.profile?.career?.profession || '',
+            };
+            
+            const generatedBioText = await generateBio(bioInput);
+            setFormState(prev => ({ ...prev, bio: generatedBioText.bio }));
+
+        } catch (error) {
+            console.error("Error generating bio:", error);
+            toast({ variant: 'destructive', title: 'Bio Generation Failed', description: 'Could not generate a bio at this time.' });
+        } finally {
+            setIsGeneratingBio(false);
+        }
+    };
+
 
     async function onSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -143,7 +184,7 @@ export default function CreateProfilePage() {
             const userDocRef = doc(db, 'users', user.uid);
             await setDoc(userDocRef, {
                 profile: profileData,
-                profileStatus: 'in-progress-personal',
+                profileStatus: 'in-progress-education',
             }, { merge: true });
 
             toast({
@@ -330,6 +371,38 @@ export default function CreateProfilePage() {
                                     </div>
                                 </div>
 
+                                 <div>
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="bio">About You / Bio</Label>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={handleGenerateBio}
+                                            disabled={isGeneratingBio}
+                                        >
+                                            {isGeneratingBio ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Wand2 className="mr-2 h-4 w-4" />
+                                            )}
+                                            Generate with AI
+                                        </Button>
+                                    </div>
+                                    <Textarea
+                                        id="bio"
+                                        name="bio"
+                                        placeholder="Tell us about yourself. You can generate a draft with AI."
+                                        className="mt-2 min-h-[120px]"
+                                        value={formState.bio}
+                                        onChange={handleChange}
+                                    />
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                        This will be the main summary on your profile.
+                                    </p>
+                                </div>
+
+
                                 <Button
                                     type="submit"
                                     size="lg"
@@ -346,3 +419,5 @@ export default function CreateProfilePage() {
         </div>
     );
 }
+
+    
