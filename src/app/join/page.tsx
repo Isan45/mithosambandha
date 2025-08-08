@@ -89,10 +89,8 @@ export default function JoinPage() {
         description: "Let's continue building your profile.",
       });
 
-      setIsSubmitted(true);
-      // We can redirect to the next step of the profile builder here
-      // For now, we'll just show a success message.
-      // router.push('/onboarding/step-2');
+      // No longer show a success page, redirect directly to the profile builder
+      router.push('/onboarding/create-profile');
     } catch (error: any) {
       console.error('Signup Error:', error);
       toast({
@@ -106,28 +104,8 @@ export default function JoinPage() {
     }
   }
 
-  if (isSubmitted) {
-    return (
-      <div className="py-12 md:py-20">
-        <div className="container mx-auto max-w-xl px-4 md:px-6">
-          <Card className="p-8 text-center md:p-12">
-            <PartyPopper className="mx-auto h-16 w-16 text-accent" />
-            <h2 className="font-headline mt-4 text-3xl">Welcome!</h2>
-            <p className="mt-2 text-lg text-muted-foreground">
-              Your account has been created. The next steps will guide you
-              through building your profile to find the best matches.
-            </p>
-            <Button
-              className="mt-6"
-              onClick={() => router.push('/admin')}
-            >
-              Continue to Dashboard
-            </Button>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  // This success message component is no longer needed as we redirect directly.
+  // We can keep it here for now or remove it. For this change, let's remove it for cleanliness.
 
   return (
     <div className="py-12 md:py-20">
