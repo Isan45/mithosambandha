@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative w-full flex items-center justify-center bg-secondary text-foreground">
+      <section className="relative w-full flex items-center justify-center bg-primary/10 text-foreground">
         <div className="container mx-auto grid grid-cols-1 items-center gap-8 px-4 py-12 md:grid-cols-2 md:px-6 md:py-20">
           <div className="text-center md:text-left">
             <h1 className="font-headline text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
@@ -36,7 +36,7 @@ export default function Home() {
               The most trusted matrimonial platform for the Nepali community
               worldwide.
             </p>
-            <div className="mt-8 flex justify-center md:justify-start">
+            <div className="mt-8 flex justify-center">
               <Button size="lg" asChild>
                 <Link href="/join">Join Now</Link>
               </Button>
