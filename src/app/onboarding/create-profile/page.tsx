@@ -63,7 +63,9 @@ const personalInfoSchema = z.object({
   dob_year: z.string({ required_error: 'Year is required.' }),
   height_ft: z.coerce.number().int().min(3, "Invalid feet value").max(7, "Invalid feet value"),
   height_in: z.coerce.number().int().min(0, "Invalid inches value").max(11, "Invalid inches value"),
-  location: z.string().min(2, 'Please enter a valid location.'),
+  nationality: z.string().optional(),
+  currentLocation: z.string().min(2, 'Please enter a valid location.'),
+  permanentAddress: z.string().optional(),
   caste: z.string().optional(),
   religion: z.string().optional(),
   complexion: z.string().optional(),
@@ -89,7 +91,9 @@ export default function CreateProfilePage() {
   const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
-      location: '',
+      currentLocation: '',
+      permanentAddress: '',
+      nationality: '',
       caste: '',
       religion: '',
       complexion: '',
@@ -303,8 +307,22 @@ export default function CreateProfilePage() {
                   </div>
 
                   <FormField
+                      control={form.control}
+                      name="nationality"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nationality (Optional)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g. Nepali" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                  <FormField
                     control={form.control}
-                    name="location"
+                    name="currentLocation"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Current Location</FormLabel>
@@ -315,6 +333,20 @@ export default function CreateProfilePage() {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                      control={form.control}
+                      name="permanentAddress"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Permanent Address (Optional)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g. Pokhara, Nepal" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
