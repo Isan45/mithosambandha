@@ -22,7 +22,7 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
@@ -66,10 +66,10 @@ export default function EducationPage() {
 
     try {
       const userDocRef = doc(db, 'users', user.uid);
-      await updateDoc(userDocRef, {
+      await setDoc(userDocRef, {
         'profile.education': values,
         profileStatus: 'in-progress-education',
-      });
+      }, { merge: true });
 
       toast({
         title: 'Education Info Saved!',

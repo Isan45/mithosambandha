@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
@@ -97,8 +97,8 @@ export default function CreateProfilePage() {
       dob_day: '',
       dob_month: '',
       dob_year: '',
-      height_ft: '',
-      height_in: '',
+      height_ft: undefined,
+      height_in: undefined,
       phoneNumber: '',
       nationality: '',
       currentLocation: '',
@@ -128,12 +128,12 @@ export default function CreateProfilePage() {
 
     try {
       const userDocRef = doc(db, 'users', user.uid);
-      await updateDoc(userDocRef, {
+      await setDoc(userDocRef, {
         ...restOfValues,
         dob,
         height,
         profileStatus: 'in-progress-personal',
-      });
+      }, { merge: true });
 
       toast({
         title: 'Personal Info Saved!',
