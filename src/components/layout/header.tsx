@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase/client';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { LogOut, LayoutDashboard, Compass, Search } from 'lucide-react';
+import { LogOut, LayoutDashboard, Compass, Search, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -73,6 +73,12 @@ export function Header() {
                 >
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   Dashboard
+                </Link>
+              </Button>
+               <Button variant="ghost" asChild>
+                <Link href="/settings" className={navLinkClasses('/settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
                 </Link>
               </Button>
               <Button variant="ghost" onClick={handleLogout}>
