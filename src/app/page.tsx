@@ -26,33 +26,28 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="w-full bg-secondary py-16 md:py-24">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12">
-            <div className="text-center md:text-left">
-              <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-5xl lg:text-6xl">
-                Finding Your Forever in the Nepali Way.
-              </h1>
-              <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground md:text-xl">
-                The most trusted matrimonial platform for the Nepali community
-                worldwide.
-              </p>
-              <div className="mt-8">
-                <Button size="lg" asChild>
-                  <Link href="/join">Join Now</Link>
-                </Button>
-              </div>
-            </div>
-            <div className="relative mx-auto h-[400px] w-[400px] lg:h-[500px] lg:w-[500px]">
-              <Image
-                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
-                alt="Joyful Nepali couple"
-                fill
-                style={{ objectFit: 'contain' }}
-                className="z-0"
-                priority
-              />
-            </div>
+      <section className="relative w-full h-[60vh] md:h-[75vh] flex items-center justify-center text-white">
+        <Image
+          src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
+          alt="Joyful Nepali couple"
+          fill
+          style={{ objectFit: 'cover' }}
+          className="z-0"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+        <div className="relative z-10 container mx-auto px-4 md:px-6 text-center">
+          <h1 className="font-headline text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl text-white shadow-lg">
+            Finding Your Forever in the Nepali Way.
+          </h1>
+          <p className="mx-auto mt-4 max-w-3xl text-lg md:text-xl text-white/90">
+            The most trusted matrimonial platform for the Nepali community
+            worldwide.
+          </p>
+          <div className="mt-8">
+            <Button size="lg" asChild>
+              <Link href="/join">Join Now</Link>
+            </Button>
           </div>
         </div>
       </section>
