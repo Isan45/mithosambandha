@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
@@ -17,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { doc, setDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db } from '@/lib/firebase/client';
-import { Loader2, UploadCloud, Image as ImageIcon, X, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Loader2, UploadCloud, Image as ImageIcon, X, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 
 const FileUploadArea = ({
@@ -183,8 +182,8 @@ export default function PhotosPage() {
       await setDoc(userDocRef, {
         profile: { 
             profilePhoto: profilePhotoURL,
-            galleryPhotos: galleryPhotoURLs,
-            idDocument: idDocumentURL
+            galleryPhotos: galleryPhotoURLs || [],
+            idDocument: idDocumentURL || null,
         },
         profileStatus: 'pending-review',
       }, { merge: true });
