@@ -14,7 +14,9 @@ export const mockProfiles: Profile[] = [
       'https://placehold.co/600x400.png',
       'https://placehold.co/600x400.png',
     ],
+    profilePhoto: 'https://placehold.co/600x400.png',
     status: 'approved',
+    onlineStatus: true,
   },
   {
     id: '2',
@@ -29,7 +31,9 @@ export const mockProfiles: Profile[] = [
       'https://placehold.co/600x400.png',
       'https://placehold.co/600x400.png',
     ],
+    profilePhoto: 'https://placehold.co/600x400.png',
     status: 'approved',
+    onlineStatus: false,
   },
   {
     id: '3',
@@ -44,7 +48,9 @@ export const mockProfiles: Profile[] = [
       'https://placehold.co/600x400.png',
       'https://placehold.co/600x400.png',
     ],
+    profilePhoto: 'https://placehold.co/600x400.png',
     status: 'approved',
+    onlineStatus: true,
   },
   {
     id: '4',
@@ -59,7 +65,9 @@ export const mockProfiles: Profile[] = [
       'https://placehold.co/600x400.png',
       'https://placehold.co/600x400.png',
     ],
+    profilePhoto: 'https://placehold.co/600x400.png',
     status: 'approved',
+    onlineStatus: true,
   },
   {
     id: '5',
@@ -74,7 +82,9 @@ export const mockProfiles: Profile[] = [
       'https://placehold.co/600x400.png',
       'https://placehold.co/600x400.png',
     ],
+    profilePhoto: 'https://placehold.co/600x400.png',
     status: 'pending',
+    onlineStatus: false,
   },
   {
     id: '6',
@@ -89,7 +99,9 @@ export const mockProfiles: Profile[] = [
       'https://placehold.co/600x400.png',
       'https://placehold.co/600x400.png',
     ],
+    profilePhoto: 'https://placehold.co/600x400.png',
     status: 'pending',
+    onlineStatus: true,
   },
 ];
 

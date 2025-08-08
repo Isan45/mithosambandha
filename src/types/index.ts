@@ -10,6 +10,7 @@ export type Profile = {
   photos: string[]; // gallery photos
   status: 'approved' | 'pending' | 'rejected';
   profilePhoto?: string; // Main profile photo
+  onlineStatus?: boolean;
 };
 
 // This is the detailed user profile stored in Firestore
@@ -51,6 +52,7 @@ export type UserProfile = {
     drinkingHabits?: string;
     bio?: string;
     membership?: 'Free Membership' | 'Gold Membership' | 'Platinum Membership';
+    onlineStatus?: boolean;
     education?: {
       highestEducation: string;
       college: string;
