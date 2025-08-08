@@ -1,3 +1,4 @@
+
 import { mockProfiles } from '@/lib/mock-data';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -20,8 +21,9 @@ import {
 } from '@/components/ui/carousel';
 
 export default function ProfilePage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const profile = mockProfiles.find(
-    p => p.id === params.id && p.status === 'approved'
+    p => p.id === id && p.status === 'approved'
   );
 
   if (!profile) {
