@@ -28,7 +28,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { generateBio } from '@/ai/flows/generate-bio';
-import { Wand2, Loader2 } from 'lucide-react';
+import { Wand2, Loader2, User, Mail } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 100 }, (_, i) => currentYear - 18 - i);
@@ -57,6 +58,9 @@ export default function CreateProfilePage() {
     const [isGeneratingBio, setIsGeneratingBio] = useState(false);
     const [isLoadingData, setIsLoadingData] = useState(true);
 
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+
     // State for all form fields, initialized with empty strings
     const [formState, setFormState] = useState({
         gender: '',
@@ -84,28 +88,34 @@ export default function CreateProfilePage() {
         try {
           const userDocRef = doc(db, 'users', user.uid);
           const docSnap = await getDoc(userDocRef);
-          if (docSnap.exists() && docSnap.data().profile) {
-            const profile = docSnap.data().profile;
-            const dob = profile.dob ? new Date(profile.dob) : null;
-            setFormState({
-              gender: profile.gender || '',
-              dob_day: dob ? String(dob.getDate()).padStart(2, '0') : '',
-              dob_month: dob ? String(dob.getMonth() + 1).padStart(2, '0') : '',
-              dob_year: dob ? String(dob.getFullYear()) : '',
-              height_ft: profile.height?.feet?.toString() || '',
-              height_in: profile.height?.inches?.toString() || '',
-              phoneNumber: profile.phoneNumber || '',
-              nationality: profile.nationality || '',
-              currentLocation: profile.currentLocation || '',
-              permanentAddress: profile.permanentAddress || '',
-              caste: profile.caste || '',
-              religion: profile.religion || '',
-              complexion: profile.complexion || '',
-              dietaryHabits: profile.dietaryHabits || '',
-              smokingHabits: profile.smokingHabits || '',
-              drinkingHabits: profile.drinkingHabits || '',
-              bio: profile.bio || '',
-            });
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setFullName(data.fullName || '');
+            setEmail(data.email || '');
+
+            if (data.profile) {
+              const profile = data.profile;
+              const dob = profile.dob ? new Date(profile.dob) : null;
+              setFormState({
+                gender: profile.gender || '',
+                dob_day: dob ? String(dob.getDate()).padStart(2, '0') : '',
+                dob_month: dob ? String(dob.getMonth() + 1).padStart(2, '0') : '',
+                dob_year: dob ? String(dob.getFullYear()) : '',
+                height_ft: profile.height?.feet?.toString() || '',
+                height_in: profile.height?.inches?.toString() || '',
+                phoneNumber: profile.phoneNumber || '',
+                nationality: profile.nationality || '',
+                currentLocation: profile.currentLocation || '',
+                permanentAddress: profile.permanentAddress || '',
+                caste: profile.caste || '',
+                religion: profile.religion || '',
+                complexion: profile.complexion || '',
+                dietaryHabits: profile.dietaryHabits || '',
+                smokingHabits: profile.smokingHabits || '',
+                drinkingHabits: profile.drinkingHabits || '',
+                bio: profile.bio || '',
+              });
+            }
           }
         } catch (error) {
           console.error("Error fetching profile data:", error);
@@ -277,6 +287,17 @@ export default function CreateProfilePage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
+                             <div className="space-y-4 mb-6">
+                                <div className="flex items-center gap-3 rounded-md border bg-muted/50 p-3">
+                                    <User className="h-5 w-5 text-muted-foreground" />
+                                    <span className="text-sm font-medium">{fullName}</span>
+                                </div>
+                                 <div className="flex items-center gap-3 rounded-md border bg-muted/50 p-3">
+                                    <Mail className="h-5 w-5 text-muted-foreground" />
+                                    <span className="text-sm font-medium">{email}</span>
+                                </div>
+                            </div>
+                            <Separator className="my-8" />
                             <form
                                 onSubmit={onSubmit}
                                 className="space-y-8"
