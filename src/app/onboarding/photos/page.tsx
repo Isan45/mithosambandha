@@ -141,6 +141,13 @@ export default function PhotosPage() {
     setIdPreview(null);
   };
 
+  const uploadFile = async (storage: any, path: string, file: File) => {
+    const fileRef = ref(storage, path);
+    await uploadBytes(fileRef, file);
+    return getDownloadURL(fileRef);
+  };
+  
+
   const handleSubmit = async () => {
     if (!profilePhoto) {
       toast({ variant: 'destructive', title: 'Profile Photo Required', description: 'Please upload a profile photo to continue.' });
@@ -155,28 +162,23 @@ export default function PhotosPage() {
 
     try {
       const storage = getStorage();
-
-      // Upload profile photo
-      const profilePhotoRef = ref(storage, `user-photos/${user.uid}/profile-photo`);
-      await uploadBytes(profilePhotoRef, profilePhoto);
-      const profilePhotoURL = await getDownloadURL(profilePhotoRef);
-
-      // Upload gallery photos
-      const galleryPhotoURLs = await Promise.all(
-        galleryPhotos.map(async (file, index) => {
-          const galleryRef = ref(storage, `user-photos/${user.uid}/gallery/${file.name}-${index}`);
-          await uploadBytes(galleryRef, file);
-          return await getDownloadURL(galleryRef);
-        })
-      );
       
-      // Upload ID document (optional)
-      let idDocumentURL = null;
-      if (idDocument) {
-        const idRef = ref(storage, `user-documents/${user.uid}/id-document`);
-        await uploadBytes(idRef, idDocument);
-        idDocumentURL = await getDownloadURL(idRef);
-      }
+      const uploadPromises = [];
+
+      // Add profile photo upload to promises
+      uploadPromises.push(uploadFile(storage, `user-photos/${user.uid}/profile-photo`, profilePhoto));
+
+      // Add gallery photos upload to promises
+      galleryPhotos.forEach((file, index) => {
+        uploadPromises.push(uploadFile(storage, `user-photos/${user.uid}/gallery/${file.name}-${index}`, file));
+      });
+      
+      // Handle optional ID document upload
+      const idUploadPromise = idDocument ? uploadFile(storage, `user-documents/${user.uid}/id-document`, idDocument) : Promise.resolve(null);
+
+      const [profilePhotoURL, ...galleryPhotoURLs] = await Promise.all(uploadPromises);
+      const idDocumentURL = await idUploadPromise;
+
 
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
@@ -200,7 +202,7 @@ export default function PhotosPage() {
       toast({
         variant: 'destructive',
         title: 'Upload Failed',
-        description: 'There was an error submitting your files. Please try again.',
+        description: 'There was an error submitting your files. Please check your connection and security rules, then try again.',
       });
     } finally {
       setIsUploading(false);
