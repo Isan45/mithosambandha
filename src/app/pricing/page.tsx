@@ -47,19 +47,28 @@ const PlanCard = ({
       <p className="text-center text-muted-foreground mb-6">{description}</p>
       <ul className="space-y-4">
         {features.map((feature, index) => {
-          const isExcluded = React.isValidElement(feature)
-            ? (feature.props.children as React.ReactNode[])?.some?.(child =>
-                React.isValidElement(child) && child.type === XCircle
-              )
-            : false;
+          const isExcluded =
+            React.isValidElement(feature) &&
+            feature.props.children &&
+            Array.isArray(feature.props.children)
+              ? feature.props.children.some(
+                  child => React.isValidElement(child) && child.type === XCircle
+                )
+              : false;
+
+          const isStar =
+            React.isValidElement(feature) &&
+            feature.props.children &&
+            Array.isArray(feature.props.children)
+              ? feature.props.children.some(
+                  child => React.isValidElement(child) && child.type === Star
+                )
+              : false;
+
           return (
             <li key={index} className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-1">
-                {React.isValidElement(feature) &&
-                (feature.props.children as React.ReactNode[])?.some?.(
-                  child =>
-                    React.isValidElement(child) && child.type === Star
-                ) ? (
+                {isStar ? (
                   <Star className="h-5 w-5 text-yellow-400 fill-current" />
                 ) : isExcluded ? (
                   <XCircle className="h-5 w-5 text-muted-foreground" />
@@ -121,7 +130,7 @@ export default function PricingPage() {
                 src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambanda-3-.avif?alt=media&token=fff78dd1-f5e7-4db6-8c61-0d80a4ee5d76"
                 alt="Happy couple smiling"
                 fill
-                style={{ objectFit: 'contain' }}
+                style={{ objectFit: 'fill' }}
                 className="rounded-lg"
                 data-ai-hint="happy couple"
               />
@@ -233,7 +242,7 @@ export default function PricingPage() {
               src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambanda-3-.avif?alt=media&token=fff78dd1-f5e7-4db6-8c61-0d80a4ee5d76"
               alt="Happy couple"
               fill
-              style={{ objectFit: 'contain' }}
+              style={{ objectFit: 'fill' }}
               className="rounded-lg"
               data-ai-hint="happy couple"
             />
