@@ -118,10 +118,10 @@ export default function PricingPage() {
             </div>
             <div className="relative h-80 w-full rounded-lg shadow-xl overflow-hidden">
               <Image
-                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-2.avif?alt=media&token=14b88d3a-ca2f-4078-b20d-e460edaaa7a4"
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambanda-3-.avif?alt=media&token=fff78dd1-f5e7-4db6-8c61-0d80a4ee5d76"
                 alt="Happy couple smiling"
                 fill
-                style={{ objectFit: 'fill' }}
+                style={{ objectFit: 'contain' }}
                 className="rounded-lg"
                 data-ai-hint="happy couple"
               />
@@ -230,10 +230,10 @@ export default function PricingPage() {
           </div>
           <div className="relative h-80 w-full rounded-lg shadow-md overflow-hidden">
             <Image
-              src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-2.avif?alt=media&token=14b88d3a-ca2f-4078-b20d-e460edaaa7a4"
+              src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambanda-3-.avif?alt=media&token=fff78dd1-f5e7-4db6-8c61-0d80a4ee5d76"
               alt="Happy couple"
               fill
-              style={{ objectFit: 'fill' }}
+              style={{ objectFit: 'contain' }}
               className="rounded-lg"
               data-ai-hint="happy couple"
             />
