@@ -151,7 +151,7 @@ const PartnerPreferencesPage = () => {
                 <div className="mx-auto max-w-2xl">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="font-headline text-xl">Step 4: Your Partner Preferences</CardTitle>
+                            <CardTitle className="font-headline text-xl">Your Partner Preferences</CardTitle>
                             <CardDescription>
                                 Help us understand what you're looking for in a life partner. The more details you provide, the better the matches.
                             </CardDescription>
@@ -209,7 +209,23 @@ const PartnerPreferencesPage = () => {
                                     </div>
                                     <div>
                                         <Label>Annual Earning (Optional)</Label>
-                                        <Input name="partnerEarning" placeholder="e.g. 50k-100k, 100k+" value={formState.partnerEarning} onChange={handleChange} />
+                                        <Select
+                                          name="partnerEarning"
+                                          value={formState.partnerEarning}
+                                          onValueChange={(value) => handleSelectChange('partnerEarning', value)}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Select an income range" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="any">Any</SelectItem>
+                                            <SelectItem value="<2L">Less than 2 lakhs</SelectItem>
+                                            <SelectItem value="2L-3L">2 lakhs - 3 lakhs</SelectItem>
+                                            <SelectItem value="3L-4L">3 lakhs - 4 lakhs</SelectItem>
+                                            <SelectItem value="4L-5L">4 lakhs - 5 lakhs</SelectItem>
+                                            <SelectItem value=">5L">More than 5 lakhs</SelectItem>
+                                          </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
 
