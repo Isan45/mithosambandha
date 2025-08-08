@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, 'use strict';
+import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
