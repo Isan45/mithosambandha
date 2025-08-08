@@ -79,7 +79,7 @@ export default function DashboardPage() {
     { name: 'Create Account', completed: true },
     { name: 'Personal Information', completed: progress > 10 },
     { name: 'Education & Career', completed: progress > 25 },
-    { name: 'Partner Preferences', completed: progress >= 75 },
+    { name: 'Partner Preferences', completed: progress > 50 },
     { name: 'Profile Submitted', completed: progress === 100 },
   ];
 

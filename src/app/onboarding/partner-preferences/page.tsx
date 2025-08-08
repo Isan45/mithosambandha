@@ -129,8 +129,8 @@ const PartnerPreferencesPage = () => {
             }, { merge: true });
 
             toast({
-                title: 'Preferences Saved!',
-                description: "Your profile has been submitted for review!",
+                title: 'Profile Submitted!',
+                description: "Your profile has been submitted for review. We'll notify you once it's approved.",
             });
             router.push('/dashboard');
         } catch (error) {
@@ -259,7 +259,7 @@ const PartnerPreferencesPage = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <Label>Dietary Habits</Label>
-                                        <Select name="partnerDietaryHabits" value={formState.partnerDietaryHabits} onValuechange={(value) => handleSelectChange('partnerDietaryHabits', value)}>
+                                        <Select name="partnerDietaryHabits" value={formState.partnerDietaryHabits} onValueChange={(value) => handleSelectChange('partnerDietaryHabits', value)}>
                                             <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="any">Any</SelectItem>
