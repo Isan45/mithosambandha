@@ -75,18 +75,18 @@ export default function PricingPage() {
       {/* Hero Section */}
       <section className="relative bg-secondary/50 py-16 md:py-24">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12">
-            <div className="text-center md:text-left">
+          <div className="grid grid-cols-1 items-center gap-8">
+            <div className="text-center">
               <h1 className="font-headline text-4xl font-bold md:text-5xl">
                 Invest in Your Forever
               </h1>
-              <p className="mt-4 text-lg text-muted-foreground">
+              <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
                 Choose a plan that aligns with your commitment to finding a
                 meaningful, lasting relationship. Your journey to a sweet union
                 starts here.
               </p>
             </div>
-            <div className="relative h-64 w-full md:h-80">
+            <div className="relative h-80 w-full max-w-4xl mx-auto">
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-2.avif?alt=media&token=14b88d3a-ca2f-4078-b20d-e460edaaa7a4"
                 alt="Happy couple smiling"
