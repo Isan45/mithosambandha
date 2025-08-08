@@ -65,6 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isAdminRoute = pathname.startsWith('/admin');
     const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
     const isOnboardingRoute = pathname.startsWith(ONBOARDING_PREFIX);
+    
+    const validCompletedStatuses = ['pending-review', 'approved', 'rejected'];
 
     // If not logged in and trying to access a protected route
     if (!user && isProtectedRoute) {
@@ -80,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Handle onboarding redirection logic
-      if (!isOnboardingRoute && profileStatus && profileStatus !== 'approved' && profileStatus !== 'pending-review' && profileStatus !== 'rejected') {
+      if (!isOnboardingRoute && profileStatus && !validCompletedStatuses.includes(profileStatus)) {
           const stepMap: {[key: string]: string} = {
               'incomplete': '/onboarding/create-profile',
               'in-progress-education': '/onboarding/education',
@@ -125,5 +127,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export const useAuth = () => {
   return useContext(AuthContext);
 };
-
-    
