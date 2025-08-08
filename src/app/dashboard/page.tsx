@@ -22,6 +22,15 @@ import {
   HeartHandshake,
   Users,
   Edit,
+  MapPin,
+  Cake,
+  Briefcase,
+  Globe,
+  Soup,
+  Cigarette,
+  GlassWater,
+  Sparkles,
+  Award,
 } from 'lucide-react';
 import type { UserProfile } from '@/types';
 import Image from 'next/image';
@@ -46,6 +55,14 @@ const DetailItem = ({ icon: Icon, label, value, action }: any) => (
     {action}
   </div>
 );
+
+const InfoPill = ({ icon: Icon, value }: { icon: React.ElementType, value: string | number | null | undefined }) => (
+  <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground">
+    <Icon className="h-4 w-4" />
+    <span>{value || 'N/A'}</span>
+  </div>
+);
+
 
 const VerificationStatus = ({ verified, onVerify }: { verified?: boolean; onVerify?: () => void; }) =>
   verified ? (
@@ -145,31 +162,9 @@ export default function DashboardPage() {
   const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
 
   const isSectionIncomplete = (section: string) => {
-    if (!profile.profileStatus) return true;
-    if (profile.profileStatus === 'incomplete') return true;
-
-    const sections = ['education', 'career', 'partner-preferences', 'photos'];
-    const requiredForStatus: {[key: string]: string[]} = {
-        'in-progress-education': [],
-        'in-progress-career': ['education'],
-        'in-progress-partner-preferences': ['education', 'career'],
-        'pending-review': ['education', 'career', 'partner-preferences', 'photos']
-    };
-
-    const statusKey = profile.profileStatus;
-
-    if (requiredForStatus[statusKey] && !requiredForStatus[statusKey].includes(section)) {
-        return true;
-    }
-    
-    // A simple check to see if the main objects exist
-    if (section === 'education' && !p.education) return true;
-    if (section === 'career' && !p.career) return true;
-    if (section === 'partner-preferences' && !p.partnerPreferences) return true;
-    if (section === 'photos' && (!p.galleryPhotos || p.galleryPhotos.length < 1)) return true;
-
-
-    return false;
+      // For now, always allow editing as per the new request.
+      // This logic can be expanded later if needed.
+      return true;
   };
   
   const pp = p.partnerPreferences;
@@ -192,61 +187,73 @@ export default function DashboardPage() {
                  {/* Main Profile Card */}
                 <Card>
                     <CardContent className="p-6">
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                         <div className="md:col-span-1">
-                        <Image
+                          <Image
                             src={profilePhotoUrl}
                             alt="Profile Photo"
                             width={400}
                             height={400}
                             className="aspect-square w-full rounded-lg object-cover shadow-md"
                             data-ai-hint="person portrait"
-                        />
-                         <div className="mt-4 space-y-1">
+                          />
+                          <div className="mt-4 space-y-2">
                            <DetailItem icon={Mail} label="Email" value={profile.email} action={<VerificationStatus verified={user?.emailVerified} />} />
                            <DetailItem icon={Phone} label="Phone" value={p.phoneNumber} action={<VerificationStatus verified={!!p.phoneNumber} />} />
                            <DetailItem icon={ShieldCheck} label="ID" value={p.idVerified ? "Verified" : "Not Verified"} action={!p.idVerified && <Button asChild variant="outline" size="sm" className="h-7 text-xs"><Link href="/onboarding/photos">Upload ID</Link></Button>} />
                          </div>
                         </div>
 
-                        <div className="space-y-4 md:col-span-2">
-                        <div className="flex justify-between items-start">
+                        <div className="space-y-6 md:col-span-2">
+                           <div className="flex justify-between items-start">
+                              <div>
+                                <h3 className="font-headline text-2xl font-bold">
+                                    {profile.fullName}
+                                </h3>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <Badge variant="secondary" className="text-base">{p.membership || 'Free Membership'}</Badge>
+                                    <Button asChild variant="link" className="p-0 h-auto">
+                                        <Link href="/pricing">Upgrade</Link>
+                                    </Button>
+                                </div>
+                              </div>
+                              <Button asChild variant="outline" size="sm">
+                                <Link href="/onboarding/create-profile"><Edit className="mr-2 h-4 w-4" />Edit Profile</Link>
+                              </Button>
+                           </div>
+
                           <div>
-                            <h3 className="font-headline text-2xl font-bold">
-                                {profile.fullName}
-                            </h3>
-                            <p className="text-muted-foreground">
-                                Lives in {p.currentLocation || 'N/A'}
+                            <h4 className="font-semibold text-primary">About Me</h4>
+                            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                            {p.bio || 'No bio provided. Complete your profile to get better matches!'}
                             </p>
                           </div>
-                          <Button asChild variant="outline" size="sm">
-                            <Link href="/onboarding/create-profile"><Edit className="mr-2 h-4 w-4" />Edit Profile</Link>
-                          </Button>
-                        </div>
+                          
+                          <Separator/>
 
-                        <Separator />
-                        <div>
-                            <h4 className="font-semibold">About Me</h4>
-                            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                            {p.bio || 'No bio provided.'}
-                            </p>
+                          <div>
+                              <h4 className="font-semibold text-primary mb-3">Personal Details</h4>
+                              <div className="flex flex-wrap gap-2">
+                                <InfoPill icon={User} value={p.gender} />
+                                <InfoPill icon={Cake} value={p.dob ? `${new Date().getFullYear() - new Date(p.dob).getFullYear()} yrs` : null} />
+                                <InfoPill icon={User} value={p.height ? `${p.height.feet}' ${p.height.inches}"` : null} />
+                                <InfoPill icon={Heart} value={p.religion} />
+                                <InfoPill icon={Sparkles} value={p.complexion} />
+                                <InfoPill icon={MapPin} value={p.currentLocation} />
+                                <InfoPill icon={Globe} value={p.nationality} />
+                                <InfoPill icon={Briefcase} value={p.career?.profession} />
+                                <InfoPill icon={Soup} value={p.dietaryHabits} />
+                                <InfoPill icon={Cigarette} value={p.smokingHabits} />
+                                <InfoPill icon={GlassWater} value={p.drinkingHabits} />
+                              </div>
+                          </div>
                         </div>
-                        <Separator />
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                            <p><strong>Nationality:</strong> {p.nationality || 'N/A'}</p>
-                            <p><strong>Age:</strong> {p.dob ? new Date().getFullYear() - new Date(p.dob).getFullYear() : 'N/A'}</p>
-                            <p><strong>Religion:</strong> {p.religion || 'N/A'}</p>
-                            <p><strong>Caste:</strong> {p.caste || 'N/A'}</p>
-                             <p><strong>Height:</strong> {p.height ? `${p.height.feet}' ${p.height.inches}"` : 'N/A'}</p>
-                             <p><strong>Diet:</strong> {p.dietaryHabits || 'N/A'}</p>
-                        </div>
-                        </div>
-                    </div>
+                      </div>
                     </CardContent>
                 </Card>
 
                 {/* Education Section */}
-                <ProfileSection title="Education & Career" icon={GraduationCap} isIncomplete={true} editPath="/onboarding/education">
+                <ProfileSection title="Education & Career" icon={GraduationCap} editPath="/onboarding/education">
                     <p><strong>Highest Education:</strong> {p.education?.highestEducation || 'N/A'}</p>
                     <p><strong>College/University:</strong> {p.education?.college || 'N/A'}</p>
                     <p><strong>Profession:</strong> {p.career?.profession || 'N/A'}</p>
@@ -254,7 +261,7 @@ export default function DashboardPage() {
                 </ProfileSection>
 
                 {/* Partner Preferences Section */}
-                <ProfileSection title="Partner Preferences" icon={Heart} isIncomplete={isSectionIncomplete('partner-preferences')} editPath="/onboarding/partner-preferences">
+                <ProfileSection title="Partner Preferences" icon={Heart} editPath="/onboarding/partner-preferences">
                     {!p.partnerPreferences && (
                         <div className="flex items-center gap-3 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-amber-700">
                             <AlertCircle className="h-5 w-5 flex-shrink-0" />
@@ -276,7 +283,7 @@ export default function DashboardPage() {
                 </ProfileSection>
                 
                  {/* Gallery Section */}
-                <ProfileSection title="Photo Gallery" icon={ImageIcon} isIncomplete={!p.galleryPhotos || p.galleryPhotos.length < 1} editPath="/onboarding/photos">
+                <ProfileSection title="Photo Gallery" icon={ImageIcon} editPath="/onboarding/photos">
                     {p.galleryPhotos && p.galleryPhotos.length > 0 ? (
                         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
                             {p.galleryPhotos.map((photo, index) => (

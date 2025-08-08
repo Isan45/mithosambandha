@@ -43,6 +43,7 @@ export type UserProfile = {
     smokingHabits?: string;
     drinkingHabits?: string;
     bio?: string;
+    membership?: 'Free Membership' | 'Gold Membership' | 'Platinum Membership';
     education?: {
       highestEducation: string;
       college: string;
@@ -84,5 +85,3 @@ export type SuccessStory = {
   story: string;
   photo: string;
 };
-
-    

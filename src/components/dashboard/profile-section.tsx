@@ -15,7 +15,6 @@ import Link from 'next/link';
 interface ProfileSectionProps {
   title: string;
   icon: React.ElementType;
-  isIncomplete: boolean;
   editPath: string;
   children: React.ReactNode;
 }
@@ -23,7 +22,6 @@ interface ProfileSectionProps {
 export function ProfileSection({
   title,
   icon: Icon,
-  isIncomplete,
   editPath,
   children,
 }: ProfileSectionProps) {
@@ -44,14 +42,12 @@ export function ProfileSection({
               />
             </div>
           </CollapsibleTrigger>
-          {isIncomplete && (
-            <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm">
               <Link href={editPath}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </Link>
-            </Button>
-          )}
+          </Button>
         </CardHeader>
         <CollapsibleContent>
           <CardContent className="p-4 pt-0 space-y-2">
@@ -62,5 +58,3 @@ export function ProfileSection({
     </Collapsible>
   );
 }
-
-    
