@@ -24,22 +24,25 @@ export function Footer() {
             </h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <Link href="/" className="text-sm hover:underline">
+                <Link href="/about" className="text-sm hover:underline">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/success-stories" className="text-sm hover:underline">
+                <Link
+                  href="/success-stories"
+                  className="text-sm hover:underline"
+                >
                   Success Stories
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm hover:underline">
+                <Link href="/blog" className="text-sm hover:underline">
                   Blog
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm hover:underline">
+                <Link href="/contact" className="text-sm hover:underline">
                   Contact
                 </Link>
               </li>
@@ -51,7 +54,7 @@ export function Footer() {
             </h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <Link href="/" className="text-sm hover:underline">
+                <Link href="/pricing" className="text-sm hover:underline">
                   Pricing
                 </Link>
               </li>
@@ -61,7 +64,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm hover:underline">
+                <Link href="/faq" className="text-sm hover:underline">
                   FAQ
                 </Link>
               </li>
@@ -73,12 +76,12 @@ export function Footer() {
             </h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <Link href="/" className="text-sm hover:underline">
+                <Link href="/privacy" className="text-sm hover:underline">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/" className="text-sm hover:underline">
+                <Link href="/terms" className="text-sm hover:underline">
                   Terms of Service
                 </Link>
               </li>
@@ -86,7 +89,9 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t border-border pt-6 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Mitho Sambandha. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Mitho Sambandha. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
