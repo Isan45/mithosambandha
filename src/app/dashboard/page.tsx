@@ -16,6 +16,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, Circle, Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface UserProfile {
   fullName?: string;
