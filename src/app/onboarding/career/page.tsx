@@ -69,8 +69,7 @@ export default function CareerPage() {
         title: 'Career Info Saved!',
         description: "Let's move to the next step.",
       });
-      // aDD LATER
-      // router.push('/onboarding/hobbies');
+      router.push('/dashboard');
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
