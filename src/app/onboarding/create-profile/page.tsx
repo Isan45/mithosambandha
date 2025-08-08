@@ -58,7 +58,6 @@ export default function CreateProfilePage() {
     const [isGeneratingBio, setIsGeneratingBio] = useState(false);
     const [isLoadingData, setIsLoadingData] = useState(true);
 
-    // State for all form fields, initialized with empty strings
     const [formState, setFormState] = useState({
         fullName: '',
         email: '',
@@ -68,6 +67,13 @@ export default function CreateProfilePage() {
         dob_year: '',
         height_ft: '',
         height_in: '',
+        bodyType: '',
+        maritalStatus: '',
+        motherTongue: '',
+        familyType: '',
+        familyValues: '',
+        canRelocate: '',
+        wantsKids: '',
         phoneNumber: '',
         nationality: '',
         currentLocation: '',
@@ -103,6 +109,13 @@ export default function CreateProfilePage() {
               dob_year: dob ? String(dob.getFullYear()) : '',
               height_ft: profile.height?.feet?.toString() || '',
               height_in: profile.height?.inches?.toString() || '',
+              bodyType: profile.bodyType || '',
+              maritalStatus: profile.maritalStatus || '',
+              motherTongue: profile.motherTongue || '',
+              familyType: profile.familyType || '',
+              familyValues: profile.familyValues || '',
+              canRelocate: profile.canRelocate || '',
+              wantsKids: profile.wantsKids || '',
               phoneNumber: profile.phoneNumber || '',
               nationality: profile.nationality || '',
               currentLocation: profile.currentLocation || '',
@@ -230,7 +243,7 @@ export default function CreateProfilePage() {
             dob, 
             height 
         };
-        // remove dob parts from profile data
+
         delete (profileData as any).dob_day;
         delete (profileData as any).dob_month;
         delete (profileData as any).dob_year;
@@ -242,7 +255,7 @@ export default function CreateProfilePage() {
             const userDocRef = doc(db, 'users', user.uid);
             await setDoc(userDocRef, {
                 fullName: formState.fullName,
-                email: formState.email, // Note: This doesn't change Firebase Auth email
+                email: formState.email, 
                 profile: profileData,
                 profileStatus: 'in-progress-education',
             }, { merge: true });
@@ -301,6 +314,7 @@ export default function CreateProfilePage() {
                                 className="space-y-8"
                             >
                                 <div className="space-y-4">
+                                     <h3 className="text-lg font-semibold text-primary">Account Details</h3>
                                     <div>
                                         <Label htmlFor="fullName">Full Name</Label>
                                         <Input id="fullName" name="fullName" value={formState.fullName} onChange={handleChange} />
@@ -314,144 +328,230 @@ export default function CreateProfilePage() {
                                     </div>
                                 </div>
                                 <Separator />
-                                <div>
-                                    <Label>Gender</Label>
-                                    <RadioGroup
-                                        name="gender"
-                                        value={formState.gender}
-                                        onValueChange={(value) => handleSelectChange('gender', value)}
-                                        className="flex flex-col space-y-1 mt-2"
-                                    >
-                                        <div className="flex items-center space-x-3 space-y-0">
-                                            <RadioGroupItem value="male" />
-                                            <Label className="font-normal">Male</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-3 space-y-0">
-                                            <RadioGroupItem value="female" />
-                                            <Label className="font-normal">Female</Label>
-                                        </div>
-                                        <div className="flex items-center space-x-3 space-y-0">
-                                            <RadioGroupItem value="other" />
-                                            <Label className="font-normal">Other</Label>
-                                        </div>
-                                    </RadioGroup>
-                                    {errors.gender && <p className="mt-1 text-sm text-destructive">{errors.gender}</p>}
-                                </div>
 
-                                <div>
-                                    <Label>Date of birth</Label>
-                                    <div className="mt-2 grid grid-cols-3 gap-4">
-                                        <Select name="dob_day" value={formState.dob_day} onValueChange={(value) => handleSelectChange('dob_day', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Day" /></SelectTrigger>
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-primary">Basic Details</h3>
+                                    <div>
+                                        <Label>Gender</Label>
+                                        <RadioGroup
+                                            name="gender"
+                                            value={formState.gender}
+                                            onValueChange={(value) => handleSelectChange('gender', value)}
+                                            className="flex flex-col space-y-1 mt-2"
+                                        >
+                                            <div className="flex items-center space-x-3 space-y-0">
+                                                <RadioGroupItem value="male" />
+                                                <Label className="font-normal">Male</Label>
+                                            </div>
+                                            <div className="flex items-center space-x-3 space-y-0">
+                                                <RadioGroupItem value="female" />
+                                                <Label className="font-normal">Female</Label>
+                                            </div>
+                                            <div className="flex items-center space-x-3 space-y-0">
+                                                <RadioGroupItem value="other" />
+                                                <Label className="font-normal">Other</Label>
+                                            </div>
+                                        </RadioGroup>
+                                        {errors.gender && <p className="mt-1 text-sm text-destructive">{errors.gender}</p>}
+                                    </div>
+
+                                    <div>
+                                        <Label>Date of birth</Label>
+                                        <div className="mt-2 grid grid-cols-3 gap-4">
+                                            <Select name="dob_day" value={formState.dob_day} onValueChange={(value) => handleSelectChange('dob_day', value)}>
+                                                <SelectTrigger><SelectValue placeholder="Day" /></SelectTrigger>
+                                                <SelectContent>
+                                                    {days.map(day => <SelectItem key={day} value={day}>{day}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                            <Select name="dob_month" value={formState.dob_month} onValueChange={(value) => handleSelectChange('dob_month', value)}>
+                                                <SelectTrigger><SelectValue placeholder="Month" /></SelectTrigger>
+                                                <SelectContent>
+                                                    {months.map(month => <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                            <Select name="dob_year" value={formState.dob_year} onValueChange={(value) => handleSelectChange('dob_year', value)}>
+                                                <SelectTrigger><SelectValue placeholder="Year" /></SelectTrigger>
+                                                <SelectContent>
+                                                    {years.map(year => <SelectItem key={year} value={year.toString()}>{year}</SelectItem>)}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        {errors.dob && <p className="mt-1 text-sm text-destructive">{errors.dob}</p>}
+                                    </div>
+
+                                    <div>
+                                        <Label>Height</Label>
+                                        <div className="mt-2 grid grid-cols-2 gap-4">
+                                            <div>
+                                                <Input type="number" name="height_ft" placeholder="Feet" value={formState.height_ft} onChange={handleChange} />
+                                                {errors.height_ft && <p className="mt-1 text-sm text-destructive">{errors.height_ft}</p>}
+                                            </div>
+                                            <div>
+                                                <Input type="number" name="height_in" placeholder="Inches" value={formState.height_in} onChange={handleChange} />
+                                                {errors.height_in && <p className="mt-1 text-sm text-destructive">{errors.height_in}</p>}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                     <div>
+                                        <Label>Body Type (Optional)</Label>
+                                        <Select name="bodyType" value={formState.bodyType} onValueChange={(value) => handleSelectChange('bodyType', value)}>
+                                            <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                                             <SelectContent>
-                                                {days.map(day => <SelectItem key={day} value={day}>{day}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
-                                        <Select name="dob_month" value={formState.dob_month} onValueChange={(value) => handleSelectChange('dob_month', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Month" /></SelectTrigger>
-                                            <SelectContent>
-                                                {months.map(month => <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>)}
-                                            </SelectContent>
-                                        </Select>
-                                        <Select name="dob_year" value={formState.dob_year} onValueChange={(value) => handleSelectChange('dob_year', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Year" /></SelectTrigger>
-                                            <SelectContent>
-                                                {years.map(year => <SelectItem key={year} value={year.toString()}>{year}</SelectItem>)}
+                                                <SelectItem value="slim">Slim</SelectItem>
+                                                <SelectItem value="athletic">Athletic</SelectItem>
+                                                <SelectItem value="average">Average</SelectItem>
+                                                <SelectItem value="heavy">Heavy</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    {errors.dob && <p className="mt-1 text-sm text-destructive">{errors.dob}</p>}
-                                </div>
 
-                                <div>
-                                    <Label>Height</Label>
-                                    <div className="mt-2 grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>Marital Status</Label>
+                                        <Select name="maritalStatus" value={formState.maritalStatus} onValueChange={(value) => handleSelectChange('maritalStatus', value)}>
+                                            <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="never-married">Never Married</SelectItem>
+                                                <SelectItem value="divorced">Divorced</SelectItem>
+                                                <SelectItem value="widowed">Widowed</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                </div>
+                                <Separator />
+
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-primary">Community & Location</h3>
+                                    
+                                    <div>
+                                        <Label>Mother Tongue</Label>
+                                        <Input name="motherTongue" placeholder="e.g. Nepali" value={formState.motherTongue} onChange={handleChange} />
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <Input type="number" name="height_ft" placeholder="Feet" value={formState.height_ft} onChange={handleChange} />
-                                            {errors.height_ft && <p className="mt-1 text-sm text-destructive">{errors.height_ft}</p>}
+                                            <Label>Caste (Optional)</Label>
+                                            <Input name="caste" placeholder="e.g. Brahmin" value={formState.caste} onChange={handleChange} />
                                         </div>
                                         <div>
-                                            <Input type="number" name="height_in" placeholder="Inches" value={formState.height_in} onChange={handleChange} />
-                                            {errors.height_in && <p className="mt-1 text-sm text-destructive">{errors.height_in}</p>}
+                                            <Label>Religion (Optional)</Label>
+                                            <Input name="religion" placeholder="e.g. Hindu" value={formState.religion} onChange={handleChange} />
                                         </div>
                                     </div>
+
+                                    <div>
+                                        <Label>Nationality (Optional)</Label>
+                                        <Input name="nationality" placeholder="e.g. Nepali" value={formState.nationality} onChange={handleChange} />
+                                    </div>
+
+                                    <div>
+                                        <Label>Current Location</Label>
+                                        <Input name="currentLocation" placeholder="e.g. Kathmandu, Nepal" value={formState.currentLocation} onChange={handleChange} />
+                                        {errors.currentLocation && <p className="mt-1 text-sm text-destructive">{errors.currentLocation}</p>}
+                                    </div>
+
+                                    <div>
+                                        <Label>Permanent Address (Optional)</Label>
+                                        <Input name="permanentAddress" placeholder="e.g. Pokhara, Nepal" value={formState.permanentAddress} onChange={handleChange} />
+                                    </div>
                                 </div>
+                                <Separator />
                                 
-                                <div>
-                                    <Label>Phone Number (Optional)</Label>
-                                    <Input type="tel" name="phoneNumber" placeholder="e.g. +1 123 456 7890" value={formState.phoneNumber} onChange={handleChange} />
-                                </div>
-
-                                <div>
-                                    <Label>Nationality (Optional)</Label>
-                                    <Input name="nationality" placeholder="e.g. Nepali" value={formState.nationality} onChange={handleChange} />
-                                </div>
-
-                                <div>
-                                    <Label>Current Location</Label>
-                                    <Input name="currentLocation" placeholder="e.g. Kathmandu, Nepal" value={formState.currentLocation} onChange={handleChange} />
-                                    {errors.currentLocation && <p className="mt-1 text-sm text-destructive">{errors.currentLocation}</p>}
-                                </div>
-
-                                <div>
-                                    <Label>Permanent Address (Optional)</Label>
-                                    <Input name="permanentAddress" placeholder="e.g. Pokhara, Nepal" value={formState.permanentAddress} onChange={handleChange} />
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <Label>Caste (Optional)</Label>
-                                        <Input name="caste" placeholder="e.g. Brahmin" value={formState.caste} onChange={handleChange} />
+                                <div className="space-y-4">
+                                     <h3 className="text-lg font-semibold text-primary">Lifestyle & Family</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label>Complexion (Optional)</Label>
+                                            <Input name="complexion" placeholder="e.g. Fair, Wheatish" value={formState.complexion} onChange={handleChange} />
+                                        </div>
+                                        <div>
+                                            <Label>Dietary Habits (Optional)</Label>
+                                            <Select name="dietaryHabits" value={formState.dietaryHabits} onValueChange={(value) => handleSelectChange('dietaryHabits', value)}>
+                                                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="vegetarian">Vegetarian</SelectItem>
+                                                    <SelectItem value="non-vegetarian">Non-Vegetarian</SelectItem>
+                                                    <SelectItem value="eggetarian">Eggetarian</SelectItem>
+                                                    <SelectItem value="vegan">Vegan</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <Label>Religion (Optional)</Label>
-                                        <Input name="religion" placeholder="e.g. Hindu" value={formState.religion} onChange={handleChange} />
-                                    </div>
-                                </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <Label>Complexion (Optional)</Label>
-                                        <Input name="complexion" placeholder="e.g. Fair, Wheatish" value={formState.complexion} onChange={handleChange} />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <Label>Smoking Habits (Optional)</Label>
+                                            <Select name="smokingHabits" value={formState.smokingHabits} onValueChange={(value) => handleSelectChange('smokingHabits', value)}>
+                                                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="no">No</SelectItem>
+                                                    <SelectItem value="yes">Yes</SelectItem>
+                                                    <SelectItem value="occasionally">Occasionally</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div>
+                                            <Label>Drinking Habits (Optional)</Label>
+                                            <Select name="drinkingHabits" value={formState.drinkingHabits} onValueChange={(value) => handleSelectChange('drinkingHabits', value)}>
+                                                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="no">No</SelectItem>
+                                                    <SelectItem value="yes">Yes</SelectItem>
+                                                    <SelectItem value="occasionally">Occasionally</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <Label>Dietary Habits (Optional)</Label>
-                                        <Select name="dietaryHabits" value={formState.dietaryHabits} onValueChange={(value) => handleSelectChange('dietaryHabits', value)}>
+                                    
+                                     <div>
+                                        <Label>Family Type</Label>
+                                        <Select name="familyType" value={formState.familyType} onValueChange={(value) => handleSelectChange('familyType', value)}>
                                             <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="vegetarian">Vegetarian</SelectItem>
-                                                <SelectItem value="non-vegetarian">Non-Vegetarian</SelectItem>
-                                                <SelectItem value="eggetarian">Eggetarian</SelectItem>
-                                                <SelectItem value="vegan">Vegan</SelectItem>
+                                                <SelectItem value="joint">Joint</SelectItem>
+                                                <SelectItem value="nuclear">Nuclear</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    
+                                    <div>
+                                        <Label>Family Values</Label>
+                                        <Select name="familyValues" value={formState.familyValues} onValueChange={(value) => handleSelectChange('familyValues', value)}>
+                                            <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="traditional">Traditional</SelectItem>
+                                                <SelectItem value="moderate">Moderate</SelectItem>
+                                                <SelectItem value="liberal">Liberal</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                 </div>
+                                <Separator />
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-primary">Future Plans</h3>
+
                                     <div>
-                                        <Label>Smoking Habits (Optional)</Label>
-                                        <Select name="smokingHabits" value={formState.smokingHabits} onValueChange={(value) => handleSelectChange('smokingHabits', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="no">No</SelectItem>
-                                                <SelectItem value="yes">Yes</SelectItem>
-                                                <SelectItem value="occasionally">Occasionally</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <Label>Are you willing to relocate?</Label>
+                                         <RadioGroup name="canRelocate" value={formState.canRelocate} onValueChange={(value) => handleSelectChange('canRelocate', value)} className="mt-2">
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="yes" /><Label className="font-normal">Yes</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="no" /><Label className="font-normal">No</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="maybe" /><Label className="font-normal">Maybe</Label></div>
+                                        </RadioGroup>
                                     </div>
-                                    <div>
-                                        <Label>Drinking Habits (Optional)</Label>
-                                        <Select name="drinkingHabits" value={formState.drinkingHabits} onValueChange={(value) => handleSelectChange('drinkingHabits', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="no">No</SelectItem>
-                                                <SelectItem value="yes">Yes</SelectItem>
-                                                <SelectItem value="occasionally">Occasionally</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                    
+                                     <div>
+                                        <Label>Do you want children?</Label>
+                                        <RadioGroup name="wantsKids" value={formState.wantsKids} onValueChange={(value) => handleSelectChange('wantsKids', value)} className="mt-2">
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="yes" /><Label className="font-normal">Yes</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="no" /><Label className="font-normal">No</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="undecided" /><Label className="font-normal">Undecided</Label></div>
+                                        </RadioGroup>
                                     </div>
                                 </div>
+                                <Separator />
 
                                  <div>
                                     <div className="flex items-center justify-between">

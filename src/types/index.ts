@@ -32,6 +32,13 @@ export type UserProfile = {
     gender?: string;
     dob?: string;
     height?: { feet: number; inches: number };
+    bodyType?: string;
+    maritalStatus?: string;
+    motherTongue?: string;
+    familyType?: string;
+    familyValues?: string;
+    canRelocate?: string;
+    wantsKids?: string;
     phoneNumber?: string;
     nationality?: string;
     currentLocation?: string;
