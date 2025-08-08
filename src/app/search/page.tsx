@@ -82,7 +82,7 @@ export default function SearchPage() {
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <h1 className="font-headline mb-6 text-3xl font-bold">Search for a Partner</h1>
+      <h1 className="font-headline mb-6 text-3xl font-bold">Find your mitho Sambandha</h1>
       
       <Card className="mb-8">
         <CardHeader>
