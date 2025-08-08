@@ -203,12 +203,20 @@ const PartnerPreferencesPage = () => {
                                 <div>
                                     <Label>Height Range</Label>
                                     <div className="mt-2 grid grid-cols-2 gap-4">
-                                        <Input type="number" name="partnerHeightFtMin" placeholder="Min Feet" value={formState.partnerHeightFtMin} onChange={handleChange} />
-                                        <Input type="number" name="partnerHeightInMin" placeholder="Min Inches" value={formState.partnerHeightInMin} onChange={handleChange} />
-                                    </div>
-                                    <div className="mt-2 grid grid-cols-2 gap-4">
-                                        <Input type="number" name="partnerHeightFtMax" placeholder="Max Feet" value={formState.partnerHeightFtMax} onChange={handleChange} />
-                                        <Input type="number" name="partnerHeightInMax" placeholder="Max Inches" value={formState.partnerHeightInMax} onChange={handleChange} />
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Minimum Height</Label>
+                                            <div className="flex gap-2">
+                                                <Input type="number" name="partnerHeightFtMin" placeholder="Feet" value={formState.partnerHeightFtMin} onChange={handleChange} />
+                                                <Input type="number" name="partnerHeightInMin" placeholder="Inches" value={formState.partnerHeightInMin} onChange={handleChange} />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground">Maximum Height</Label>
+                                            <div className="flex gap-2">
+                                                <Input type="number" name="partnerHeightFtMax" placeholder="Feet" value={formState.partnerHeightFtMax} onChange={handleChange} />
+                                                <Input type="number" name="partnerHeightInMax" placeholder="Inches" value={formState.partnerHeightInMax} onChange={handleChange} />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 
