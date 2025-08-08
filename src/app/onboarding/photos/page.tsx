@@ -163,29 +163,31 @@ export default function PhotosPage() {
     try {
       const storage = getStorage();
       
-      const uploadPromises = [];
+      const photoUploadPromises = [];
 
       // Add profile photo upload to promises
-      uploadPromises.push(uploadFile(storage, `user-photos/${user.uid}/profile-photo`, profilePhoto));
+      photoUploadPromises.push(uploadFile(storage, `user-photos/${user.uid}/profile-photo`, profilePhoto));
 
       // Add gallery photos upload to promises
       galleryPhotos.forEach((file, index) => {
-        uploadPromises.push(uploadFile(storage, `user-photos/${user.uid}/gallery/${file.name}-${index}`, file));
+        photoUploadPromises.push(uploadFile(storage, `user-photos/${user.uid}/gallery/${file.name}-${index}`, file));
       });
       
-      // Handle optional ID document upload
-      const idUploadPromise = idDocument ? uploadFile(storage, `user-documents/${user.uid}/id-document`, idDocument) : Promise.resolve(null);
-
-      const [profilePhotoURL, ...galleryPhotoURLs] = await Promise.all(uploadPromises);
-      const idDocumentURL = await idUploadPromise;
-
+      // Upload profile and gallery photos in parallel
+      const [profilePhotoURL, ...galleryPhotoURLs] = await Promise.all(photoUploadPromises);
+      
+      // Handle optional ID document upload separately
+      let idDocumentURL = null;
+      if (idDocument) {
+        idDocumentURL = await uploadFile(storage, `user-documents/${user.uid}/id-document`, idDocument);
+      }
 
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
         profile: { 
             profilePhoto: profilePhotoURL,
             galleryPhotos: galleryPhotoURLs || [],
-            idDocument: idDocumentURL || null,
+            idDocument: idDocumentURL, // Will be null if not uploaded
         },
         profileStatus: 'pending-review',
       }, { merge: true });
