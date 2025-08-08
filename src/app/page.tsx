@@ -36,7 +36,7 @@ export default function Home() {
               The most trusted matrimonial platform for the Nepali community
               worldwide.
             </p>
-            <div className="mt-8">
+            <div className="mt-8 flex justify-center md:justify-start">
               <Button size="lg" asChild>
                 <Link href="/join">Join Now</Link>
               </Button>
