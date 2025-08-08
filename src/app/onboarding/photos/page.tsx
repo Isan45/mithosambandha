@@ -108,35 +108,40 @@ export default function PhotosPage() {
     if (e.target.files) {
       if (isMultiple) {
         const filesArray = Array.from(e.target.files);
-        setter((prev: File[]) => {
-            const newFiles = [...prev, ...filesArray];
-            if (newFiles.length > 5) {
-                toast({ variant: 'destructive', title: 'Limit Exceeded', description: 'You can upload a maximum of 5 gallery photos.'});
-                return prev;
-            }
-            const newPreviews = filesArray.map(file => URL.createObjectURL(file));
-            previewSetter((p: string[]) => [...p, ...newPreviews].slice(0, 5));
-            return newFiles.slice(0,5);
-        });
+        if (filesArray.length > 5) {
+            toast({ variant: 'destructive', title: 'Limit Exceeded', description: 'You can upload a maximum of 5 gallery photos.'});
+            return;
+        }
+        setter(filesArray);
+        const newPreviews = filesArray.map(file => URL.createObjectURL(file));
+        previewSetter(newPreviews);
       } else {
         const file = e.target.files[0];
         setter(file);
+        if(profilePreview) URL.revokeObjectURL(profilePreview);
         previewSetter(URL.createObjectURL(file));
       }
     }
   };
 
   const removeGalleryImage = (index: number) => {
-    setGalleryPhotos(files => files.filter((_, i) => i !== index));
-    setGalleryPreviews(previews => previews.filter((_, i) => i !== index));
+    const newPhotos = [...galleryPhotos];
+    const newPreviews = [...galleryPreviews];
+    URL.revokeObjectURL(newPreviews[index]);
+    newPhotos.splice(index, 1);
+    newPreviews.splice(index, 1);
+    setGalleryPhotos(newPhotos);
+    setGalleryPreviews(newPreviews);
   };
   
   const removeProfilePhoto = () => {
+    if (profilePreview) URL.revokeObjectURL(profilePreview);
     setProfilePhoto(null);
     setProfilePreview(null);
   };
   
   const removeIdDocument = () => {
+    if (idPreview) URL.revokeObjectURL(idPreview);
     setIdDocument(null);
     setIdPreview(null);
   };
