@@ -8,16 +8,25 @@ import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase/client';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { LogOut, LayoutDashboard } from 'lucide-react';
+import { LogOut, LayoutDashboard, Compass } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 export function Header() {
   const { user, isAdmin } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await signOut(auth);
     router.push('/');
   };
+
+  const navLinkClasses = (path: string) =>
+    cn(
+      'flex items-center gap-2',
+      pathname === path && 'text-primary font-semibold'
+    );
 
   return (
     <header className="sticky top-0 z-40 border-b border-primary/10 bg-background/80 backdrop-blur-sm">
@@ -38,19 +47,33 @@ export function Header() {
           {user ? (
             <>
               <Button variant="ghost" asChild>
-                <Link href={isAdmin ? "/admin" : "/dashboard"}>
+                <Link
+                  href="/discover"
+                  className={navLinkClasses('/discover')}
+                >
+                  <Compass className="mr-2 h-4 w-4" />
+                  Discover
+                </Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link
+                  href={isAdmin ? '/admin' : '/dashboard'}
+                  className={navLinkClasses(
+                    isAdmin ? '/admin' : '/dashboard'
+                  )}
+                >
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   Dashboard
                 </Link>
               </Button>
               <Button variant="ghost" onClick={handleLogout}>
-                 <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </Button>
             </>
           ) : (
             <>
-               <Button variant="ghost" asChild>
+              <Button variant="ghost" asChild>
                 <Link href="/">Home</Link>
               </Button>
               <Button variant="ghost" asChild>
