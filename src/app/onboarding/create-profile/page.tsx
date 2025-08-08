@@ -129,9 +129,11 @@ export default function CreateProfilePage() {
     try {
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
-        ...restOfValues,
-        dob,
-        height,
+        profile: {
+            ...restOfValues,
+            dob,
+            height,
+        },
         profileStatus: 'in-progress-personal',
       }, { merge: true });
 
@@ -506,3 +508,5 @@ export default function CreateProfilePage() {
     </div>
   );
 }
+
+    
