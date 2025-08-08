@@ -70,7 +70,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchProfile() {
-      if (user) {
+      // Only fetch if auth is complete and we have a user
+      if (!authLoading && user) {
         setLoading(true);
         try {
           const userDocRef = doc(db, 'users', user.uid);
@@ -86,9 +87,11 @@ export default function DashboardPage() {
             description: 'Could not load your profile.',
           });
         } finally {
+          // This will always run, preventing the loading state from getting stuck
           setLoading(false);
         }
-      } else if (!user && !authLoading) {
+      } else if (!authLoading && !user) {
+        // Auth is complete, but there is no user
         setLoading(false);
         setProfile(null);
       }
@@ -158,7 +161,7 @@ export default function DashboardPage() {
 
 
   const p = profile?.profile;
-  const profilePhotoUrl = 'https://placehold.co/800x600.png'; // Force placeholder to bypass CORS
+  const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
   const galleryPhotos = p?.galleryPhotos?.length
     ? p.galleryPhotos
     : ['https://placehold.co/800x600.png'];
@@ -210,6 +213,7 @@ export default function DashboardPage() {
                       fill
                       style={{ objectFit: 'cover' }}
                       data-ai-hint="person portrait"
+                      unoptimized // Bypasses Next.js image optimization, helps with external URLs
                     />
                     <div className="absolute top-2 right-2">
                       <input
@@ -401,5 +405,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
