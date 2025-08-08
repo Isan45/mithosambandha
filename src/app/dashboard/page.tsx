@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 const StatCard = ({ icon: Icon, value, label, isLoading }: any) => (
   <Card className="text-center">
@@ -199,9 +200,11 @@ export default function DashboardPage() {
                 <CardTitle className="font-headline text-2xl">
                   My Profile
                 </CardTitle>
-                <Button variant="outline" size="sm">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Profile
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/onboarding/create-profile">
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit Profile
+                  </Link>
                 </Button>
               </CardHeader>
               <CardContent className="grid grid-cols-1 gap-6 md:grid-cols-3">
