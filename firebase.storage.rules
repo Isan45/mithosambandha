@@ -1,0 +1,18 @@
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow public read for photos, but only let the authenticated user write them.
+    match /user-photos/{userId}/{allPaths=**} {
+      allow read;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Only allow the authenticated user to write their own documents.
+    // No one can read them through the client SDK, which is secure.
+    match /user-documents/{userId}/{allPaths=**} {
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
