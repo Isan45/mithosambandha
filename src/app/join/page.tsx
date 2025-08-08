@@ -30,11 +30,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowRight, PartyPopper } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const step1Schema = z.object({
   fullName: z
@@ -66,7 +67,6 @@ export default function JoinPage() {
 
   async function onSubmit(values: z.infer<typeof step1Schema>) {
     try {
-      // Step 1: Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         values.email,
@@ -74,7 +74,6 @@ export default function JoinPage() {
       );
       const user = userCredential.user;
 
-      // Step 2: Save initial user data to Firestore
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: values.email,
@@ -89,7 +88,6 @@ export default function JoinPage() {
         description: "Let's continue building your profile.",
       });
 
-      // No longer show a success page, redirect directly to the profile builder
       router.push('/onboarding/create-profile');
     } catch (error: any) {
       console.error('Signup Error:', error);
@@ -104,36 +102,33 @@ export default function JoinPage() {
     }
   }
 
-  // This success message component is no longer needed as we redirect directly.
-  // We can keep it here for now or remove it. For this change, let's remove it for cleanliness.
-
   return (
-    <div className="py-12 md:py-20">
+    <div className="flex min-h-full flex-col justify-center py-12 md:py-20">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="mx-auto max-w-xl">
-          <div className="mb-8 text-center">
-            <h1 className="font-headline text-4xl font-bold md:text-5xl">
-              Join Our Community
-            </h1>
-            <p className="mt-3 text-lg text-muted-foreground">
-              Let's get started. A complete profile gets seen more.
-            </p>
+        <Card className="mx-auto grid max-w-4xl grid-cols-1 overflow-hidden shadow-lg md:grid-cols-2">
+          <div className="relative hidden aspect-square md:block">
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-4.avif?alt=media&token=d2fd5406-7175-419e-be6d-7da8c856f5db"
+              alt="Happy couple celebrating their union"
+              fill
+              style={{ objectFit: 'cover' }}
+              data-ai-hint="happy couple"
+            />
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline text-2xl">
-                Step 1: Create Your Account
+          <div className="flex flex-col justify-center p-6 md:p-8">
+            <CardHeader className="p-0 text-center">
+              <CardTitle className="font-headline text-3xl">
+                Join Our Community
               </CardTitle>
-              <CardDescription>
-                First, let us know who you are and why you're here.
+              <CardDescription className="mt-2 text-muted-foreground">
+                Let's get started. A complete profile gets seen more.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="mt-6 p-0">
               <Form {...form}>
                 <form
                   onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-8"
+                  className="space-y-6"
                 >
                   <FormField
                     control={form.control}
@@ -230,8 +225,8 @@ export default function JoinPage() {
                 </form>
               </Form>
             </CardContent>
-          </Card>
-        </div>
+          </div>
+        </Card>
       </div>
     </div>
   );
