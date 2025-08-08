@@ -15,8 +15,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isAdmin: false });
 
-const PROTECTED_ROUTES = ['/onboarding/create-profile', '/dashboard', '/admin'];
+const PROTECTED_ROUTES = ['/dashboard', '/admin'];
 const PUBLIC_ROUTES = ['/login', '/join'];
+const ONBOARDING_ROUTES = '/onboarding';
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -42,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
     const isAdminRoute = pathname.startsWith('/admin');
     const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+    const isOnboardingRoute = pathname.startsWith(ONBOARDING_ROUTES);
+
 
     // If not logged in and trying to access a protected route
     if (!user && isProtectedRoute) {
@@ -50,7 +54,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // If logged in and on a public route (like /login or /join)
-    if (user) {
+    // or if the user tries to go back to onboarding after completing it
+    if (user && (isPublicRoute || (isOnboardingRoute && user))) {
+      // Don't redirect if they are in the middle of onboarding
+      if (isOnboardingRoute) return;
+
       if (isPublicRoute) {
         router.push(isAdmin ? '/admin' : '/dashboard');
         return;
