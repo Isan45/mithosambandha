@@ -48,10 +48,18 @@ export default function DashboardPage() {
     fetchProfile();
   }, [user]);
 
-  if (!user || loadingProfile) {
+  if (loadingProfile) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin" />
+      </div>
+    );
+  }
+  
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p>Please log in to view your dashboard.</p>
       </div>
     );
   }
@@ -80,7 +88,7 @@ export default function DashboardPage() {
     { name: 'Personal Information', completed: progress >= 40 },
     { name: 'Education & Career', completed: progress >= 60 },
     { name: 'Partner Preferences', completed: progress >= 80 },
-    { name: 'Profile Submitted', completed: progress === 100 },
+    { name: 'Profile Submitted for Review', completed: progress === 100 },
   ];
 
   const getContinueLink = () => {
@@ -97,10 +105,11 @@ export default function DashboardPage() {
       case 'approved':
         return '/dashboard'; // Stay on dashboard if complete
       default:
-        return '/';
+        return '/join';
     }
   }
 
+  const continueLink = getContinueLink();
 
   return (
     <div className="p-4 md:p-8">
@@ -108,14 +117,14 @@ export default function DashboardPage() {
         Welcome, {profile?.fullName || user.email}!
       </h1>
       <p className="mb-6 text-muted-foreground">
-        Let's complete your profile to start your journey.
+        {progress === 100 ? "Your profile is under review." : "Let's complete your profile to start your journey."}
       </p>
 
       <Card>
         <CardHeader>
           <CardTitle className="font-headline">Your Profile Progress</CardTitle>
           <CardDescription>
-            A complete profile is key to finding the best matches.
+            {progress === 100 ? "Thank you for completing your profile. We will notify you once it's approved." : "A complete profile is key to finding the best matches."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -141,10 +150,13 @@ export default function DashboardPage() {
 
           <div className="mt-8">
              {progress === 100 ? (
-                <p className="text-center font-semibold text-green-600">Your profile is complete and under review!</p>
+                <div className="text-center font-semibold text-green-600 rounded-md border border-green-200 bg-green-50 p-4">
+                  <p>Your profile is complete and under review!</p>
+                  <p className="text-sm font-normal text-green-700 mt-1">Our team will verify your details and you'll be notified upon approval.</p>
+                </div>
               ) : (
                 <Button asChild>
-                  <Link href={getContinueLink()}>Continue Building Profile</Link>
+                  <Link href={continueLink}>Continue Building Profile</Link>
                 </Button>
              )}
           </div>
