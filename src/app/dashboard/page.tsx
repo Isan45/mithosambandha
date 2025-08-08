@@ -60,9 +60,17 @@ export default function DashboardPage() {
     switch (profile?.profileStatus) {
       case 'incomplete':
         return 10;
-      case 'in-progress-personal':
+      case 'in-progress-education':
         return 25;
-      // Add more cases as onboarding progresses
+      case 'in-progress-career':
+        return 50;
+      case 'in-progress-partner-preferences':
+        return 75;
+      case 'in-progress-photos':
+        return 90;
+      case 'pending-review':
+      case 'approved':
+        return 100;
       default:
         return 10;
     }
@@ -73,9 +81,26 @@ export default function DashboardPage() {
     { name: 'Create Account', completed: true },
     { name: 'Personal Information', completed: progress > 10 },
     { name: 'Education & Career', completed: progress > 25 },
-    { name: 'About You & Preferences', completed: progress > 50 },
-    { name: 'Upload Photos', completed: progress > 75 },
+    { name: 'Partner Preferences', completed: progress > 75 },
+    { name: 'Upload Photos', completed: progress > 90 },
   ];
+
+  const getContinueLink = () => {
+    switch (profile?.profileStatus) {
+      case 'incomplete':
+        return '/onboarding/create-profile';
+      case 'in-progress-education':
+        return '/onboarding/education';
+      case 'in-progress-career':
+        return '/onboarding/career';
+      case 'in-progress-partner-preferences':
+        return '/onboarding/partner-preferences';
+      case 'in-progress-photos':
+        return '/onboarding/photos';
+      default:
+        return '#';
+    }
+  }
 
 
   return (
@@ -116,14 +141,18 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-8">
-            <Button asChild>
-              <Link href="/onboarding/create-profile">
-                {progress === 100 ? 'View My Profile' : 'Continue Building Profile'}
-              </Link>
-            </Button>
+             {progress === 100 ? (
+                <p className="text-center font-semibold text-green-600">Your profile is complete and under review!</p>
+              ) : (
+                <Button asChild>
+                  <Link href={getContinueLink()}>Continue Building Profile</Link>
+                </Button>
+             )}
           </div>
         </CardContent>
       </Card>
     </div>
   );
 }
+
+    
