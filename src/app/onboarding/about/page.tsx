@@ -12,8 +12,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import {
   Card,
   CardContent,
@@ -28,27 +28,31 @@ import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { Textarea } from '@/components/ui/textarea';
 
-const careerSchema = z.object({
-  profession: z.string().min(2, { message: 'Please enter your profession.' }),
-  company: z.string().optional(),
-  workDetails: z.string().optional(),
+const aboutSchema = z.object({
+  bio: z
+    .string()
+    .min(100, { message: 'Bio must be at least 100 characters.' })
+    .max(1000, { message: 'Bio cannot exceed 1000 characters.' }),
+  partnerPreferences: z
+    .string()
+    .min(50, { message: 'Preferences must be at least 50 characters.' })
+    .max(1000, { message: 'Preferences cannot exceed 1000 characters.' }),
 });
 
-export default function CareerPage() {
+export default function AboutPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof careerSchema>>({
-    resolver: zodResolver(careerSchema),
+  const form = useForm<z.infer<typeof aboutSchema>>({
+    resolver: zodResolver(aboutSchema),
     defaultValues: {
-      profession: '',
-      company: '',
-      workDetails: '',
+      bio: '',
+      partnerPreferences: '',
     },
   });
 
-  async function onSubmit(values: z.infer<typeof careerSchema>) {
+  async function onSubmit(values: z.infer<typeof aboutSchema>) {
     if (!user) {
       toast({
         variant: 'destructive',
@@ -61,21 +65,22 @@ export default function CareerPage() {
     try {
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
-        'profile.career': values,
-        profileStatus: 'in-progress-about',
+        'profile.bio': values.bio,
+        'profile.partnerPreferences': values.partnerPreferences,
+        profileStatus: 'in-progress-photos', // Next step is photos
       }, { merge: true });
 
       toast({
-        title: 'Career Info Saved!',
-        description: "Let's move to the next step.",
+        title: 'Profile Details Saved!',
+        description: "Just one more step to go!",
       });
-      router.push('/onboarding/about');
+      router.push('/dashboard'); // Temporarily redirect to dashboard
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Failed to save your career information.',
+        description: 'Failed to save your information.',
       });
     }
   }
@@ -87,10 +92,10 @@ export default function CareerPage() {
           <Card>
             <CardHeader>
               <CardTitle className="font-headline text-xl">
-                Step 3: Work & Career
+                Step 4: About You & Your Preferences
               </CardTitle>
               <CardDescription>
-                Tell us about your professional life.
+                This is the heart of your profile. Take your time to express yourself.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -101,42 +106,40 @@ export default function CareerPage() {
                 >
                   <FormField
                     control={form.control}
-                    name="profession"
+                    name="bio"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Your Profession</FormLabel>
+                        <FormLabel>Your Bio</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Software Engineer" {...field} />
+                          <Textarea
+                            placeholder="Tell us about your personality, lifestyle, values, and what makes you unique."
+                            className="min-h-[150px]"
+                            {...field}
+                          />
                         </FormControl>
+                        <FormDescription>
+                          This helps us understand who you are. (Min 100 characters)
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                   <FormField
                     control={form.control}
-                    name="company"
+                    name="partnerPreferences"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Company Name (Optional)</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. Acme Inc." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                   <FormField
-                    control={form.control}
-                    name="workDetails"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>About Your Work (Optional)</FormLabel>
+                        <FormLabel>Partner Preferences</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Describe your role and what you do."
+                            placeholder="Describe what you are looking for in a life partner. Be specific about qualities, values, and lifestyle."
+                            className="min-h-[120px]"
                             {...field}
                           />
                         </FormControl>
+                        <FormDescription>
+                          What are the most important things you're looking for? (Min 50 characters)
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
