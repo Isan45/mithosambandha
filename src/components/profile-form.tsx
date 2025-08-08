@@ -1,3 +1,5 @@
+// This component is no longer used in the new onboarding flow.
+// It is kept for reference but can be deleted.
 'use client';
 
 import { useState } from 'react';
