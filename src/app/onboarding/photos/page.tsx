@@ -141,7 +141,7 @@ export default function PhotosPage() {
     setIdPreview(null);
   };
 
-  const uploadFile = async (storage: any, path: string, file: File) => {
+  const uploadFile = async (storage: any, path: string, file: File): Promise<string> => {
     const fileRef = ref(storage, path);
     await uploadBytes(fileRef, file);
     return getDownloadURL(fileRef);
@@ -163,21 +163,14 @@ export default function PhotosPage() {
     try {
       const storage = getStorage();
       
-      const photoUploadPromises = [];
-
-      // Add profile photo upload to promises
-      photoUploadPromises.push(uploadFile(storage, `user-photos/${user.uid}/profile-photo`, profilePhoto));
-
-      // Add gallery photos upload to promises
+      const photoUploadPromises = [uploadFile(storage, `user-photos/${user.uid}/profile-photo`, profilePhoto)];
       galleryPhotos.forEach((file, index) => {
         photoUploadPromises.push(uploadFile(storage, `user-photos/${user.uid}/gallery/${file.name}-${index}`, file));
       });
       
-      // Upload profile and gallery photos in parallel
       const [profilePhotoURL, ...galleryPhotoURLs] = await Promise.all(photoUploadPromises);
       
-      // Handle optional ID document upload separately
-      let idDocumentURL = null;
+      let idDocumentURL: string | null = null;
       if (idDocument) {
         idDocumentURL = await uploadFile(storage, `user-documents/${user.uid}/id-document`, idDocument);
       }
@@ -186,8 +179,8 @@ export default function PhotosPage() {
       await setDoc(userDocRef, {
         profile: { 
             profilePhoto: profilePhotoURL,
-            galleryPhotos: galleryPhotoURLs || [],
-            idDocument: idDocumentURL, // Will be null if not uploaded
+            galleryPhotos: galleryPhotoURLs,
+            idDocument: idDocumentURL,
         },
         profileStatus: 'pending-review',
       }, { merge: true });
@@ -199,12 +192,12 @@ export default function PhotosPage() {
 
       router.push('/dashboard');
 
-    } catch (error) {
-      console.error('Error uploading files:', error);
+    } catch (error: any) {
+      console.error('Error during submission:', error);
       toast({
         variant: 'destructive',
-        title: 'Upload Failed',
-        description: 'There was an error submitting your files. Please check your connection and security rules, then try again.',
+        title: 'Submission Failed',
+        description: `There was an error submitting your files. Please check your security rules and try again. Error: ${error.message}`,
       });
     } finally {
       setIsUploading(false);
