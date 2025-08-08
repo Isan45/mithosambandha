@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, ChangeEvent } from 'react';
+import { useState, useRef, ChangeEvent, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -13,7 +13,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db } from '@/lib/firebase/client';
 import { Loader2, UploadCloud, Image as ImageIcon, X, ShieldCheck } from 'lucide-react';
@@ -102,7 +102,35 @@ export default function PhotosPage() {
   const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
   const [idPreview, setIdPreview] = useState<string | null>(null);
 
+  const [existingProfilePhotoUrl, setExistingProfilePhotoUrl] = useState<string|null>(null);
+  const [existingGalleryUrls, setExistingGalleryUrls] = useState<string[]>([]);
+  const [existingIdUrl, setExistingIdUrl] = useState<string|null>(null);
+
   const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    async function fetchExistingPhotos() {
+        if (!user) return;
+        const userDocRef = doc(db, 'users', user.uid);
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists() && docSnap.data().profile) {
+            const profile = docSnap.data().profile;
+            if (profile.profilePhoto) {
+                setProfilePreview(profile.profilePhoto);
+                setExistingProfilePhotoUrl(profile.profilePhoto);
+            }
+            if (profile.galleryPhotos) {
+                setGalleryPreviews(profile.galleryPhotos);
+                setExistingGalleryUrls(profile.galleryPhotos);
+            }
+            if (profile.idDocument) {
+                setIdPreview(profile.idDocument);
+                setExistingIdUrl(profile.idDocument);
+            }
+        }
+    }
+    fetchExistingPhotos();
+  }, [user]);
 
   const handleFileChange = (setter: Function, previewSetter: Function, isMultiple = false) => (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -113,16 +141,16 @@ export default function PhotosPage() {
             return;
         }
         setter(filesArray);
-        // When selecting new gallery photos, revoke old ones and create new ones
-        galleryPreviews.forEach(p => URL.revokeObjectURL(p));
+        galleryPreviews.forEach(p => {
+          if (p.startsWith('blob:')) URL.revokeObjectURL(p)
+        });
         const newPreviews = filesArray.map(file => URL.createObjectURL(file));
         previewSetter(newPreviews);
       } else {
         const file = e.target.files[0];
         setter(file);
-        // Revoke the old preview URL before creating a new one
-        if (profilePreview) URL.revokeObjectURL(profilePreview);
-        if (idPreview) URL.revokeObjectURL(idPreview);
+        if (previewSetter === setProfilePreview && profilePreview?.startsWith('blob:')) URL.revokeObjectURL(profilePreview);
+        if (previewSetter === setIdPreview && idPreview?.startsWith('blob:')) URL.revokeObjectURL(idPreview);
         previewSetter(URL.createObjectURL(file));
       }
     }
@@ -131,23 +159,36 @@ export default function PhotosPage() {
   const removeGalleryImage = (index: number) => {
     const newPhotos = [...galleryPhotos];
     const newPreviews = [...galleryPreviews];
-    URL.revokeObjectURL(newPreviews[index]);
-    newPhotos.splice(index, 1);
+    
+    // Check if the removed image was from the existing URLs or newly added files
+    const isExisting = existingGalleryUrls.includes(newPreviews[index]);
+
+    if (isExisting) {
+      const urlToRemove = newPreviews[index];
+      setExistingGalleryUrls(prev => prev.filter(u => u !== urlToRemove));
+    } else {
+      newPhotos.splice(index, 1);
+    }
+
+    if (newPreviews[index].startsWith('blob:')) URL.revokeObjectURL(newPreviews[index]);
     newPreviews.splice(index, 1);
+    
     setGalleryPhotos(newPhotos);
     setGalleryPreviews(newPreviews);
   };
   
   const removeProfilePhoto = () => {
-    if (profilePreview) URL.revokeObjectURL(profilePreview);
+    if (profilePreview?.startsWith('blob:')) URL.revokeObjectURL(profilePreview);
     setProfilePhoto(null);
     setProfilePreview(null);
+    setExistingProfilePhotoUrl(null);
   };
   
   const removeIdDocument = () => {
-    if (idPreview) URL.revokeObjectURL(idPreview);
+    if (idPreview?.startsWith('blob:')) URL.revokeObjectURL(idPreview);
     setIdDocument(null);
     setIdPreview(null);
+    setExistingIdUrl(null);
   };
 
   const uploadFile = async (storagePath: string, file: File): Promise<string> => {
@@ -160,7 +201,7 @@ export default function PhotosPage() {
   
 
   const handleSubmit = async () => {
-    if (!profilePhoto) {
+    if (!profilePhoto && !existingProfilePhotoUrl) {
       toast({ variant: 'destructive', title: 'Profile Photo Required', description: 'Please upload a profile photo to continue. This is the main photo that represents you.' });
       return;
     }
@@ -172,39 +213,28 @@ export default function PhotosPage() {
     setIsUploading(true);
     
     try {
-      let profilePhotoURL, idDocumentURL;
-      let galleryPhotoURLs = [];
+      let profilePhotoURL = existingProfilePhotoUrl;
+      let galleryPhotoURLs = existingGalleryUrls;
+      let idDocumentURL = existingIdUrl;
 
-      // Step 1: Upload Profile Photo
-      try {
+      if (profilePhoto) {
         profilePhotoURL = await uploadFile(`user-photos/${user.uid}/profile-photo`, profilePhoto);
-      } catch (error) {
-        throw new Error("Failed to upload profile photo. Please check your connection and security rules.");
       }
 
-      // Step 2: Upload Gallery Photos
       if(galleryPhotos.length > 0) {
-        try {
-          galleryPhotoURLs = await Promise.all(
-            galleryPhotos.map((file, index) => 
-              uploadFile(`user-photos/${user.uid}/gallery/${file.name}-${index}`, file)
-            )
-          );
-        } catch (error) {
-          throw new Error("Failed to upload one or more gallery photos.");
-        }
+        const newGalleryURLs = await Promise.all(
+          galleryPhotos.map((file, index) => 
+            uploadFile(`user-photos/${user.uid}/gallery/${file.name}-${index}`, file)
+          )
+        );
+        // Combine old and new gallery URLs
+        galleryPhotoURLs = [...existingGalleryUrls, ...newGalleryURLs];
       }
       
-      // Step 3: Upload ID Document
       if (idDocument) {
-        try {
-          idDocumentURL = await uploadFile(`user-documents/${user.uid}/id-document`, idDocument);
-        } catch(error) {
-          throw new Error("Failed to upload ID document.");
-        }
+        idDocumentURL = await uploadFile(`user-documents/${user.uid}/id-document`, idDocument);
       }
 
-      // Step 4: Update Firestore
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
         profile: { 
