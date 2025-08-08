@@ -151,7 +151,7 @@ const PartnerPreferencesPage = () => {
                 <div className="mx-auto max-w-2xl">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="font-headline text-xl">Step 4: Partner Preferences</CardTitle>
+                            <CardTitle className="font-headline text-xl">Step 4: Your Partner Preferences</CardTitle>
                             <CardDescription>
                                 Help us understand what you're looking for in a life partner. The more details you provide, the better the matches.
                             </CardDescription>
@@ -302,5 +302,3 @@ const PartnerPreferencesPage = () => {
 }
 
 export default PartnerPreferencesPage;
-
-    

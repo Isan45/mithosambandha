@@ -62,7 +62,7 @@ export default function CareerPage() {
       const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
         'profile.career': values,
-        profileStatus: 'in-progress-about',
+        profileStatus: 'in-progress-partner-preferences',
       }, { merge: true });
 
       toast({
@@ -160,5 +160,3 @@ export default function CareerPage() {
     </div>
   );
 }
-
-    

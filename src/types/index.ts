@@ -20,7 +20,7 @@ export type UserProfile = {
     | 'in-progress-personal'
     | 'in-progress-education'
     | 'in-progress-career'
-    | 'in-progress-about'
+    | 'in-progress-partner-preferences'
     | 'in-progress-photos'
     | 'pending-review'
     | 'approved'
