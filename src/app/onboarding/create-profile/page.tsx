@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -55,6 +55,7 @@ export default function CreateProfilePage() {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isGeneratingBio, setIsGeneratingBio] = useState(false);
+    const [isLoadingData, setIsLoadingData] = useState(true);
 
     // State for all form fields, initialized with empty strings
     const [formState, setFormState] = useState({
@@ -76,6 +77,46 @@ export default function CreateProfilePage() {
         drinkingHabits: '',
         bio: '',
     });
+
+    useEffect(() => {
+      async function fetchProfileData() {
+        if (!user) return;
+        try {
+          const userDocRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(userDocRef);
+          if (docSnap.exists() && docSnap.data().profile) {
+            const profile = docSnap.data().profile;
+            const dob = profile.dob ? new Date(profile.dob) : null;
+            setFormState({
+              gender: profile.gender || '',
+              dob_day: dob ? String(dob.getDate()).padStart(2, '0') : '',
+              dob_month: dob ? String(dob.getMonth() + 1).padStart(2, '0') : '',
+              dob_year: dob ? String(dob.getFullYear()) : '',
+              height_ft: profile.height?.feet?.toString() || '',
+              height_in: profile.height?.inches?.toString() || '',
+              phoneNumber: profile.phoneNumber || '',
+              nationality: profile.nationality || '',
+              currentLocation: profile.currentLocation || '',
+              permanentAddress: profile.permanentAddress || '',
+              caste: profile.caste || '',
+              religion: profile.religion || '',
+              complexion: profile.complexion || '',
+              dietaryHabits: profile.dietaryHabits || '',
+              smokingHabits: profile.smokingHabits || '',
+              drinkingHabits: profile.drinkingHabits || '',
+              bio: profile.bio || '',
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching profile data:", error);
+          toast({ variant: 'destructive', title: 'Failed to load data', description: 'Could not fetch your saved data.' });
+        } finally {
+          setIsLoadingData(false);
+        }
+      }
+      fetchProfileData();
+    }, [user, toast]);
+
 
     const [errors, setErrors] = useState<any>({});
 
@@ -202,6 +243,14 @@ export default function CreateProfilePage() {
         } finally {
             setIsSubmitting(false);
         }
+    }
+
+    if (isLoadingData) {
+      return (
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin" />
+        </div>
+      );
     }
 
     return (
@@ -418,6 +467,6 @@ export default function CreateProfilePage() {
             </div>
         </div>
     );
-}
+
 
     
