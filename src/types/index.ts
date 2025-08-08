@@ -8,3 +8,10 @@ export type Profile = {
   photos: string[];
   status: 'approved' | 'pending' | 'rejected';
 };
+
+export type SuccessStory = {
+  id: string;
+  names: string;
+  story: string;
+  photo: string;
+};

@@ -2,8 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ProfileCard } from '@/components/profile-card';
-import { mockProfiles } from '@/lib/mock-data';
-import type { Profile } from '@/types';
+import { mockProfiles, mockSuccessStories } from '@/lib/mock-data';
+import type { Profile, SuccessStory } from '@/types';
 import {
   ShieldCheck,
   Search,
@@ -19,9 +19,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { SuccessStoryCard } from '@/components/success-story-card';
 
 export default function Home() {
   const approvedProfiles = mockProfiles.filter(p => p.status === 'approved');
+  const featuredStories = mockSuccessStories.slice(0, 3);
 
   return (
     <div className="flex flex-col">
@@ -201,6 +203,31 @@ export default function Home() {
             {approvedProfiles.map((profile: Profile) => (
               <ProfileCard key={profile.id} profile={profile} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Success Stories Section */}
+      <section className="bg-background py-16 md:py-24">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="mb-12 text-center">
+            <h2 className="font-headline text-3xl font-bold md:text-4xl">
+              Success Stories
+            </h2>
+            <p className="mt-2 text-lg text-muted-foreground">
+              Read about the journeys of couples who found love through Mitho
+              Sambandha.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {featuredStories.map((story: SuccessStory) => (
+              <SuccessStoryCard key={story.id} story={story} />
+            ))}
+          </div>
+          <div className="mt-12 text-center">
+            <Button asChild variant="outline">
+              <Link href="/success-stories">View All Success Stories</Link>
+            </Button>
           </div>
         </div>
       </section>

@@ -1,4 +1,4 @@
-import type { Profile } from '@/types';
+import type { Profile, SuccessStory } from '@/types';
 
 export const mockProfiles: Profile[] = [
   {
@@ -90,5 +90,43 @@ export const mockProfiles: Profile[] = [
       'https://placehold.co/600x400.png',
     ],
     status: 'pending',
+  },
+];
+
+export const mockSuccessStories: SuccessStory[] = [
+  {
+    id: '1',
+    names: 'Asha & Ravi',
+    story:
+      "We found each other through Mitho Sambandha and it felt like destiny. The platform's focus on genuine intentions made all the difference. We're now happily married and so grateful for this amazing service!",
+    photo: 'https://placehold.co/800x600.png',
+  },
+  {
+    id: '2',
+    names: 'Nisha & Suman',
+    story:
+      'Neither of us thought we would find love online, but Mitho Sambandha proved us wrong. The personal touch and careful vetting process helped us connect on a deeper level. We tied the knot last spring!',
+    photo: 'https://placehold.co/800x600.png',
+  },
+  {
+    id: '3',
+    names: 'Sunita & Pradip',
+    story:
+      "Our journey started with a simple profile view and ended in a beautiful wedding. The platform made it easy to find someone with shared values. Thank you, Mitho Sambandha, for bringing us together.",
+    photo: 'https://placehold.co/800x600.png',
+  },
+  {
+    id: '4',
+    names: 'Diya & Anup',
+    story:
+      'We lived in different continents but shared the same cultural roots. Mitho Sambandha bridged the distance and helped us build a connection that felt like home. We are now happily settled and planning our future.',
+    photo: 'https://placehold.co/800x600.png',
+  },
+  {
+    id: '5',
+    names: 'Kiran & Mohan',
+    story:
+      "The admin team's dedication to creating a safe community is what drew us to Mitho Sambandha. It led us to find not just a partner, but a soulmate. We couldn't be happier.",
+    photo: 'https://placehold.co/800x600.png',
   },
 ];
