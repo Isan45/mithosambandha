@@ -1,13 +1,19 @@
 import Link from 'next/link';
-import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-primary/10 bg-background/80 backdrop-blur-sm">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <Heart className="h-6 w-6 text-primary" />
+          <Image
+            src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-Sambandha-Logo-.avif?alt=media&token=3de63ad0-a01e-466c-8454-d04da7df9533"
+            alt="Mitho Sambandha Logo"
+            width={40}
+            height={40}
+            className="rounded-full"
+          />
           <span className="font-headline text-2xl font-bold text-primary">
             Mitho Sambandha
           </span>

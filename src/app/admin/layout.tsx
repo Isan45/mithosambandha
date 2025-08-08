@@ -11,12 +11,12 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   LayoutDashboard,
   Users,
   HeartHandshake,
   LogOut,
-  Heart,
 } from 'lucide-react';
 
 export default function AdminLayout({
@@ -30,7 +30,13 @@ export default function AdminLayout({
         <SidebarHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-primary" />
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-Sambandha-Logo-.avif?alt=media&token=3de63ad0-a01e-466c-8454-d04da7df9533"
+                alt="Mitho Sambandha Logo"
+                width={32}
+                height={32}
+                className="rounded-full"
+              />
               <h2 className="font-headline text-xl text-primary">
                 Mitho Sambandha
               </h2>

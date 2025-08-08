@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Heart } from 'lucide-react';
+import Image from 'next/image';
 
 export function Footer() {
   return (
@@ -8,7 +8,13 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-primary" />
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-Sambandha-Logo-.avif?alt=media&token=3de63ad0-a01e-466c-8454-d04da7df9533"
+                alt="Mitho Sambandha Logo"
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
               <span className="font-headline text-2xl font-bold text-primary">
                 Mitho Sambandha
               </span>
