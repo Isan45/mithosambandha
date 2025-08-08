@@ -31,7 +31,7 @@ export default function Home() {
           src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
           alt="Joyful Nepali couple"
           fill
-          style={{ objectFit: 'cover', objectPosition: 'center 40%' }}
+          style={{ objectFit: 'cover', objectPosition: 'center' }}
           className="z-0"
           priority
         />
