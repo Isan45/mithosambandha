@@ -158,7 +158,7 @@ export default function DashboardPage() {
 
 
   const p = profile?.profile;
-  const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
+  const profilePhotoUrl = 'https://placehold.co/800x600.png'; // Force placeholder to bypass CORS
   const galleryPhotos = p?.galleryPhotos?.length
     ? p.galleryPhotos
     : ['https://placehold.co/800x600.png'];
@@ -401,3 +401,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
