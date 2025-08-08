@@ -193,10 +193,46 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-secondary/30">
-      <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        
+        {/* "Your Activity" section as KPI cards */}
+        <div>
+            <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline">Your Activity</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+                    <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Profile Views</p>
+                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.profileViews.total}</p>
+                        <p className="text-xs text-green-500">+{MOCK_ACTIVITY_DATA.profileViews.daily} today</p>
+                    </div>
+                    <Eye className="w-8 h-8 text-primary/60" />
+                </Card>
+                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+                    <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Messages Received</p>
+                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.messagesReceived}</p>
+                    </div>
+                    <MessageCircle className="w-8 h-8 text-primary/60" />
+                </Card>
+                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+                    <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Login Streak</p>
+                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.streak} Days</p>
+                    </div>
+                    <Trophy className="w-8 h-8 text-primary/60" />
+                </Card>
+                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+                    <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Badges Earned</p>
+                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.badges.length}</p>
+                    </div>
+                    <Crown className="w-8 h-8 text-primary/60" />
+                </Card>
+            </div>
+        </div>
         
         {/* Main Profile Card (Merged Design) */}
-        <Card className="mb-8 overflow-hidden">
+        <Card className="overflow-hidden">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
               {/* Left Side: Photo & Verification */}
@@ -280,74 +316,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         
-        {/* "Your Activity" section */}
-        <div className="mb-8">
-            <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline">Your Activity</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-                    <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">Profile Views</p>
-                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.profileViews.total}</p>
-                        <p className="text-xs text-green-500">+{MOCK_ACTIVITY_DATA.profileViews.daily} today</p>
-                    </div>
-                    <Eye className="w-8 h-8 text-primary/60" />
-                </Card>
-                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-                    <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">Messages Received</p>
-                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.messagesReceived}</p>
-                    </div>
-                    <MessageCircle className="w-8 h-8 text-primary/60" />
-                </Card>
-                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-                    <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">Login Streak</p>
-                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.streak} Days</p>
-                    </div>
-                    <Trophy className="w-8 h-8 text-primary/60" />
-                </Card>
-                <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-                    <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">Badges Earned</p>
-                        <p className="text-2xl font-bold">{MOCK_ACTIVITY_DATA.badges.length}</p>
-                    </div>
-                    <Crown className="w-8 h-8 text-primary/60" />
-                </Card>
-            </div>
-        </div>
-
-        {/* "Latest Matches" Carousel */}
-         <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl md:text-2xl font-bold font-headline">Latest Matches</h2>
-                <Button variant="link" asChild className="text-primary p-0 h-auto">
-                    <Link href="/search">See More</Link>
-                </Button>
-            </div>
-            <div className="flex space-x-4 overflow-x-auto pb-4 -m-4 p-4">
-                {MOCK_MATCHES.map((match) => (
-                    <Card key={match.id} className="min-w-[250px] w-64 rounded-2xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-105">
-                        <div className="relative h-48">
-                            <Image src={match.photo} alt={match.name} fill className="w-full h-full object-cover" data-ai-hint="portrait person" />
-                        </div>
-                        <CardContent className="p-4 space-y-2">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-lg font-semibold">{match.name}, {match.age}</CardTitle>
-                                <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 transition-colors cursor-pointer" />
-                            </div>
-                            <p className="text-sm text-muted-foreground">{match.location}</p>
-                            <p className="text-xs italic text-foreground/80 line-clamp-2">"{match.tagline}"</p>
-                            <div className="flex gap-2 pt-2">
-                                <Button variant="outline" size="sm" className="flex-1 rounded-full text-xs">View Profile</Button>
-                                <Button size="sm" className="flex-1 rounded-full text-xs">Send Interest</Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        </div>
-
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-8">
                 {/* Photo Gallery Section */}
@@ -406,6 +374,37 @@ export default function DashboardPage() {
                          </div>
                     )}
                 </ProfileSection>
+            </div>
+        </div>
+
+        {/* "Latest Matches" Carousel */}
+         <div>
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl md:text-2xl font-bold font-headline">Latest Matches</h2>
+                <Button variant="link" asChild className="text-primary p-0 h-auto">
+                    <Link href="/search">See More</Link>
+                </Button>
+            </div>
+            <div className="flex space-x-4 overflow-x-auto pb-4 -m-4 p-4">
+                {MOCK_MATCHES.map((match) => (
+                    <Card key={match.id} className="min-w-[250px] w-64 rounded-2xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-105">
+                        <div className="relative h-48">
+                            <Image src={match.photo} alt={match.name} fill className="w-full h-full object-cover" data-ai-hint="portrait person" />
+                        </div>
+                        <CardContent className="p-4 space-y-2">
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="text-lg font-semibold">{match.name}, {match.age}</CardTitle>
+                                <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 transition-colors cursor-pointer" />
+                            </div>
+                            <p className="text-sm text-muted-foreground">{match.location}</p>
+                            <p className="text-xs italic text-foreground/80 line-clamp-2">"{match.tagline}"</p>
+                            <div className="flex gap-2 pt-2">
+                                <Button variant="outline" size="sm" className="flex-1 rounded-full text-xs">View Profile</Button>
+                                <Button size="sm" className="flex-1 rounded-full text-xs">Send Interest</Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
         </div>
       </div>
