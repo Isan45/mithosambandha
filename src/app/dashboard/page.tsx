@@ -28,6 +28,7 @@ import {
   Crown,
   Trophy,
   Sparkles,
+  Send,
 } from 'lucide-react';
 import type { UserProfile } from '@/types';
 import Image from 'next/image';
@@ -101,6 +102,7 @@ const VerificationStatus = ({
 const MOCK_ACTIVITY_DATA = {
   profileViews: { total: 125, daily: 5 },
   messagesReceived: 8,
+  messagesSent: 22,
   interestsSent: 15,
   interestsReceived: 12,
   pendingRequests: 3,
@@ -194,7 +196,7 @@ export default function DashboardPage() {
           <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline">
             Your Activity
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
             <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Profile Views</p>
@@ -210,13 +212,35 @@ export default function DashboardPage() {
             <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">
+                  Messages Received
+                </p>
+                <p className="text-2xl font-bold">
+                  {MOCK_ACTIVITY_DATA.messagesReceived}
+                </p>
+              </div>
+              <MessageCircle className="w-8 h-8 text-primary/60" />
+            </Card>
+             <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">
+                  Messages Sent
+                </p>
+                <p className="text-2xl font-bold">
+                  {MOCK_ACTIVITY_DATA.messagesSent}
+                </p>
+              </div>
+              <Send className="w-8 h-8 text-primary/60" />
+            </Card>
+            <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">
                   Interests Received
                 </p>
                 <p className="text-2xl font-bold">
                   {MOCK_ACTIVITY_DATA.interestsReceived}
                 </p>
               </div>
-              <MessageCircle className="w-8 h-8 text-primary/60" />
+              <HeartHandshake className="w-8 h-8 text-primary/60" />
             </Card>
             <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
               <div className="space-y-1">
@@ -226,15 +250,6 @@ export default function DashboardPage() {
                 </p>
               </div>
               <Trophy className="w-8 h-8 text-primary/60" />
-            </Card>
-            <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Badges Earned</p>
-                <p className="text-2xl font-bold">
-                  {MOCK_ACTIVITY_DATA.badges.length}
-                </p>
-              </div>
-              <Crown className="w-8 h-8 text-primary/60" />
             </Card>
           </div>
         </div>
@@ -399,54 +414,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
         
-        {/* Online Now Section */}
-        <div>
-            <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline">Online Now</h2>
-            <div className="flex space-x-4 overflow-x-auto pb-4 -m-4 p-4">
-                {MOCK_ONLINE_USERS.map((onlineUser) => (
-                    <Link key={onlineUser.id} href={`/profiles/${onlineUser.id}`} className="flex flex-col items-center space-y-2 flex-shrink-0 w-24">
-                        <div className="relative">
-                            <Avatar className="w-20 h-20 border-2 border-accent">
-                                <AvatarImage src={onlineUser.profilePhoto} alt={onlineUser.name} />
-                                <AvatarFallback>{onlineUser.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <span className="absolute bottom-0 right-0 block h-4 w-4 rounded-full bg-green-500 ring-2 ring-background" />
-                        </div>
-                        <p className="text-sm font-medium text-center truncate w-full">{onlineUser.name}</p>
-                    </Link>
-                ))}
-            </div>
-        </div>
-
-        {/* Smart Match Section */}
-        {MOCK_SMART_MATCH && (
-            <div>
-                 <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline flex items-center gap-2">
-                    <Sparkles className="text-primary"/>
-                    Smart Match
-                </h2>
-                <Card className="bg-gradient-to-br from-primary/10 to-accent/10">
-                    <CardContent className="p-6 flex flex-col md:flex-row items-center gap-6">
-                        <Avatar className="w-24 h-24 border-4 border-background shadow-lg">
-                           <AvatarImage src={MOCK_SMART_MATCH.profilePhoto} alt={MOCK_SMART_MATCH.name}/>
-                           <AvatarFallback>{MOCK_SMART_MATCH.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className="text-center md:text-left flex-grow">
-                            <CardTitle className="font-headline text-2xl">{MOCK_SMART_MATCH.name}, {MOCK_SMART_MATCH.age}</CardTitle>
-                            <CardDescription className="mt-1">Based on your preferences, we think you'll get along!</CardDescription>
-                             <p className="text-sm mt-2 line-clamp-2 text-muted-foreground">{MOCK_SMART_MATCH.bio}</p>
-                        </div>
-                        <div className="flex flex-col gap-2 flex-shrink-0">
-                          <Button asChild>
-                            <Link href={`/profiles/${MOCK_SMART_MATCH.id}`}>View Profile</Link>
-                          </Button>
-                          <Button variant="outline">Send Interest</Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        )}
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="space-y-8">
             {/* Photo Gallery Section */}
@@ -557,6 +524,54 @@ export default function DashboardPage() {
             </ProfileSection>
           </div>
         </div>
+        
+        {/* Online Now Section */}
+        <div>
+            <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline">Online Now</h2>
+            <div className="flex space-x-4 overflow-x-auto pb-4 -m-4 p-4">
+                {MOCK_ONLINE_USERS.map((onlineUser) => (
+                    <Link key={onlineUser.id} href={`/profiles/${onlineUser.id}`} className="flex flex-col items-center space-y-2 flex-shrink-0 w-24">
+                        <div className="relative">
+                            <Avatar className="w-20 h-20 border-2 border-accent">
+                                <AvatarImage src={onlineUser.profilePhoto} alt={onlineUser.name} />
+                                <AvatarFallback>{onlineUser.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <span className="absolute bottom-0 right-0 block h-4 w-4 rounded-full bg-green-500 ring-2 ring-background" />
+                        </div>
+                        <p className="text-sm font-medium text-center truncate w-full">{onlineUser.name}</p>
+                    </Link>
+                ))}
+            </div>
+        </div>
+
+        {/* Smart Match Section */}
+        {MOCK_SMART_MATCH && (
+            <div>
+                 <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline flex items-center gap-2">
+                    <Sparkles className="text-primary"/>
+                    Smart Match
+                </h2>
+                <Card className="bg-gradient-to-br from-primary/10 to-accent/10">
+                    <CardContent className="p-6 flex flex-col md:flex-row items-center gap-6">
+                        <Avatar className="w-24 h-24 border-4 border-background shadow-lg">
+                           <AvatarImage src={MOCK_SMART_MATCH.profilePhoto} alt={MOCK_SMART_MATCH.name}/>
+                           <AvatarFallback>{MOCK_SMART_MATCH.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="text-center md:text-left flex-grow">
+                            <CardTitle className="font-headline text-2xl">{MOCK_SMART_MATCH.name}, {MOCK_SMART_MATCH.age}</CardTitle>
+                            <CardDescription className="mt-1">Based on your preferences, we think you'll get along!</CardDescription>
+                             <p className="text-sm mt-2 line-clamp-2 text-muted-foreground">{MOCK_SMART_MATCH.bio}</p>
+                        </div>
+                        <div className="flex flex-col gap-2 flex-shrink-0">
+                          <Button asChild>
+                            <Link href={`/profiles/${MOCK_SMART_MATCH.id}`}>View Profile</Link>
+                          </Button>
+                          <Button variant="outline">Send Interest</Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        )}
 
         {/* "Latest Matches" Carousel */}
         <div>
@@ -617,3 +632,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
