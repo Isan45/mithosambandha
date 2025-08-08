@@ -4,6 +4,7 @@ import { CheckCircle2, XCircle, Star } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import React from 'react';
+import Image from 'next/image';
 
 const PlanCard = ({
   plan,
@@ -36,7 +37,7 @@ const PlanCard = ({
             return (
               <li key={index} className="flex items-start gap-3">
                 <div className="flex-shrink-0 mt-1">
-                    {isExcluded ? 
+                    {isExcluded ?
                         <XCircle className="h-5 w-5 text-muted-foreground" /> :
                         <CheckCircle2 className="h-5 w-5 text-green-600" />
                     }
@@ -84,7 +85,7 @@ export default function PricingPage() {
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-12">
             {/* Free Plan */}
-            <PlanCard 
+            <PlanCard
                 plan="Free"
                 price="Free"
                 description="Get started and create your profile for our admins to see."
@@ -102,7 +103,7 @@ export default function PricingPage() {
                 ]}
             />
              {/* Gold Plan */}
-            <PlanCard 
+            <PlanCard
                 plan="Gold"
                 price="₹1000/mo or ₹6000/yr"
                 description="Unlock more features to enhance your search."
@@ -120,7 +121,7 @@ export default function PricingPage() {
                 ]}
             />
              {/* Platinum Plan */}
-            <PlanCard 
+            <PlanCard
                 plan="Platinum"
                 price="₹2500/mo or ₹15000/yr"
                 description="The ultimate experience with full access and priority support."
@@ -140,6 +141,31 @@ export default function PricingPage() {
                 ]}
             />
         </div>
+
+        <section className="mt-24 bg-secondary rounded-lg p-8 md:p-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h2 className="font-headline text-3xl font-bold text-primary">Our Commitment to Your Journey</h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                We believe that investing in your search for a life partner is one of the most important decisions you can make. Our plans are designed to provide you with the tools and support you need, but our real commitment is to help you find a genuine, lasting connection. We're here for you every step of the way.
+              </p>
+              <Button asChild size="lg" className="mt-6">
+                <Link href="/about">Learn More About Us</Link>
+              </Button>
+            </div>
+            <div className="relative h-64 w-full md:h-full">
+               <Image
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
+                alt="Happy couple"
+                fill
+                style={{objectFit: 'cover'}}
+                className="rounded-lg shadow-md"
+                data-ai-hint="happy couple"
+              />
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
   );
