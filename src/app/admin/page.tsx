@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import type { Profile } from '@/types';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -22,19 +22,16 @@ export default function AdminDashboardPage() {
       try {
         const profilesCollection = collection(db, 'users');
         
-        // Using getDocs to fetch all and then filter client-side
-        // This is less efficient for large datasets but simpler for now.
-        // For production, you might use separate queries or a summary document.
         const querySnapshot = await getDocs(profilesCollection);
         
         let approvedCount = 0;
         let pendingCount = 0;
         
         querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.profileStatus === 'approved') {
+          const data = doc.data() as Profile;
+          if (data.status === 'approved') {
             approvedCount++;
-          } else if (data.profileStatus === 'pending-review') {
+          } else if (data.status === 'pending') {
             pendingCount++;
           }
         });

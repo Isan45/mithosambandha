@@ -9,6 +9,23 @@ export type Profile = {
   status: 'approved' | 'pending' | 'rejected';
 };
 
+export type UserProfile = {
+  uid: string;
+  email: string;
+  fullName: string;
+  onboardingReason: 'life-partner' | 'for-someone-else' | 'browsing';
+  profileStatus:
+    | 'incomplete'
+    | 'in-progress-personal'
+    | 'in-progress-education'
+    | 'in-progress-about'
+    | 'in-progress-photos'
+    | 'pending-review'
+    | 'approved'
+    | 'rejected';
+  createdAt: any; // Using `any` for Firebase Timestamp for simplicity
+};
+
 export type SuccessStory = {
   id: string;
   names: string;
