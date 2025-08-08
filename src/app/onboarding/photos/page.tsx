@@ -90,7 +90,7 @@ const FileUploadArea = ({
 
 
 export default function PhotosPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   
@@ -161,28 +161,29 @@ export default function PhotosPage() {
     }
 
     setIsUploading(true);
-    let profilePhotoURL, idDocumentURL;
-    let galleryPhotoURLs = [];
-
+    
     try {
+      let profilePhotoURL, idDocumentURL;
+      let galleryPhotoURLs = [];
+
       // Step 1: Upload Profile Photo
       try {
         profilePhotoURL = await uploadFile(`user-photos/${user.uid}/profile-photo`, profilePhoto);
       } catch (error) {
-        console.error("Profile photo upload failed:", error);
         throw new Error("Failed to upload profile photo. Please check your connection and security rules.");
       }
 
       // Step 2: Upload Gallery Photos
-      try {
-        galleryPhotoURLs = await Promise.all(
-          galleryPhotos.map((file, index) => 
-            uploadFile(`user-photos/${user.uid}/gallery/${file.name}-${index}`, file)
-          )
-        );
-      } catch (error) {
-        console.error("Gallery photos upload failed:", error);
-        throw new Error("Failed to upload one or more gallery photos.");
+      if(galleryPhotos.length > 0) {
+        try {
+          galleryPhotoURLs = await Promise.all(
+            galleryPhotos.map((file, index) => 
+              uploadFile(`user-photos/${user.uid}/gallery/${file.name}-${index}`, file)
+            )
+          );
+        } catch (error) {
+          throw new Error("Failed to upload one or more gallery photos.");
+        }
       }
       
       // Step 3: Upload ID Document
@@ -190,26 +191,20 @@ export default function PhotosPage() {
         try {
           idDocumentURL = await uploadFile(`user-documents/${user.uid}/id-document`, idDocument);
         } catch(error) {
-          console.error("ID Document upload failed:", error);
           throw new Error("Failed to upload ID document.");
         }
       }
 
       // Step 4: Update Firestore
-      try {
-        const userDocRef = doc(db, 'users', user.uid);
-        await setDoc(userDocRef, {
-          profile: { 
-              profilePhoto: profilePhotoURL,
-              galleryPhotos: galleryPhotoURLs,
-              idDocument: idDocumentURL || null,
-          },
-          profileStatus: 'pending-review',
-        }, { merge: true });
-      } catch (error) {
-        console.error("Firestore update failed:", error);
-        throw new Error("Failed to save profile data to the database.");
-      }
+      const userDocRef = doc(db, 'users', user.uid);
+      await setDoc(userDocRef, {
+        profile: { 
+            profilePhoto: profilePhotoURL,
+            galleryPhotos: galleryPhotoURLs,
+            idDocument: idDocumentURL || null,
+        },
+        profileStatus: 'pending-review',
+      }, { merge: true });
 
       toast({
         title: 'Profile Submitted!',
@@ -304,7 +299,7 @@ export default function PhotosPage() {
           
           <Button
             onClick={handleSubmit}
-            disabled={isUploading || !profilePhoto}
+            disabled={isUploading || !profilePhoto || authLoading}
             className="w-full"
             size="lg"
           >
@@ -317,5 +312,3 @@ export default function PhotosPage() {
     </div>
   );
 }
-
-    

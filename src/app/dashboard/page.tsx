@@ -61,7 +61,7 @@ const ProfileDetailItem = ({
 };
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -88,13 +88,13 @@ export default function DashboardPage() {
         } finally {
           setLoading(false);
         }
-      } else if (!user && !loading) {
-        // This case is handled by AuthProvider, but as a fallback:
+      } else if (!user && !authLoading) {
+        setLoading(false);
         setProfile(null);
       }
     }
     fetchProfile();
-  }, [user, toast]);
+  }, [user, authLoading, toast]);
 
   const handleCameraClick = () => {
     fileInputRef.current?.click();
@@ -114,16 +114,15 @@ export default function DashboardPage() {
     }
 
     setIsUploading(true);
+    const storage = getStorage();
+    const filePath = `user-photos/${user.uid}/profile-photo`;
+    const storageRef = ref(storage, filePath);
+    const userDocRef = doc(db, 'users', user.uid);
 
     try {
-      const storage = getStorage();
-      const filePath = `user-photos/${user.uid}/profile-photo`;
-      const storageRef = ref(storage, filePath);
-      
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
 
-      const userDocRef = doc(db, 'users', user.uid);
       await updateDoc(userDocRef, {
         'profile.profilePhoto': downloadURL,
       });
@@ -149,7 +148,7 @@ export default function DashboardPage() {
         title: 'Upload Failed',
         description:
           error.code === 'storage/unauthorized'
-            ? 'Permission denied. Check your Firebase Storage security rules.'
+            ? 'Permission denied. Please check your Firebase Storage security rules.'
             : 'There was an error updating your photo. Please try again.',
       });
     } finally {
@@ -157,12 +156,13 @@ export default function DashboardPage() {
     }
   };
 
+
   const p = profile?.profile;
   const photos = p?.galleryPhotos?.length
     ? p.galleryPhotos
     : ['https://placehold.co/800x600.png'];
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -223,7 +223,7 @@ export default function DashboardPage() {
                         variant="secondary"
                         className="h-8 w-8"
                         onClick={handleCameraClick}
-                        disabled={isUploading}
+                        disabled={isUploading || authLoading}
                       >
                         {isUploading ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -400,5 +400,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
