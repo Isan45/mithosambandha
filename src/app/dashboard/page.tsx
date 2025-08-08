@@ -1,7 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, 'use strict';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
@@ -191,6 +192,15 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-secondary/30">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="mb-6">
+          <h1 className="font-headline text-4xl font-bold">
+            Welcome, {profile.fullName}
+          </h1>
+          <p className="text-muted-foreground">
+            This is your personal dashboard. Let's find your Mitho Sambandha.
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
           {/* Main Content */}
           <div className="lg:col-span-8 space-y-8">
