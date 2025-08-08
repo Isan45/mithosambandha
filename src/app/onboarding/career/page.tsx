@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -27,11 +28,19 @@ import { db } from '@/lib/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const careerSchema = z.object({
   profession: z.string().min(2, { message: 'Please enter your profession.' }),
   company: z.string().optional(),
   workDetails: z.string().optional(),
+  income: z.string().optional(),
 });
 
 export default function CareerPage() {
@@ -45,6 +54,7 @@ export default function CareerPage() {
       profession: '',
       company: '',
       workDetails: '',
+      income: '',
     },
   });
 
@@ -60,10 +70,14 @@ export default function CareerPage() {
 
     try {
       const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(userDocRef, {
-        'profile.career': values,
-        profileStatus: 'in-progress-partner-preferences',
-      }, { merge: true });
+      await setDoc(
+        userDocRef,
+        {
+          'profile.career': values,
+          profileStatus: 'in-progress-partner-preferences',
+        },
+        { merge: true }
+      );
 
       toast({
         title: 'Career Info Saved!',
@@ -106,7 +120,10 @@ export default function CareerPage() {
                       <FormItem>
                         <FormLabel>Your Profession</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Software Engineer" {...field} />
+                          <Input
+                            placeholder="e.g. Software Engineer"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -125,7 +142,7 @@ export default function CareerPage() {
                       </FormItem>
                     )}
                   />
-                   <FormField
+                  <FormField
                     control={form.control}
                     name="workDetails"
                     render={({ field }) => (
@@ -137,6 +154,36 @@ export default function CareerPage() {
                             {...field}
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="income"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Annual Income (Optional)</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select your income range" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="<2L">Less than 2 lakhs</SelectItem>
+                            <SelectItem value="2L-3L">2 lakhs - 3 lakhs</SelectItem>
+                            <SelectItem value="3L-4L">3 lakhs - 4 lakhs</SelectItem>
+                            <SelectItem value="4L-5L">4 lakhs - 5 lakhs</SelectItem>
+                            <SelectItem value=">5L">More than 5 lakhs</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          This helps us find the right partner for you.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
