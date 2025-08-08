@@ -88,7 +88,7 @@ export default function PricingPage() {
             </div>
             <div className="relative h-64 w-full md:h-80">
               <Image
-                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-2.avif?alt=media&token=14b88d3a-ca2f-4078-b20d-e460edaaa7a4"
                 alt="Happy couple smiling"
                 fill
                 style={{objectFit: 'cover'}}
@@ -187,7 +187,7 @@ export default function PricingPage() {
             </div>
             <div className="relative h-64 w-full md:h-full">
                <Image
-                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-2.avif?alt=media&token=14b88d3a-ca2f-4078-b20d-e460edaaa7a4"
                 alt="Happy couple"
                 fill
                 style={{objectFit: 'cover'}}
