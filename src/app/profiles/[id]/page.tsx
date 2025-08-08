@@ -20,7 +20,7 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 
-export default function ProfilePage({ params: { id } }: { params: { id: string } }) {
+export default function ProfilePage({ params: { id } }: { params: { id: string }, searchParams: {} }) {
   const profile = mockProfiles.find(
     p => p.id === id && p.status === 'approved'
   );
