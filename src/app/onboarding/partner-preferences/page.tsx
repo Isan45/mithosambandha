@@ -125,14 +125,14 @@ const PartnerPreferencesPage = () => {
             const userDocRef = doc(db, 'users', user.uid);
             await setDoc(userDocRef, {
                 'profile.partnerPreferences': partnerPreferences,
-                profileStatus: 'in-progress-photos',
+                profileStatus: 'pending-review',
             }, { merge: true });
 
             toast({
                 title: 'Preferences Saved!',
-                description: "Your partner preferences have been updated. Just one more step!",
+                description: "Your profile has been submitted for review!",
             });
-            router.push('/onboarding/photos');
+            router.push('/dashboard');
         } catch (error) {
             console.error('Error updating profile:', error);
             toast({
@@ -306,7 +306,7 @@ const PartnerPreferencesPage = () => {
                                 </div>
                                 
                                 <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-                                  {isSubmitting ? 'Saving...' : 'Save Preferences & Continue'}
+                                  {isSubmitting ? 'Saving...' : 'Submit Profile for Review'}
                                 </Button>
                             </form>
                         </CardContent>
@@ -318,5 +318,3 @@ const PartnerPreferencesPage = () => {
 }
 
 export default PartnerPreferencesPage;
-
-    

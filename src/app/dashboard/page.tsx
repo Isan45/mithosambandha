@@ -66,8 +66,6 @@ export default function DashboardPage() {
         return 50;
       case 'in-progress-partner-preferences':
         return 75;
-      case 'in-progress-photos':
-        return 90;
       case 'pending-review':
       case 'approved':
         return 100;
@@ -81,8 +79,8 @@ export default function DashboardPage() {
     { name: 'Create Account', completed: true },
     { name: 'Personal Information', completed: progress > 10 },
     { name: 'Education & Career', completed: progress > 25 },
-    { name: 'Partner Preferences', completed: progress > 75 },
-    { name: 'Upload Photos', completed: progress > 90 },
+    { name: 'Partner Preferences', completed: progress >= 75 },
+    { name: 'Profile Submitted', completed: progress === 100 },
   ];
 
   const getContinueLink = () => {
@@ -95,8 +93,6 @@ export default function DashboardPage() {
         return '/onboarding/career';
       case 'in-progress-partner-preferences':
         return '/onboarding/partner-preferences';
-      case 'in-progress-photos':
-        return '/onboarding/photos';
       default:
         return '#';
     }
@@ -154,5 +150,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
