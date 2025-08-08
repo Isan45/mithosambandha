@@ -31,6 +31,8 @@ import {
   GlassWater,
   Sparkles,
   Award,
+  BookUser,
+  Scale,
 } from 'lucide-react';
 import type { UserProfile } from '@/types';
 import Image from 'next/image';
@@ -44,33 +46,34 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
 const DetailItem = ({ icon: Icon, label, value, action }: any) => (
-  <div className="flex items-center justify-between py-2">
+  <div className="flex items-start justify-between py-3 border-b border-border/50">
     <div className="flex items-center gap-4">
-      <Icon className="h-5 w-5 text-muted-foreground" />
+      <Icon className="h-6 w-6 text-muted-foreground" />
       <div>
-        <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="font-medium">{value || 'N/A'}</p>
+        <p className="font-semibold">{label}</p>
+        <p className="text-sm text-muted-foreground">{value || 'N/A'}</p>
       </div>
     </div>
-    {action}
+    <div className="flex-shrink-0">{action}</div>
   </div>
 );
 
+
 const InfoPill = ({ icon: Icon, value }: { icon: React.ElementType, value: string | number | null | undefined }) => (
-  <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-sm text-secondary-foreground">
+  <div className="flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-sm text-secondary-foreground">
     <Icon className="h-4 w-4" />
-    <span>{value || 'N/A'}</span>
+    <span className="font-medium">{value || 'N/A'}</span>
   </div>
 );
 
 
 const VerificationStatus = ({ verified, onVerify }: { verified?: boolean; onVerify?: () => void; }) =>
   verified ? (
-    <span className="flex items-center gap-1 text-xs text-green-600">
+    <span className="flex items-center gap-1 text-xs font-semibold text-green-600">
       <CheckCircle className="h-4 w-4" /> Verified
     </span>
   ) : (
-    <Button variant="outline" size="sm" className="h-7 text-xs" onClick={onVerify}>
+    <Button variant="outline" size="sm" className="h-8 text-xs" onClick={onVerify}>
       Verify Now
     </Button>
   );
@@ -188,7 +191,7 @@ export default function DashboardPage() {
                 <Card>
                     <CardContent className="p-6">
                       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                        <div className="md:col-span-1">
+                        <div className="md:col-span-1 space-y-4">
                           <Image
                             src={profilePhotoUrl}
                             alt="Profile Photo"
@@ -197,33 +200,33 @@ export default function DashboardPage() {
                             className="aspect-square w-full rounded-lg object-cover shadow-md"
                             data-ai-hint="person portrait"
                           />
-                          <div className="mt-4 space-y-2">
+                          <div className="space-y-1">
                            <DetailItem icon={Mail} label="Email" value={profile.email} action={<VerificationStatus verified={user?.emailVerified} />} />
                            <DetailItem icon={Phone} label="Phone" value={p.phoneNumber} action={<VerificationStatus verified={!!p.phoneNumber} />} />
-                           <DetailItem icon={ShieldCheck} label="ID" value={p.idVerified ? "Verified" : "Not Verified"} action={!p.idVerified && <Button asChild variant="outline" size="sm" className="h-7 text-xs"><Link href="/onboarding/photos">Upload ID</Link></Button>} />
+                           <DetailItem icon={ShieldCheck} label="ID" value={p.idVerified ? "Verified" : "Not Verified"} action={!p.idVerified && <Button asChild variant="outline" size="sm" className="h-8 text-xs"><Link href="/onboarding/photos">Upload ID</Link></Button>} />
                          </div>
                         </div>
 
                         <div className="space-y-6 md:col-span-2">
                            <div className="flex justify-between items-start">
                               <div>
-                                <h3 className="font-headline text-2xl font-bold">
+                                <h3 className="font-headline text-3xl font-bold">
                                     {profile.fullName}
                                 </h3>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <Badge variant="secondary" className="text-base">{p.membership || 'Free Membership'}</Badge>
-                                    <Button asChild variant="link" className="p-0 h-auto">
-                                        <Link href="/pricing">Upgrade</Link>
+                                    <Badge variant="secondary" className="text-base font-semibold">{p.membership || 'Free Membership'}</Badge>
+                                    <Button asChild variant="link" size="sm" className="p-0 h-auto">
+                                        <Link href="/pricing">Upgrade Plan</Link>
                                     </Button>
                                 </div>
                               </div>
-                              <Button asChild variant="outline" size="sm">
+                              <Button asChild variant="outline">
                                 <Link href="/onboarding/create-profile"><Edit className="mr-2 h-4 w-4" />Edit Profile</Link>
                               </Button>
                            </div>
 
                           <div>
-                            <h4 className="font-semibold text-primary">About Me</h4>
+                            <h4 className="font-semibold text-primary text-lg">About Me</h4>
                             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
                             {p.bio || 'No bio provided. Complete your profile to get better matches!'}
                             </p>
@@ -232,11 +235,11 @@ export default function DashboardPage() {
                           <Separator/>
 
                           <div>
-                              <h4 className="font-semibold text-primary mb-3">Personal Details</h4>
+                              <h4 className="font-semibold text-primary text-lg mb-3">Personal Details</h4>
                               <div className="flex flex-wrap gap-2">
                                 <InfoPill icon={User} value={p.gender} />
                                 <InfoPill icon={Cake} value={p.dob ? `${new Date().getFullYear() - new Date(p.dob).getFullYear()} yrs` : null} />
-                                <InfoPill icon={User} value={p.height ? `${p.height.feet}' ${p.height.inches}"` : null} />
+                                <InfoPill icon={Scale} value={p.height ? `${p.height.feet}' ${p.height.inches}"` : null} />
                                 <InfoPill icon={Heart} value={p.religion} />
                                 <InfoPill icon={Sparkles} value={p.complexion} />
                                 <InfoPill icon={MapPin} value={p.currentLocation} />
@@ -261,7 +264,7 @@ export default function DashboardPage() {
                 </ProfileSection>
 
                 {/* Partner Preferences Section */}
-                <ProfileSection title="Partner Preferences" icon={Heart} editPath="/onboarding/partner-preferences">
+                <ProfileSection title="Partner Preferences" icon={HeartHandshake} editPath="/onboarding/partner-preferences">
                     {!p.partnerPreferences && (
                         <div className="flex items-center gap-3 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-amber-700">
                             <AlertCircle className="h-5 w-5 flex-shrink-0" />
@@ -276,57 +279,61 @@ export default function DashboardPage() {
                              <p><strong>Religion / Caste:</strong> {pp.religion || 'Any'} / {pp.caste || 'Any'}</p>
                              <p><strong>Education:</strong> {pp.education || 'Any'}</p>
                              <p><strong>Occupation:</strong> {pp.occupation || 'Any'}</p>
-                             <p><strong>Wants Kids:</strong> {pp.wantsKids || 'Any'}</p>
-                             <p><strong>Dietary Habits:</strong> {pp.dietaryHabits || 'Any'}</p>
                          </div>
-                    )}
-                </ProfileSection>
-                
-                 {/* Gallery Section */}
-                <ProfileSection title="Photo Gallery" icon={ImageIcon} editPath="/onboarding/photos">
-                    {p.galleryPhotos && p.galleryPhotos.length > 0 ? (
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
-                            {p.galleryPhotos.map((photo, index) => (
-                                <div key={index} className="relative aspect-square w-full overflow-hidden rounded-lg">
-                                    <Image src={photo} alt={`Gallery photo ${index + 1}`} fill style={{objectFit: 'cover'}} data-ai-hint="person portrait" />
-                                </div>
-                            ))}
-                        </div>
-                    ): (
-                        <p className="text-muted-foreground">No gallery photos uploaded.</p>
                     )}
                 </ProfileSection>
             </div>
 
-             {/* Right Column */}
-            <div className="lg:col-span-1 space-y-8">
-                <div className="space-y-4">
-                    <AnalyticsCard icon={HeartHandshake} value="12" title="New Matches" period="+3 this week" />
-                    <AnalyticsCard icon={Eye} value="152" title="Profile Views" period="+20% this month" />
-                    <AnalyticsCard icon={Users} value="8" title="Interests Received" period="+1 this week" />
-                </div>
-
+            {/* Right Column */}
+            <div className="space-y-8">
                 <Card>
                     <CardHeader>
+                        <CardTitle className="font-headline text-xl">Activity</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <AnalyticsCard icon={HeartHandshake} value="12" title="New Matches" period="in the last 30 days" />
+                        <AnalyticsCard icon={Eye} value="150" title="Profile Views" period="in the last 7 days" />
+                        <AnalyticsCard icon={Users} value="5" title="Interests Received" period="this week" />
+                    </CardContent>
+                </Card>
+
+                <Card>
+                     <CardHeader>
+                        <CardTitle>Pending Responses</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">You have 3 interests awaiting your response.</p>
+                        <Button className="w-full mt-4">View Interests</Button>
+                    </CardContent>
+                </Card>
+
+                 <Card>
+                     <CardHeader>
                         <CardTitle>Latest Matches</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                       <div className="flex items-center gap-4">
-                           <Avatar><AvatarImage src="https://placehold.co/100x100.png" /><AvatarFallback>SN</AvatarFallback></Avatar>
+                        <div className="flex items-center gap-4">
+                           <Avatar>
+                               <AvatarImage src="https://placehold.co/100x100.png" />
+                               <AvatarFallback>SN</AvatarFallback>
+                           </Avatar>
                            <div>
-                               <p className="font-semibold">Sunita Nepali</p>
-                               <p className="text-sm text-muted-foreground">Matched 2 days ago</p>
+                                <p className="font-semibold">Sarita Neupane</p>
+                                <p className="text-xs text-muted-foreground">Matched 2 days ago</p>
                            </div>
-                           <Button size="sm" variant="outline" className="ml-auto">View</Button>
-                       </div>
-                       <div className="flex items-center gap-4">
-                           <Avatar><AvatarImage src="https://placehold.co/100x100.png" /><AvatarFallback>RG</AvatarFallback></Avatar>
+                           <Button variant="outline" size="sm" className="ml-auto">View</Button>
+                        </div>
+                         <div className="flex items-center gap-4">
+                           <Avatar>
+                               <AvatarImage src="https://placehold.co/100x100.png" />
+                               <AvatarFallback>RG</AvatarFallback>
+                           </Avatar>
                            <div>
-                               <p className="font-semibold">Ramesh Gurung</p>
-                               <p className="text-sm text-muted-foreground">Matched 1 week ago</p>
+                                <p className="font-semibold">Rohan Ghimire</p>
+                                <p className="text-xs text-muted-foreground">Matched 5 days ago</p>
                            </div>
-                           <Button size="sm" variant="outline" className="ml-auto">View</Button>
-                       </div>
+                           <Button variant="outline" size="sm" className="ml-auto">View</Button>
+                        </div>
                     </CardContent>
                 </Card>
             </div>
