@@ -11,6 +11,7 @@ import {
   HeartHandshake,
   Star,
   Globe,
+  Heart,
 } from 'lucide-react';
 import {
   Card,
@@ -91,25 +92,24 @@ export default function Home() {
               How It Works
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
             <div className="text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground mx-auto">
                 <span className="font-headline text-2xl">1</span>
               </div>
               <h3 className="font-headline text-2xl">Submit Your Profile</h3>
               <p className="mt-2 text-muted-foreground">
-                Fill out our comprehensive form with your details, photos, and
-                partner preferences to begin your journey.
+                Fill out our comprehensive form to begin your journey.
               </p>
             </div>
             <div className="text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground mx-auto">
                 <span className="font-headline text-2xl">2</span>
               </div>
-              <h3 className="font-headline text-2xl">Admin Review</h3>
+              <h3 className="font-headline text-2xl">Search Profiles</h3>
               <p className="mt-2 text-muted-foreground">
-                Our dedicated team carefully reviews every submission to ensure
-                the quality and authenticity of our community.
+                Browse through verified profiles to find someone who matches
+                your preferences.
               </p>
             </div>
             <div className="text-center">
@@ -118,8 +118,17 @@ export default function Home() {
               </div>
               <h3 className="font-headline text-2xl">Get Matched</h3>
               <p className="mt-2 text-muted-foreground">
-                Once approved, our team uses your information to find and
-                suggest potential life partners for you.
+                Our team assists in connecting you with potential life
+                partners.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent text-accent-foreground mx-auto">
+                <Heart className="h-8 w-8" />
+              </div>
+              <h3 className="font-headline text-2xl">Happy Mitho Sambandha</h3>
+              <p className="mt-2 text-muted-foreground">
+                Start your new chapter with the perfect partner.
               </p>
             </div>
           </div>
