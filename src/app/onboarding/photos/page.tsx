@@ -141,8 +141,10 @@ export default function PhotosPage() {
     setIdPreview(null);
   };
 
-  const uploadFile = async (storage: any, path: string, file: File): Promise<string> => {
-    const fileRef = ref(storage, path);
+  const uploadFile = async (storagePath: string, file: File): Promise<string> => {
+    if (!user) throw new Error("User not authenticated for file upload.");
+    const storage = getStorage();
+    const fileRef = ref(storage, storagePath);
     await uploadBytes(fileRef, file);
     return getDownloadURL(fileRef);
   };
@@ -159,31 +161,55 @@ export default function PhotosPage() {
     }
 
     setIsUploading(true);
+    let profilePhotoURL, idDocumentURL;
+    let galleryPhotoURLs = [];
 
     try {
-      const storage = getStorage();
-      
-      const photoUploadPromises = [uploadFile(storage, `user-photos/${user.uid}/profile-photo`, profilePhoto)];
-      galleryPhotos.forEach((file, index) => {
-        photoUploadPromises.push(uploadFile(storage, `user-photos/${user.uid}/gallery/${file.name}-${index}`, file));
-      });
-      
-      const [profilePhotoURL, ...galleryPhotoURLs] = await Promise.all(photoUploadPromises);
-      
-      let idDocumentURL: string | null = null;
-      if (idDocument) {
-        idDocumentURL = await uploadFile(storage, `user-documents/${user.uid}/id-document`, idDocument);
+      // Step 1: Upload Profile Photo
+      try {
+        profilePhotoURL = await uploadFile(`user-photos/${user.uid}/profile-photo`, profilePhoto);
+      } catch (error) {
+        console.error("Profile photo upload failed:", error);
+        throw new Error("Failed to upload profile photo. Please check your connection and security rules.");
       }
 
-      const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(userDocRef, {
-        profile: { 
-            profilePhoto: profilePhotoURL,
-            galleryPhotos: galleryPhotoURLs,
-            idDocument: idDocumentURL,
-        },
-        profileStatus: 'pending-review',
-      }, { merge: true });
+      // Step 2: Upload Gallery Photos
+      try {
+        galleryPhotoURLs = await Promise.all(
+          galleryPhotos.map((file, index) => 
+            uploadFile(`user-photos/${user.uid}/gallery/${file.name}-${index}`, file)
+          )
+        );
+      } catch (error) {
+        console.error("Gallery photos upload failed:", error);
+        throw new Error("Failed to upload one or more gallery photos.");
+      }
+      
+      // Step 3: Upload ID Document
+      if (idDocument) {
+        try {
+          idDocumentURL = await uploadFile(`user-documents/${user.uid}/id-document`, idDocument);
+        } catch(error) {
+          console.error("ID Document upload failed:", error);
+          throw new Error("Failed to upload ID document.");
+        }
+      }
+
+      // Step 4: Update Firestore
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        await setDoc(userDocRef, {
+          profile: { 
+              profilePhoto: profilePhotoURL,
+              galleryPhotos: galleryPhotoURLs,
+              idDocument: idDocumentURL || null,
+          },
+          profileStatus: 'pending-review',
+        }, { merge: true });
+      } catch (error) {
+        console.error("Firestore update failed:", error);
+        throw new Error("Failed to save profile data to the database.");
+      }
 
       toast({
         title: 'Profile Submitted!',
@@ -193,11 +219,10 @@ export default function PhotosPage() {
       router.push('/dashboard');
 
     } catch (error: any) {
-      console.error('Error during submission:', error);
       toast({
         variant: 'destructive',
         title: 'Submission Failed',
-        description: `There was an error submitting your files. Please check your security rules and try again. Error: ${error.message}`,
+        description: error.message || "An unexpected error occurred.",
       });
     } finally {
       setIsUploading(false);
@@ -292,3 +317,5 @@ export default function PhotosPage() {
     </div>
   );
 }
+
+    

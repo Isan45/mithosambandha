@@ -71,6 +71,7 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchProfile() {
       if (user) {
+        setLoading(true);
         try {
           const userDocRef = doc(db, 'users', user.uid);
           const userDoc = await getDoc(userDocRef);
@@ -79,15 +80,21 @@ export default function DashboardPage() {
           }
         } catch (error) {
           console.error('Error fetching user profile:', error);
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not load your profile.',
+          });
         } finally {
           setLoading(false);
         }
-      } else {
-        setLoading(false); // No user, stop loading
+      } else if (!user && !loading) {
+        // This case is handled by AuthProvider, but as a fallback:
+        setProfile(null);
       }
     }
     fetchProfile();
-  }, [user]);
+  }, [user, toast]);
 
   const handleCameraClick = () => {
     fileInputRef.current?.click();
@@ -112,6 +119,7 @@ export default function DashboardPage() {
       const storage = getStorage();
       const filePath = `user-photos/${user.uid}/profile-photo`;
       const storageRef = ref(storage, filePath);
+      
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
 
@@ -140,7 +148,9 @@ export default function DashboardPage() {
         variant: 'destructive',
         title: 'Upload Failed',
         description:
-          'There was an error updating your photo. Please try again.',
+          error.code === 'storage/unauthorized'
+            ? 'Permission denied. Check your Firebase Storage security rules.'
+            : 'There was an error updating your photo. Please try again.',
       });
     } finally {
       setIsUploading(false);
@@ -162,10 +172,13 @@ export default function DashboardPage() {
 
   if (!profile || !p) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">
-          Could not load your profile. Please try again later.
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 text-center">
+        <p className="text-lg text-muted-foreground">
+          Welcome! Let's get your profile started.
         </p>
+        <Button onClick={() => (window.location.href = '/onboarding/create-profile')}>
+          Create Your Profile
+        </Button>
       </div>
     );
   }
@@ -311,25 +324,25 @@ export default function DashboardPage() {
                 icon={Heart}
                 value={12}
                 label="New Matches"
-                isLoading={loading}
+                isLoading={false}
               />
               <StatCard
                 icon={MessageSquare}
                 value={3}
                 label="Interests"
-                isLoading={loading}
+                isLoading={false}
               />
               <StatCard
                 icon={Eye}
                 value={45}
                 label="Profile Views"
-                isLoading={loading}
+                isLoading={false}
               />
               <StatCard
                 icon={Users}
                 value={8}
                 label="Shortlisted"
-                isLoading={loading}
+                isLoading={false}
               />
             </div>
 
@@ -387,3 +400,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
