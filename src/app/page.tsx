@@ -26,33 +26,33 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative flex h-[60vh] w-full items-center justify-center text-center text-white md:h-[70vh]">
-        <div className="absolute inset-0 z-10 bg-black/60"></div>
-        <Image
-          src="https://placehold.co/1920x1080.png"
-          alt="Joyful Nepali bride and groom in traditional attire"
-          fill
-          style={{ objectFit: 'cover' }}
-          className="z-0"
-          priority
-          data-ai-hint="nepali wedding"
-        />
-        <div className="relative z-20 container mx-auto px-4 md:px-6">
-          <h1 className="font-headline text-4xl font-bold tracking-tight text-shadow-lg md:text-6xl lg:text-7xl">
-            Finding Your Forever in the Nepali Way.
-          </h1>
-          <p className="mx-auto mt-4 max-w-3xl text-lg text-primary-foreground/90 text-shadow md:text-xl">
-            The most trusted matrimonial platform for the Nepali community
-            worldwide.
-          </p>
-          <div className="mt-8">
-            <Button
-              size="lg"
-              asChild
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <Link href="/join">Join Now</Link>
-            </Button>
+      <section className="w-full bg-secondary py-16 md:py-24">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="grid items-center gap-8 md:grid-cols-2 md:gap-12">
+            <div className="text-center md:text-left">
+              <h1 className="font-headline text-4xl font-bold tracking-tight text-primary md:text-5xl lg:text-6xl">
+                Finding Your Forever in the Nepali Way.
+              </h1>
+              <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground md:text-xl">
+                The most trusted matrimonial platform for the Nepali community
+                worldwide.
+              </p>
+              <div className="mt-8">
+                <Button size="lg" asChild>
+                  <Link href="/join">Join Now</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="relative mx-auto h-[400px] w-[400px] lg:h-[500px] lg:w-[500px]">
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
+                alt="Joyful Nepali couple"
+                fill
+                style={{ objectFit: 'contain' }}
+                className="z-0"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -92,41 +92,39 @@ export default function Home() {
               How It Works
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+          <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-4">
             <div className="text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground mx-auto">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <span className="font-headline text-2xl">1</span>
               </div>
-              <h3 className="font-headline text-2xl">Submit Your Profile</h3>
+              <h3 className="font-headline text-xl">Submit Your Profile</h3>
               <p className="mt-2 text-muted-foreground">
                 Fill out our comprehensive form to begin your journey.
               </p>
             </div>
             <div className="text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground mx-auto">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <span className="font-headline text-2xl">2</span>
               </div>
-              <h3 className="font-headline text-2xl">Search Profiles</h3>
+              <h3 className="font-headline text-xl">Search Profiles</h3>
               <p className="mt-2 text-muted-foreground">
-                Browse through verified profiles to find someone who matches
-                your preferences.
+                Browse through verified profiles to find someone special.
               </p>
             </div>
             <div className="text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground mx-auto">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground">
                 <span className="font-headline text-2xl">3</span>
               </div>
-              <h3 className="font-headline text-2xl">Get Matched</h3>
+              <h3 className="font-headline text-xl">Get Matched</h3>
               <p className="mt-2 text-muted-foreground">
-                Our team assists in connecting you with potential life
-                partners.
+                Our team assists in connecting you with potential partners.
               </p>
             </div>
             <div className="text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent text-accent-foreground mx-auto">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-accent text-accent-foreground">
                 <Heart className="h-8 w-8" />
               </div>
-              <h3 className="font-headline text-2xl">Happy Mitho Sambandha</h3>
+              <h3 className="font-headline text-xl">Happy Mitho Sambandha</h3>
               <p className="mt-2 text-muted-foreground">
                 Start your new chapter with the perfect partner.
               </p>
@@ -146,7 +144,7 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <Card className="text-center">
               <CardHeader>
-                <Users className="h-12 w-12 text-primary mx-auto mb-4" />
+                <Users className="mx-auto mb-4 h-12 w-12 text-primary" />
                 <CardTitle className="font-headline text-2xl">
                   Curated Community
                 </CardTitle>
@@ -160,7 +158,7 @@ export default function Home() {
             </Card>
             <Card className="text-center">
               <CardHeader>
-                <HeartHandshake className="h-12 w-12 text-primary mx-auto mb-4" />
+                <HeartHandshake className="mx-auto mb-4 h-12 w-12 text-primary" />
                 <CardTitle className="font-headline text-2xl">
                   Personal Service
                 </CardTitle>
@@ -174,7 +172,7 @@ export default function Home() {
             </Card>
             <Card className="text-center">
               <CardHeader>
-                <Globe className="h-12 w-12 text-primary mx-auto mb-4" />
+                <Globe className="mx-auto mb-4 h-12 w-12 text-primary" />
                 <CardTitle className="font-headline text-2xl">
                   Cultural Connection
                 </CardTitle>
@@ -210,8 +208,8 @@ export default function Home() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="container mx-auto px-4 md:px-6 text-center">
+      <section className="bg-primary py-16 text-primary-foreground md:py-24">
+        <div className="container mx-auto px-4 text-center md:px-6">
           <h2 className="font-headline text-3xl font-bold md:text-4xl">
             Your Journey Begins Here.
           </h2>
