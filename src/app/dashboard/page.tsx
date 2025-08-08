@@ -210,19 +210,19 @@ export default function DashboardPage() {
             <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">
-                  Messages Received
+                  Interests Received
                 </p>
                 <p className="text-2xl font-bold">
-                  {MOCK_ACTIVITY_DATA.messagesReceived}
+                  {MOCK_ACTIVITY_DATA.interestsReceived}
                 </p>
               </div>
               <MessageCircle className="w-8 h-8 text-primary/60" />
             </Card>
             <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Login Streak</p>
+                <p className="text-sm text-muted-foreground">Interests Sent</p>
                 <p className="text-2xl font-bold">
-                  {MOCK_ACTIVITY_DATA.streak} Days
+                  {MOCK_ACTIVITY_DATA.interestsSent}
                 </p>
               </div>
               <Trophy className="w-8 h-8 text-primary/60" />
