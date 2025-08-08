@@ -174,9 +174,9 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <section className="bg-secondary rounded-lg p-8 md:p-16 mb-12 container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            <div>
+      <section className="bg-secondary rounded-lg p-8 md:p-12 mb-12 container mx-auto">
+          <div className="grid grid-cols-1 gap-8 items-center text-center">
+            <div className="max-w-3xl mx-auto">
               <h2 className="font-headline text-3xl font-bold text-primary">Our Commitment to Your Journey</h2>
               <p className="mt-4 text-lg text-muted-foreground">
                 We believe that investing in your search for a life partner is one of the most important decisions you can make. Our plans are designed to provide you with the tools and support you need, but our real commitment is to help you find a genuine, lasting connection. We're here for you every step of the way.
@@ -185,7 +185,7 @@ export default function PricingPage() {
                 <Link href="/about">Learn More About Us</Link>
               </Button>
             </div>
-            <div className="relative h-64 w-full md:h-full">
+            <div className="relative h-80 w-full max-w-4xl mx-auto">
                <Image
                 src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-2.avif?alt=media&token=14b88d3a-ca2f-4078-b20d-e460edaaa7a4"
                 alt="Happy couple"
