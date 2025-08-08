@@ -1,5 +1,4 @@
 
-
 // This is a simplified version for mock data and public profiles
 export type Profile = {
   id: string;
@@ -74,6 +73,7 @@ export type UserProfile = {
     profilePhoto?: string;
     galleryPhotos?: string[];
     idDocument?: string;
+    idVerified?: boolean;
   };
 };
 
@@ -83,3 +83,5 @@ export type SuccessStory = {
   story: string;
   photo: string;
 };
+
+    
