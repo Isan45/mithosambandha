@@ -25,7 +25,7 @@ export default function AboutPage() {
             </div>
             <div className="order-1 md:order-2">
               <Image
-                src="https://placehold.co/600x400.png"
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mitho-sambandha-Abous-us-Photo-.avif?alt=media&token=07a66754-88f1-4216-b230-f0ba9449c04c"
                 alt="Mitho Sambandha Team"
                 width={600}
                 height={400}
