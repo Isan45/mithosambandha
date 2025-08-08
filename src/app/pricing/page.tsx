@@ -3,20 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { CheckCircle2, XCircle, Star } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-
-const features = [
-    { text: 'Profile Creation', free: true, gold: true, platinum: true },
-    { text: 'Admin Verification', free: true, gold: true, platinum: true },
-    { text: 'View Profile Details', free: 'Basic Details', gold: 'Full Details (with consent)', platinum: 'Unlimited Full Details' },
-    { text: 'Contact and Chat with New Members', free: false, gold: 'Up to 10/month', platinum: 'Unlimited' },
-    { text: 'Direct Messaging', free: false, gold: 'Limited', platinum: 'Unlimited' },
-    { text: 'View Contact Information (Phone/Email)', free: false, gold: false, platinum: true },
-    { text: 'Photo Requests', free: false, gold: false, platinum: 'Unlimited' },
-    { text: '24/7 Priority Support', free: false, gold: false, platinum: true },
-    { text: 'Profile Visibility Boost', free: false, gold: false, platinum: true },
-    { text: 'Access to All Features', free: false, gold: false, platinum: true },
-    { text: 'Unlimited Admin Support', free: false, gold: false, platinum: true },
-];
+import React from 'react';
 
 const PlanCard = ({
   plan,
@@ -44,17 +31,20 @@ const PlanCard = ({
     <CardContent className="flex-grow">
         <p className="text-center text-muted-foreground mb-6">{description}</p>
       <ul className="space-y-4">
-        {features.map((feature, index) => (
-          <li key={index} className="flex items-start gap-3">
-            <div className="flex-shrink-0">
-                {typeof feature === 'string' || (feature as any).props.children.some((c:any) => c.type === XCircle) ? 
-                    <XCircle className="h-5 w-5 text-muted-foreground" /> :
-                    <CheckCircle2 className="h-5 w-5 text-green-600" />
-                }
-            </div>
-            <span className="text-sm text-foreground">{feature}</span>
-          </li>
-        ))}
+        {features.map((feature, index) => {
+            const isExcluded = React.isValidElement(feature) && (feature.props.children as React.ReactNode[]).some(child => React.isValidElement(child) && child.type === XCircle);
+            return (
+              <li key={index} className="flex items-start gap-3">
+                <div className="flex-shrink-0 mt-1">
+                    {isExcluded ? 
+                        <XCircle className="h-5 w-5 text-muted-foreground" /> :
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                    }
+                </div>
+                <span className="text-sm text-foreground">{feature}</span>
+              </li>
+            );
+        })}
       </ul>
     </CardContent>
     <CardFooter>
@@ -66,13 +56,15 @@ const PlanCard = ({
 );
 
 const LadiesPromo = () => (
-    <li className="flex items-start gap-3 p-4 rounded-lg bg-primary/10">
-        <Star className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+    <div className="flex items-start gap-3 -ml-8 -mt-1">
+        <div className="flex-shrink-0 mt-1">
+             <Star className="h-5 w-5 text-primary" />
+        </div>
         <div>
             <span className="text-sm font-semibold text-primary">Promotion for Ladies</span>
             <p className="text-xs text-muted-foreground">Free 6-month membership on all plans</p>
         </div>
-    </li>
+    </div>
 )
 
 
@@ -101,12 +93,12 @@ export default function PricingPage() {
                     <><b>Profile Creation:</b> Always included</>,
                     <><b>Admin Verification:</b> Always included</>,
                     <><b>View Profile Details:</b> Basic Details Only</>,
-                    <><b>Contact & Chat:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
-                    <><b>Direct Messaging:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
-                    <><b>View Contact Info:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
-                    <><b>Photo Requests:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
-                    <><b>Priority Support:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
-                    <><b>Profile Boost:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
+                    <><b>Contact & Chat:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>Direct Messaging:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>View Contact Info:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>Photo Requests:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>Priority Support:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>Profile Boost:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
                 ]}
             />
              {/* Gold Plan */}
@@ -121,10 +113,10 @@ export default function PricingPage() {
                     <><b>View Profile Details:</b> Full Details (with consent)</>,
                     <><b>Contact & Chat:</b> Up to 10 new members/month</>,
                     <><b>Direct Messaging:</b> Limited Access</>,
-                    <><b>View Contact Info:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
-                    <><b>Photo Requests:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
-                    <><b>Priority Support:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
-                    <><b>Profile Boost:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1" /></>,
+                    <><b>View Contact Info:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>Photo Requests:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>Priority Support:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
+                    <><b>Profile Boost:</b> Not Included <XCircle className="inline-block h-4 w-4 ml-1 opacity-0" /></>,
                 ]}
             />
              {/* Platinum Plan */}
