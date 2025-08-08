@@ -58,11 +58,10 @@ export default function CreateProfilePage() {
     const [isGeneratingBio, setIsGeneratingBio] = useState(false);
     const [isLoadingData, setIsLoadingData] = useState(true);
 
-    const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
-
     // State for all form fields, initialized with empty strings
     const [formState, setFormState] = useState({
+        fullName: '',
+        email: '',
         gender: '',
         dob_day: '',
         dob_month: '',
@@ -90,32 +89,32 @@ export default function CreateProfilePage() {
           const docSnap = await getDoc(userDocRef);
           if (docSnap.exists()) {
             const data = docSnap.data();
-            setFullName(data.fullName || '');
-            setEmail(data.email || '');
+            
+            const profile = data.profile || {};
+            const dob = profile.dob ? new Date(profile.dob) : null;
 
-            if (data.profile) {
-              const profile = data.profile;
-              const dob = profile.dob ? new Date(profile.dob) : null;
-              setFormState({
-                gender: profile.gender || '',
-                dob_day: dob ? String(dob.getDate()).padStart(2, '0') : '',
-                dob_month: dob ? String(dob.getMonth() + 1).padStart(2, '0') : '',
-                dob_year: dob ? String(dob.getFullYear()) : '',
-                height_ft: profile.height?.feet?.toString() || '',
-                height_in: profile.height?.inches?.toString() || '',
-                phoneNumber: profile.phoneNumber || '',
-                nationality: profile.nationality || '',
-                currentLocation: profile.currentLocation || '',
-                permanentAddress: profile.permanentAddress || '',
-                caste: profile.caste || '',
-                religion: profile.religion || '',
-                complexion: profile.complexion || '',
-                dietaryHabits: profile.dietaryHabits || '',
-                smokingHabits: profile.smokingHabits || '',
-                drinkingHabits: profile.drinkingHabits || '',
-                bio: profile.bio || '',
-              });
-            }
+            setFormState(prev => ({
+              ...prev,
+              fullName: data.fullName || '',
+              email: data.email || '',
+              gender: profile.gender || '',
+              dob_day: dob ? String(dob.getDate()).padStart(2, '0') : '',
+              dob_month: dob ? String(dob.getMonth() + 1).padStart(2, '0') : '',
+              dob_year: dob ? String(dob.getFullYear()) : '',
+              height_ft: profile.height?.feet?.toString() || '',
+              height_in: profile.height?.inches?.toString() || '',
+              phoneNumber: profile.phoneNumber || '',
+              nationality: profile.nationality || '',
+              currentLocation: profile.currentLocation || '',
+              permanentAddress: profile.permanentAddress || '',
+              caste: profile.caste || '',
+              religion: profile.religion || '',
+              complexion: profile.complexion || '',
+              dietaryHabits: profile.dietaryHabits || '',
+              smokingHabits: profile.smokingHabits || '',
+              drinkingHabits: profile.drinkingHabits || '',
+              bio: profile.bio || '',
+            }));
           }
         } catch (error) {
           console.error("Error fetching profile data:", error);
@@ -141,6 +140,8 @@ export default function CreateProfilePage() {
 
     const validateForm = () => {
         const newErrors: any = {};
+        if (!formState.fullName) newErrors.fullName = "Full name is required.";
+        if (!formState.email || !/^\S+@\S+\.\S+$/.test(formState.email)) newErrors.email = "A valid email is required.";
         if (!formState.gender) newErrors.gender = 'Please select your gender.';
         if (!formState.dob_day || !formState.dob_month || !formState.dob_year) {
           newErrors.dob = 'Date of birth is required.';
@@ -222,7 +223,13 @@ export default function CreateProfilePage() {
         const dob = new Date(`${formState.dob_year}-${formState.dob_month}-${formState.dob_day}`).toISOString();
         const height = formState.height_ft || formState.height_in ? { feet: parseInt(formState.height_ft) || 0, inches: parseInt(formState.height_in) || 0 } : null;
         
-        const profileData = { ...formState, dob, height };
+        const { fullName, email, ...profileDataFields } = formState;
+
+        const profileData = { 
+            ...profileDataFields, 
+            dob, 
+            height 
+        };
         // remove dob parts from profile data
         delete (profileData as any).dob_day;
         delete (profileData as any).dob_month;
@@ -234,6 +241,8 @@ export default function CreateProfilePage() {
         try {
             const userDocRef = doc(db, 'users', user.uid);
             await setDoc(userDocRef, {
+                fullName: formState.fullName,
+                email: formState.email, // Note: This doesn't change Firebase Auth email
                 profile: profileData,
                 profileStatus: 'in-progress-education',
             }, { merge: true });
@@ -287,21 +296,24 @@ export default function CreateProfilePage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                             <div className="space-y-4 mb-6">
-                                <div className="flex items-center gap-3 rounded-md border bg-muted/50 p-3">
-                                    <User className="h-5 w-5 text-muted-foreground" />
-                                    <span className="text-sm font-medium">{fullName}</span>
-                                </div>
-                                 <div className="flex items-center gap-3 rounded-md border bg-muted/50 p-3">
-                                    <Mail className="h-5 w-5 text-muted-foreground" />
-                                    <span className="text-sm font-medium">{email}</span>
-                                </div>
-                            </div>
-                            <Separator className="my-8" />
                             <form
                                 onSubmit={onSubmit}
                                 className="space-y-8"
                             >
+                                <div className="space-y-4">
+                                    <div>
+                                        <Label htmlFor="fullName">Full Name</Label>
+                                        <Input id="fullName" name="fullName" value={formState.fullName} onChange={handleChange} />
+                                        {errors.fullName && <p className="mt-1 text-sm text-destructive">{errors.fullName}</p>}
+                                    </div>
+                                    <div>
+                                        <Label htmlFor="email">Email Address</Label>
+                                        <Input id="email" name="email" type="email" value={formState.email} onChange={handleChange} />
+                                        {errors.email && <p className="mt-1 text-sm text-destructive">{errors.email}</p>}
+                                        <p className="text-xs text-muted-foreground mt-1">Note: Changing this does not change your login email.</p>
+                                    </div>
+                                </div>
+                                <Separator />
                                 <div>
                                     <Label>Gender</Label>
                                     <RadioGroup
@@ -477,7 +489,7 @@ export default function CreateProfilePage() {
                                     type="submit"
                                     size="lg"
                                     className="w-full"
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || isLoadingData}
                                 >
                                     {isSubmitting ? 'Saving...' : 'Save & Continue'}
                                 </Button>
