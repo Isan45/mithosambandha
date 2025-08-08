@@ -1,4 +1,5 @@
 
+
 export type Profile = {
   id: string;
   name: string;
@@ -6,7 +7,8 @@ export type Profile = {
   location: string;
   bio: string;
   partnerPreferences: string;
-  photos: string[];
+  profilePhoto: string;
+  galleryPhotos: string[];
   status: 'approved' | 'pending' | 'rejected';
 };
 
