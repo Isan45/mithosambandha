@@ -66,6 +66,10 @@ const personalInfoSchema = z.object({
   location: z.string().min(2, 'Please enter a valid location.'),
   caste: z.string().optional(),
   religion: z.string().optional(),
+  complexion: z.string().optional(),
+  dietaryHabits: z.string().optional(),
+  smokingHabits: z.string().optional(),
+  drinkingHabits: z.string().optional(),
 }).refine(data => {
     const { dob_year, dob_month, dob_day } = data;
     const date = new Date(`${dob_year}-${dob_month}-${dob_day}`);
@@ -88,6 +92,10 @@ export default function CreateProfilePage() {
       location: '',
       caste: '',
       religion: '',
+      complexion: '',
+      dietaryHabits: '',
+      smokingHabits: '',
+      drinkingHabits: '',
     },
   });
 
@@ -331,6 +339,92 @@ export default function CreateProfilePage() {
                           <FormControl>
                             <Input placeholder="e.g. Hindu" {...field} />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                     <FormField
+                      control={form.control}
+                      name="complexion"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Complexion (Optional)</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g. Fair, Wheatish" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="dietaryHabits"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Dietary Habits (Optional)</FormLabel>
+                           <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="vegetarian">Vegetarian</SelectItem>
+                              <SelectItem value="non-vegetarian">Non-Vegetarian</SelectItem>
+                              <SelectItem value="eggetarian">Eggetarian</SelectItem>
+                              <SelectItem value="vegan">Vegan</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                   <div className="grid grid-cols-2 gap-4">
+                     <FormField
+                      control={form.control}
+                      name="smokingHabits"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Smoking Habits (Optional)</FormLabel>
+                           <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="no">No</SelectItem>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="occasionally">Occasionally</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="drinkingHabits"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Drinking Habits (Optional)</FormLabel>
+                           <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                               <SelectItem value="no">No</SelectItem>
+                              <SelectItem value="yes">Yes</SelectItem>
+                              <SelectItem value="occasionally">Occasionally</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
