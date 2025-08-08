@@ -10,22 +10,26 @@ import { Loader2 } from 'lucide-react';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isAdmin: boolean;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true });
+const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isAdmin: false });
 
-const PROTECTED_ROUTES = ['/onboarding/create-profile', '/dashboard'];
+const PROTECTED_ROUTES = ['/onboarding/create-profile', '/dashboard', '/admin'];
 const PUBLIC_ROUTES = ['/login', '/join'];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      const adminUID = process.env.NEXT_PUBLIC_ADMIN_UID;
+      setIsAdmin(!!user && user.uid === adminUID);
       setLoading(false);
     });
 
@@ -36,16 +40,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (loading) return;
 
     const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
+    const isAdminRoute = pathname.startsWith('/admin');
     const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
+    // If not logged in and trying to access a protected route
     if (!user && isProtectedRoute) {
       router.push('/login');
+      return;
     }
 
-    if (user && isPublicRoute) {
-       router.push('/onboarding/create-profile');
+    // If logged in and on a public route (like /login or /join)
+    if (user) {
+      if (isPublicRoute) {
+        router.push(isAdmin ? '/admin' : '/dashboard');
+        return;
+      }
+      
+      // If a non-admin tries to access an admin route
+      if(isAdminRoute && !isAdmin) {
+        router.push('/dashboard'); // or a "not authorized" page
+        return;
+      }
     }
-  }, [user, loading, pathname, router]);
+  }, [user, loading, pathname, router, isAdmin]);
 
   if (loading) {
     return (
@@ -56,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

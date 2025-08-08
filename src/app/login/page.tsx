@@ -51,12 +51,19 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsSubmitting(true);
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const isAdmin = userCredential.user.uid === process.env.NEXT_PUBLIC_ADMIN_UID;
+      
       toast({
         title: 'Login Successful',
         description: "Welcome back! You're being redirected.",
       });
-      router.push('/admin'); // Redirect to admin dashboard after login
+
+      if (isAdmin) {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard'); 
+      }
     } catch (error: any) {
       console.error('Login Error:', error);
       toast({
