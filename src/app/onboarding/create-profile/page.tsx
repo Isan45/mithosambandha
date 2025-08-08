@@ -100,6 +100,8 @@ export default function CreateProfilePage() {
       dietaryHabits: '',
       smokingHabits: '',
       drinkingHabits: '',
+      height_ft: undefined,
+      height_in: undefined,
     },
   });
 
