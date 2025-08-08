@@ -32,7 +32,7 @@ const PlanCard = ({
         <p className="text-center text-muted-foreground mb-6">{description}</p>
       <ul className="space-y-4">
         {features.map((feature, index) => {
-            const isExcluded = React.isValidElement(feature) && (feature.props.children as React.ReactNode[]).some(child => React.isValidElement(child) && child.type === XCircle);
+            const isExcluded = React.isValidElement(feature) && (feature.props.children as React.ReactNode[])?.some?.(child => React.isValidElement(child) && child.type === XCircle);
             return (
               <li key={index} className="flex items-start gap-3">
                 <div className="flex-shrink-0 mt-1">
