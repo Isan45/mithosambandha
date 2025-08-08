@@ -20,12 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/client';
-import { useRouter } from 'next/navigation';
+import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/client';
 
 
 const PartnerPreferencesPage = () => {
@@ -33,32 +34,40 @@ const PartnerPreferencesPage = () => {
     const { user } = useAuth();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // State for all form fields, initialized with empty strings
+    
+    // State for all form fields, including new ones from your list
     const [formState, setFormState] = useState({
         partnerAgeMin: '',
         partnerAgeMax: '',
         partnerHeightFtMin: '',
-        partnerHeightInMin: '',
+        partnerHeightInMin: '', 
         partnerHeightFtMax: '',
         partnerHeightInMax: '',
-        partnerWantsKids: '',
-        partnerRelocate: '',
-        partnerEarning: '',
-        partnerFamilyType: '',
-        partnerEducation: '',
-        partnerOccupation: '',
+        partnerMaritalStatus: '',
         partnerReligion: '',
         partnerCaste: '',
+        partnerMotherTongue: '',
+        partnerEducation: '',
+        partnerOccupation: '',
+        partnerEmploymentStatus: '',
+        partnerMinIncome: '',
+        partnerWorkLocation: '',
         partnerDietaryHabits: '',
-        partnerSmokingHabits: '',
         partnerDrinkingHabits: '',
-        partnerCurrentLocation: '',
-        additionalPreferences: '',
+        partnerSmokingHabits: '',
+        partnerReligiousBeliefs: '',
+        partnerAstrology: '',
+        partnerFamilyType: '',
+        partnerRelocate: '',
+        partnerLocation: '',
+        partnerPersonality: '',
+        partnerHobbies: '',
+        partnerWantsKids: '',
+        partnerMarriageTimeline: '',
     });
     
     // State for validation errors
-    const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         async function fetchPreferences() {
@@ -74,47 +83,66 @@ const PartnerPreferencesPage = () => {
                     partnerHeightInMin: pp.height?.minIn?.toString() || '',
                     partnerHeightFtMax: pp.height?.maxFt?.toString() || '',
                     partnerHeightInMax: pp.height?.maxIn?.toString() || '',
-                    partnerWantsKids: pp.wantsKids || '',
-                    partnerRelocate: pp.relocate || '',
-                    partnerEarning: pp.earning || '',
-                    partnerFamilyType: pp.familyType || '',
-                    partnerEducation: pp.education || '',
-                    partnerOccupation: pp.occupation || '',
+                    partnerMaritalStatus: pp.maritalStatus || '',
                     partnerReligion: pp.religion || '',
                     partnerCaste: pp.caste || '',
+                    partnerMotherTongue: pp.motherTongue || '',
+                    partnerEducation: pp.education || '',
+                    partnerOccupation: pp.occupation || '',
+                    partnerEmploymentStatus: pp.employmentStatus || '',
+                    partnerMinIncome: pp.minIncome || '',
+                    partnerWorkLocation: pp.workLocation || '',
                     partnerDietaryHabits: pp.dietaryHabits || '',
-                    partnerSmokingHabits: pp.smokingHabits || '',
                     partnerDrinkingHabits: pp.drinkingHabits || '',
-                    partnerCurrentLocation: pp.currentLocation || '',
-                    additionalPreferences: pp.additionalPreferences || '',
+                    partnerSmokingHabits: pp.smokingHabits || '',
+                    partnerReligiousBeliefs: pp.religiousBeliefs || '',
+                    partnerAstrology: pp.astrology || '',
+                    partnerFamilyType: pp.familyType || '',
+                    partnerRelocate: pp.relocate || '',
+                    partnerLocation: pp.location || '',
+                    partnerPersonality: pp.personality || '',
+                    partnerHobbies: pp.hobbies || '',
+                    partnerWantsKids: pp.wantsKids || '',
+                    partnerMarriageTimeline: pp.marriageTimeline || '',
                 });
             }
         }
-        fetchPreferences();
+        if (user) {
+          fetchPreferences();
+        }
     }, [user]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormState(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSelectChange = (name: string, value: string) => {
+    const handleSelectChange = (name, value) => {
         setFormState(prev => ({ ...prev, [name]: value }));
     };
 
     const validateForm = () => {
-        const newErrors: { [key: string]: string } = {};
+        const newErrors = {};
         const ageMin = parseInt(formState.partnerAgeMin, 10);
         const ageMax = parseInt(formState.partnerAgeMax, 10);
         if ((formState.partnerAgeMin && formState.partnerAgeMax) && ageMin > ageMax) {
             newErrors.partnerAge = 'Minimum age cannot be greater than maximum age.';
+        }
+
+        const heightMinFt = parseInt(formState.partnerHeightFtMin, 10);
+        const heightMinIn = parseInt(formState.partnerHeightInMin, 10);
+        const heightMaxFt = parseInt(formState.partnerHeightFtMax, 10);
+        const heightMaxIn = parseInt(formState.partnerHeightInMax, 10);
+
+        if (heightMinFt && heightMaxFt && (heightMinFt > heightMaxFt || (heightMinFt === heightMaxFt && heightMinIn > heightMaxIn))) {
+            newErrors.partnerHeight = 'Minimum height cannot be greater than maximum height.';
         }
     
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const onSubmit = async (e: React.FormEvent) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) {
             toast({ variant: 'destructive', title: 'Error', description: 'Please fix the form errors.' });
@@ -137,28 +165,36 @@ const PartnerPreferencesPage = () => {
               minFt: formState.partnerHeightFtMin !== '' ? parseInt(formState.partnerHeightFtMin, 10) : null,
               minIn: formState.partnerHeightInMin !== '' ? parseInt(formState.partnerHeightInMin, 10) : null,
               maxFt: formState.partnerHeightFtMax !== '' ? parseInt(formState.partnerHeightFtMax, 10) : null,
-              maxIn: formState.partnerHeightInMax !== '' ? parseInt(formState.partnerHeightInMax, 10) : null
+              maxIn: formState.partnerHeightInMax !== '' ? parseInt(formState.partnerHeightInMax, 10) : null,
             },
-            wantsKids: formState.partnerWantsKids,
-            relocate: formState.partnerRelocate,
-            earning: formState.partnerEarning,
-            familyType: formState.partnerFamilyType,
-            education: formState.partnerEducation,
-            occupation: formState.partnerOccupation,
+            maritalStatus: formState.partnerMaritalStatus,
             religion: formState.partnerReligion,
             caste: formState.partnerCaste,
+            motherTongue: formState.partnerMotherTongue,
+            education: formState.partnerEducation,
+            occupation: formState.partnerOccupation,
+            employmentStatus: formState.partnerEmploymentStatus,
+            minIncome: formState.partnerMinIncome,
+            workLocation: formState.partnerWorkLocation,
             dietaryHabits: formState.partnerDietaryHabits,
-            smokingHabits: formState.partnerSmokingHabits,
             drinkingHabits: formState.partnerDrinkingHabits,
-            currentLocation: formState.partnerCurrentLocation,
-            additionalPreferences: formState.additionalPreferences,
+            smokingHabits: formState.partnerSmokingHabits,
+            religiousBeliefs: formState.partnerReligiousBeliefs,
+            astrology: formState.partnerAstrology,
+            familyType: formState.partnerFamilyType,
+            relocate: formState.partnerRelocate,
+            location: formState.partnerLocation,
+            personality: formState.partnerPersonality,
+            hobbies: formState.partnerHobbies,
+            wantsKids: formState.partnerWantsKids,
+            marriageTimeline: formState.partnerMarriageTimeline,
         };
         
         try {
             const userDocRef = doc(db, 'users', user.uid);
             await setDoc(userDocRef, {
                 'profile.partnerPreferences': partnerPreferences,
-                profileStatus: 'in-progress-photos',
+                 profileStatus: 'in-progress-photos',
             }, { merge: true });
 
             toast({
@@ -191,162 +227,288 @@ const PartnerPreferencesPage = () => {
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={onSubmit} className="space-y-8">
+                                {/* Basic Profile Preferences */}
                                 <div>
-                                    <Label>Age Range</Label>
-                                    <div className="mt-2 grid grid-cols-2 gap-4">
-                                        <Input type="number" name="partnerAgeMin" placeholder="Min Age" value={formState.partnerAgeMin} onChange={handleChange} />
-                                        <Input type="number" name="partnerAgeMax" placeholder="Max Age" value={formState.partnerAgeMax} onChange={handleChange} />
-                                    </div>
-                                    {errors.partnerAge && <p className="mt-1 text-sm text-destructive">{errors.partnerAge}</p>}
-                                </div>
-
-                                <div>
-                                    <Label>Height Range</Label>
-                                    <div className="mt-2 grid grid-cols-2 gap-4">
+                                    <h3 className="text-lg font-semibold mb-4">1. Basic Profile Preferences</h3>
+                                    <div className="space-y-4">
                                         <div>
-                                            <Label className="text-xs text-muted-foreground">Minimum Height</Label>
-                                            <div className="flex gap-2">
+                                            <Label>Age Range</Label>
+                                            <div className="mt-2 grid grid-cols-2 gap-4">
+                                                <Input type="number" name="partnerAgeMin" placeholder="Min Age" value={formState.partnerAgeMin} onChange={handleChange} />
+                                                <Input type="number" name="partnerAgeMax" placeholder="Max Age" value={formState.partnerAgeMax} onChange={handleChange} />
+                                            </div>
+                                            {errors.partnerAge && <p className="mt-1 text-sm text-destructive">{errors.partnerAge}</p>}
+                                        </div>
+
+                                        <div>
+                                            <Label>Height Range</Label>
+                                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
+                                                <Label className="text-sm text-muted-foreground col-span-2">Minimum Height</Label>
                                                 <Input type="number" name="partnerHeightFtMin" placeholder="Feet" value={formState.partnerHeightFtMin} onChange={handleChange} />
                                                 <Input type="number" name="partnerHeightInMin" placeholder="Inches" value={formState.partnerHeightInMin} onChange={handleChange} />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Maximum Height</Label>
-                                            <div className="flex gap-2">
+                                                <Label className="text-sm text-muted-foreground col-span-2">Maximum Height</Label>
                                                 <Input type="number" name="partnerHeightFtMax" placeholder="Feet" value={formState.partnerHeightFtMax} onChange={handleChange} />
                                                 <Input type="number" name="partnerHeightInMax" placeholder="Inches" value={formState.partnerHeightInMax} onChange={handleChange} />
                                             </div>
+                                            {errors.partnerHeight && <p className="mt-1 text-sm text-destructive">{errors.partnerHeight}</p>}
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Marital Status</Label>
+                                            <Select
+                                                name="partnerMaritalStatus"
+                                                value={formState.partnerMaritalStatus}
+                                                onValueChange={(value) => handleSelectChange('partnerMaritalStatus', value)}
+                                            >
+                                                <SelectTrigger><SelectValue placeholder="Select Marital Status" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="any">Any</SelectItem>
+                                                    <SelectItem value="never-married">Never Married</SelectItem>
+                                                    <SelectItem value="divorced">Divorced</SelectItem>
+                                                    <SelectItem value="widowed">Widowed</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Religion</Label>
+                                            <Input name="partnerReligion" placeholder="e.g. Hindu" value={formState.partnerReligion} onChange={handleChange}/>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Caste / Ethnicity (Optional)</Label>
+                                            <Input name="partnerCaste" placeholder="e.g. Brahmin" value={formState.partnerCaste} onChange={handleChange}/>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Mother Tongue</Label>
+                                            <Input name="partnerMotherTongue" placeholder="e.g. Nepali" value={formState.partnerMotherTongue} onChange={handleChange}/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <Separator />
+
+                                {/* Education & Career */}
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4">2. Education & Career</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label>Minimum Education Level</Label>
+                                            <Select
+                                                name="partnerEducation"
+                                                value={formState.partnerEducation}
+                                                onValueChange={(value) => handleSelectChange('partnerEducation', value)}
+                                            >
+                                                <SelectTrigger><SelectValue placeholder="Select Education Level" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="any">Any</SelectItem>
+                                                    <SelectItem value="high-school">High School</SelectItem>
+                                                    <SelectItem value="bachelors">Bachelor's Degree</SelectItem>
+                                                    <SelectItem value="masters">Master's Degree</SelectItem>
+                                                    <SelectItem value="phd">PhD</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Employment Status</Label>
+                                            <Select
+                                                name="partnerEmploymentStatus"
+                                                value={formState.partnerEmploymentStatus}
+                                                onValueChange={(value) => handleSelectChange('partnerEmploymentStatus', value)}
+                                            >
+                                                <SelectTrigger><SelectValue placeholder="Select Employment Status" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="any">Any</SelectItem>
+                                                    <SelectItem value="employed">Employed</SelectItem>
+                                                    <SelectItem value="self-employed">Self-employed</SelectItem>
+                                                    <SelectItem value="student">Student</SelectItem>
+                                                    <SelectItem value="not-working">Not Working</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div>
+                                            <Label>Preferred Profession</Label>
+                                            <Input name="partnerOccupation" placeholder="e.g. Software Engineer" value={formState.partnerOccupation} onChange={handleChange}/>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Minimum Annual Income (NPR)</Label>
+                                            <Select
+                                                name="partnerMinIncome"
+                                                value={formState.partnerMinIncome}
+                                                onValueChange={(value) => handleSelectChange('partnerMinIncome', value)}
+                                            >
+                                                <SelectTrigger><SelectValue placeholder="Select Annual Income" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="any">Any</SelectItem>
+                                                    <SelectItem value="<2L">Less than 2 Lakhs</SelectItem>
+                                                    <SelectItem value="2L-5L">2 - 5 Lakhs</SelectItem>
+                                                    <SelectItem value="5L-10L">5 - 10 Lakhs</SelectItem>
+                                                    <SelectItem value=">10L">More than 10 Lakhs</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Work Location Preference</Label>
+                                            <Input name="partnerWorkLocation" placeholder="e.g. Domestic, UAE" value={formState.partnerWorkLocation} onChange={handleChange}/>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div>
-                                        <Label>Willingness to Relocate</Label>
-                                        <RadioGroup name="partnerRelocate" value={formState.partnerRelocate} onValueChange={(value) => handleSelectChange('partnerRelocate', value)} className="mt-2">
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="r-relocate-yes" /><Label htmlFor="r-relocate-yes">Yes</Label></div>
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="r-relocate-no" /><Label htmlFor="r-relocate-no">No</Label></div>
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="discuss" id="r-relocate-discuss" /><Label htmlFor="r-relocate-discuss">Open to Discuss</Label></div>
-                                        </RadioGroup>
-                                    </div>
-                                    <div>
-                                        <Label>Wants Kids</Label>
-                                        <RadioGroup name="partnerWantsKids" value={formState.partnerWantsKids} onValueChange={(value) => handleSelectChange('partnerWantsKids', value)} className="mt-2">
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="r-kids-yes" /><Label htmlFor="r-kids-yes">Yes</Label></div>
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="r-kids-no" /><Label htmlFor="r-kids-no">No</Label></div>
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="undecided" id="r-kids-undecided" /><Label htmlFor="r-kids-undecided">Undecided</Label></div>
-                                        </RadioGroup>
-                                    </div>
-                                </div>
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div>
-                                        <Label>Family Type</Label>
-                                         <RadioGroup name="partnerFamilyType" value={formState.partnerFamilyType} onValueChange={(value) => handleSelectChange('partnerFamilyType', value)} className="mt-2">
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="joint" id="r-fam-joint" /><Label htmlFor="r-fam-joint">Joint</Label></div>
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="nuclear" id="r-fam-nuclear" /><Label htmlFor="r-fam-nuclear">Nuclear</Label></div>
-                                            <div className="flex items-center space-x-2"><RadioGroupItem value="any" id="r-fam-any" /><Label htmlFor="r-fam-any">Any</Label></div>
-                                        </RadioGroup>
-                                    </div>
-                                    <div>
-                                        <Label>Annual Earning (Optional)</Label>
-                                        <Select
-                                          name="partnerEarning"
-                                          value={formState.partnerEarning}
-                                          onValueChange={(value) => handleSelectChange('partnerEarning', value)}
-                                        >
-                                          <SelectTrigger>
-                                            <SelectValue placeholder="Select an income range" />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            <SelectItem value="any">Any</SelectItem>
-                                            <SelectItem value="<2L">Less than 2 lakhs</SelectItem>
-                                            <SelectItem value="2L-3L">2 lakhs - 3 lakhs</SelectItem>
-                                            <SelectItem value="3L-4L">3 lakhs - 4 lakhs</SelectItem>
-                                            <SelectItem value="4L-5L">4 lakhs - 5 lakhs</SelectItem>
-                                            <SelectItem value=">5L">More than 5 lakhs</SelectItem>
-                                          </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
+                                <Separator />
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <Label>Education Level (Optional)</Label>
-                                        <Input name="partnerEducation" placeholder="e.g. Bachelor's Degree" value={formState.partnerEducation} onChange={handleChange}/>
-                                    </div>
-                                    <div>
-                                        <Label>Occupation Field (Optional)</Label>
-                                        <Input name="partnerOccupation" placeholder="e.g. Healthcare, IT" value={formState.partnerOccupation} onChange={handleChange}/>
-                                    </div>
-                                </div>
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <Label>Religion (Optional)</Label>
-                                        <Input name="partnerReligion" placeholder="e.g. Hindu" value={formState.partnerReligion} onChange={handleChange}/>
-                                    </div>
-                                    <div>
-                                        <Label>Caste (Optional)</Label>
-                                        <Input name="partnerCaste" placeholder="e.g. Brahmin" value={formState.partnerCaste} onChange={handleChange}/>
-                                    </div>
-                                </div>
-
+                                {/* Lifestyle & Values */}
                                 <div>
-                                    <Label>Preferred Location (Optional)</Label>
-                                    <Input name="partnerCurrentLocation" placeholder="e.g. Kathmandu, Nepal" value={formState.partnerCurrentLocation} onChange={handleChange}/>
-                                </div>
+                                    <h3 className="text-lg font-semibold mb-4">3. Lifestyle & Values</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label>Dietary Habits</Label>
+                                            <Select name="partnerDietaryHabits" value={formState.partnerDietaryHabits} onValueChange={(value) => handleSelectChange('partnerDietaryHabits', value)}>
+                                                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="any">Any</SelectItem>
+                                                    <SelectItem value="vegetarian">Vegetarian</SelectItem>
+                                                    <SelectItem value="non-vegetarian">Non-Vegetarian</SelectItem>
+                                                    <SelectItem value="eggetarian">Eggetarian</SelectItem>
+                                                    <SelectItem value="vegan">Vegan</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Drinking Habits</Label>
+                                            <Select name="partnerDrinkingHabits" value={formState.partnerDrinkingHabits} onValueChange={(value) => handleSelectChange('partnerDrinkingHabits', value)}>
+                                                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="any">Any</SelectItem>
+                                                    <SelectItem value="no">No</SelectItem>
+                                                    <SelectItem value="occasionally">Occasionally</SelectItem>
+                                                    <SelectItem value="regularly">Regularly</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <Label>Dietary Habits</Label>
-                                        <Select name="partnerDietaryHabits" value={formState.partnerDietaryHabits} onValueChange={(value) => handleSelectChange('partnerDietaryHabits', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="any">Any</SelectItem>
-                                                <SelectItem value="vegetarian">Vegetarian</SelectItem>
-                                                <SelectItem value="non-vegetarian">Non-Vegetarian</SelectItem>
-                                                <SelectItem value="eggetarian">Eggetarian</SelectItem>
-                                                <SelectItem value="vegan">Vegan</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <div>
+                                            <Label>Smoking Habits</Label>
+                                            <Select name="partnerSmokingHabits" value={formState.partnerSmokingHabits} onValueChange={(value) => handleSelectChange('partnerSmokingHabits', value)}>
+                                                <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="any">Any</SelectItem>
+                                                    <SelectItem value="no">No</SelectItem>
+                                                    <SelectItem value="occasionally">Occasionally</SelectItem>
+                                                    <SelectItem value="regularly">Regularly</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Religious Beliefs</Label>
+                                            <Select
+                                                name="partnerReligiousBeliefs"
+                                                value={formState.partnerReligiousBeliefs}
+                                                onValueChange={(value) => handleSelectChange('partnerReligiousBeliefs', value)}
+                                            >
+                                                <SelectTrigger><SelectValue placeholder="Select Religious Beliefs" /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="any">Any</SelectItem>
+                                                    <SelectItem value="strictly-religious">Strictly Religious</SelectItem>
+                                                    <SelectItem value="moderately-religious">Moderately Religious</SelectItem>
+                                                    <SelectItem value="not-religious">Not Religious</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Astrological Preference</Label>
+                                            <Input name="partnerAstrology" placeholder="e.g. No Mangal Dosh" value={formState.partnerAstrology} onChange={handleChange}/>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <Label>Smoking Habits</Label>
-                                        <Select name="partnerSmokingHabits" value={formState.partnerSmokingHabits} onValueChange={(value) => handleSelectChange('partnerSmokingHabits', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="any">Any</SelectItem>
-                                                <SelectItem value="no">No</SelectItem>
-                                                <SelectItem value="occasionally">Occasionally</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div>
-                                        <Label>Drinking Habits</Label>
-                                        <Select name="partnerDrinkingHabits" value={formState.partnerDrinkingHabits} onValueChange={(value) => handleSelectChange('partnerDrinkingHabits', value)}>
-                                            <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="any">Any</SelectItem>
-                                                <SelectItem value="no">No</SelectItem>
-                                                <SelectItem value="occasionally">Occasionally</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <Label>Anything Else? (Optional)</Label>
-                                    <Textarea
-                                        name="additionalPreferences"
-                                        placeholder="Describe any other important qualities, values, or deal-breakers."
-                                        className="min-h-[100px]"
-                                        value={formState.additionalPreferences}
-                                        onChange={handleChange}
-                                    />
                                 </div>
                                 
-                                <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                                <Separator />
+
+                                {/* Family & Social Background */}
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4">4. Family & Social Background</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label>Family Type Preference</Label>
+                                            <RadioGroup name="partnerFamilyType" value={formState.partnerFamilyType} onValueChange={(value) => handleSelectChange('partnerFamilyType', value)} className="mt-2">
+                                                <div className="flex items-center space-x-2"><RadioGroupItem value="joint" id="r-fam-joint" /><Label htmlFor="r-fam-joint">Joint</Label></div>
+                                                <div className="flex items-center space-x-2"><RadioGroupItem value="nuclear" id="r-fam-nuclear" /><Label htmlFor="r-fam-nuclear">Nuclear</Label></div>
+                                                <div className="flex items-center space-x-2"><RadioGroupItem value="either" id="r-fam-either" /><Label htmlFor="r-fam-either">Either</Label></div>
+                                            </RadioGroup>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <Separator />
+                                
+                                {/* Location & Migration */}
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4">5. Location & Migration</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label>Preferred Location</Label>
+                                            <Input name="partnerLocation" placeholder="e.g. Kathmandu, Nepal" value={formState.partnerLocation} onChange={handleChange}/>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Willingness to Relocate</Label>
+                                            <RadioGroup name="partnerRelocate" value={formState.partnerRelocate} onValueChange={(value) => handleSelectChange('partnerRelocate', value)} className="mt-2">
+                                                <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="r-relocate-yes" /><Label htmlFor="r-relocate-yes">Yes</Label></div>
+                                                <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="r-relocate-no" /><Label htmlFor="r-relocate-no">No</Label></div>
+                                                <div className="flex items-center space-x-2"><RadioGroupItem value="maybe" id="r-relocate-maybe" /><Label htmlFor="r-relocate-maybe">Maybe</Label></div>
+                                            </RadioGroup>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <Separator />
+                                
+                                {/* Personality & Hobbies */}
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4">6. Personality & Hobbies</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label>Preferred Personality Traits</Label>
+                                            <Input name="partnerPersonality" placeholder="e.g. Fun-loving, Spiritual" value={formState.partnerPersonality} onChange={handleChange}/>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Shared Interests / Hobbies</Label>
+                                            <Input name="partnerHobbies" placeholder="e.g. Travel, Cooking" value={formState.partnerHobbies} onChange={handleChange}/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <Separator />
+                                
+                                {/* Dealbreakers / Must-Haves */}
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4">7. Dealbreakers / Must-Haves</h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <Label>Important Life Goals</Label>
+                                            <RadioGroup name="partnerWantsKids" value={formState.partnerWantsKids} onValueChange={(value) => handleSelectChange('partnerWantsKids', value)} className="mt-2">
+                                                <div className="flex items-center space-x-2"><RadioGroupItem value="yes" id="r-kids-yes" /><Label htmlFor="r-kids-yes">Wants kids</Label></div>
+                                                <div className="flex items-center space-x-2"><RadioGroupItem value="no" id="r-kids-no" /><Label htmlFor="r-kids-no">Does not want kids</Label></div>
+                                                <div className="flex items-center space-x-2"><RadioGroupItem value="undecided" id="r-kids-undecided" /><Label htmlFor="r-kids-undecided">Undecided</Label></div>
+                                            </RadioGroup>
+                                        </div>
+                                        
+                                        <div>
+                                            <Label>Marriage Timeline</Label>
+                                            <Input name="partnerMarriageTimeline" placeholder="e.g. Within 1 year" value={formState.partnerMarriageTimeline} onChange={handleChange}/>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <Button type="submit" size="lg" className="w-full mt-8" disabled={isSubmitting}>
                                   {isSubmitting ? 'Saving...' : 'Save & Continue'}
                                 </Button>
                             </form>
