@@ -75,6 +75,7 @@ const personalInfoSchema = z.object({
   drinkingHabits: z.string().optional(),
 }).refine(data => {
     const { dob_year, dob_month, dob_day } = data;
+    if (!dob_year || !dob_month || !dob_day) return true; // Let individual field validation handle this
     const date = new Date(`${dob_year}-${dob_month}-${dob_day}`);
     return date.getDate() === parseInt(dob_day, 10);
 }, {
@@ -92,18 +93,22 @@ export default function CreateProfilePage() {
   const form = useForm<PersonalInfoFormValues>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: {
+      gender: undefined,
+      dob_day: '',
+      dob_month: '',
+      dob_year: '',
+      height_ft: undefined,
+      height_in: undefined,
+      phoneNumber: '',
+      nationality: '',
       currentLocation: '',
       permanentAddress: '',
-      nationality: '',
       caste: '',
       religion: '',
       complexion: '',
       dietaryHabits: '',
       smokingHabits: '',
       drinkingHabits: '',
-      phoneNumber: '',
-      height_ft: undefined,
-      height_in: undefined,
     },
   });
 
