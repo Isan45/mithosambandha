@@ -26,28 +26,31 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative w-full h-[60vh] md:h-[75vh] flex items-center justify-center text-white">
-        <Image
-          src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
-          alt="Joyful Nepali couple"
-          fill
-          style={{ objectFit: 'cover', objectPosition: 'center 40%' }}
-          className="z-0"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
-        <div className="relative z-10 container mx-auto px-4 md:px-6 text-center">
-          <h1 className="font-headline text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl text-white shadow-lg">
-            Finding Your Forever in the Nepali Way.
-          </h1>
-          <p className="mx-auto mt-4 max-w-3xl text-lg md:text-xl text-white/90">
-            The most trusted matrimonial platform for the Nepali community
-            worldwide.
-          </p>
-          <div className="mt-8">
-            <Button size="lg" asChild>
-              <Link href="/join">Join Now</Link>
-            </Button>
+      <section className="relative w-full flex items-center justify-center bg-secondary text-foreground">
+        <div className="container mx-auto grid grid-cols-1 items-center gap-8 px-4 py-12 md:grid-cols-2 md:px-6 md:py-20">
+          <div className="text-center md:text-left">
+            <h1 className="font-headline text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
+              Finding Your Forever in the Nepali Way.
+            </h1>
+            <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground md:text-xl">
+              The most trusted matrimonial platform for the Nepali community
+              worldwide.
+            </p>
+            <div className="mt-8">
+              <Button size="lg" asChild>
+                <Link href="/join">Join Now</Link>
+              </Button>
+            </div>
+          </div>
+          <div className="relative mx-auto w-full max-w-2xl">
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9"
+              alt="Joyful Nepali couple"
+              width={1200}
+              height={800}
+              className="h-auto w-full rounded-lg object-contain shadow-xl"
+              priority
+            />
           </div>
         </div>
       </section>
