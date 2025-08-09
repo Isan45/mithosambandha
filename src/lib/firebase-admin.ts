@@ -21,7 +21,8 @@ if (!admin.apps.length) {
       console.error('Firebase admin initialization error', error.stack);
     }
   } else {
-    console.warn('Firebase admin credentials not provided. Admin features will be disabled.');
+    // We are logging this on the server, so it's fine.
+    console.log('Firebase admin credentials not provided. Admin features will be disabled.');
   }
 }
 

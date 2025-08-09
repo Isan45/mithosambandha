@@ -6,6 +6,10 @@ import type { UserProfile } from '@/types';
 import { logAdminAction } from './audit';
 
 export async function getUsers(): Promise<UserProfile[]> {
+  if (!adminDb) {
+    console.error('Firebase Admin SDK not initialized. Cannot fetch users.');
+    return [];
+  }
   try {
     const snapshot = await adminDb.collection('users').get();
     if (snapshot.empty) {
@@ -40,6 +44,10 @@ export async function getUsers(): Promise<UserProfile[]> {
 }
 
 export async function suspendUser(uid: string, reason: string): Promise<void> {
+  if (!adminDb || !adminAuth) {
+    console.error('Firebase Admin SDK not initialized. Cannot suspend user.');
+    throw new Error('Admin services not available.');
+  }
   try {
     const userRef = adminDb.collection('users').doc(uid);
     const userDoc = await userRef.get();
