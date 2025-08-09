@@ -8,7 +8,14 @@ import { SignupsChart } from '@/components/admin/charts/signups-chart';
 import { GenderSplitChart } from '@/components/admin/charts/gender-split-chart';
 import { AgeDistributionChart } from '@/components/admin/charts/age-distribution-chart';
 
-const DashboardCard = ({ title, value, icon: Icon, description, href, cta }: any) => (
+const DashboardCard = ({ title, value, icon: Icon, description, href, cta }: {
+  title: string;
+  value: string;
+  icon: React.ElementType;
+  description: string;
+  href: string;
+  cta: string;
+}) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
