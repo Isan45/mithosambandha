@@ -15,7 +15,10 @@ import Image from 'next/image';
 import {
   LayoutDashboard,
   Users,
+  ShieldCheck,
   HeartHandshake,
+  BarChart,
+  Settings,
   LogOut,
 } from 'lucide-react';
 
@@ -56,17 +59,41 @@ export default function AdminLayout({
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href="/admin/submissions">
+                <Link href="/admin/users">
                   <Users />
-                  Submissions
+                  Users
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href="/admin/matchmaking">
+                <Link href="/admin/moderation">
+                  <ShieldCheck />
+                  Moderation
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/matches">
                   <HeartHandshake />
-                  Matchmaking
+                  Matches
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/analytics">
+                  <BarChart />
+                  Analytics
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/settings">
+                  <Settings />
+                  Settings
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

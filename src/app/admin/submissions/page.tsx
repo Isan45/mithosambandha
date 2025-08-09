@@ -50,7 +50,7 @@ export default function SubmissionsPage() {
         toast({
           variant: 'destructive',
           title: 'Error',
-          description: 'Failed to fetch pending submissions.',
+          description: 'Failed to fetch pending submissions. Check Firestore rules.',
         });
       } finally {
         setIsLoading(false);
@@ -111,8 +111,17 @@ export default function SubmissionsPage() {
   return (
     <div className="p-4 md:p-8">
       <h1 className="font-headline mb-6 text-3xl font-bold">
-        Profile Submissions
+        Profile Submissions (Legacy)
       </h1>
+       <Card className="mb-6 bg-yellow-50 border-yellow-300">
+        <CardHeader>
+            <CardTitle className="text-yellow-800">Page Deprecation Notice</CardTitle>
+            <CardDescription className="text-yellow-700">
+                This page is now considered legacy. User management and verification has been moved to the new <Link href="/admin/users" className="font-bold underline">Users</Link> and <Link href="/admin/moderation/verify" className="font-bold underline">Verification</Link> pages.
+            </CardDescription>
+        </CardHeader>
+      </Card>
+
       {profiles.length > 0 ? (
         <div className="space-y-6">
           {profiles.map(profile => (
@@ -121,15 +130,15 @@ export default function SubmissionsPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="font-headline text-2xl">
-                      {profile.fullName}
+                      {profile.displayName}
                     </CardTitle>
                     <CardDescription>
                       <span className="mt-1 flex items-center gap-2">
                         <Cake className="h-4 w-4" />{' '}
-                        {calculateAge(profile.profile?.dob)} years old
+                        {calculateAge(profile.basic?.dob)} years old
                         <span className="mx-1">·</span>
                         <MapPin className="h-4 w-4" />{' '}
-                        {profile.profile?.currentLocation || 'N/A'}
+                        {profile.basic?.city || 'N/A'}
                       </span>
                     </CardDescription>
                   </div>
@@ -137,27 +146,15 @@ export default function SubmissionsPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <h4 className="mb-2 font-semibold">Bio</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {profile.profile?.bio || 'No bio provided.'}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="mb-2 font-semibold">Partner Preferences</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {profile.profile?.partnerPreferences
-                      ?.additionalPreferences || 'No preferences specified.'}
-                  </p>
-                </div>
+                {/* Simplified for brevity, as this is a legacy page */}
                 <div>
                   <h4 className="mb-2 font-semibold">Photos</h4>
                   <div className="flex gap-4">
-                    {profile.profile?.galleryPhotos?.length ? (
-                      profile.profile.galleryPhotos.map((photo, index) => (
+                    {profile.photos?.length ? (
+                      profile.photos.map((photo, index) => (
                         <div key={index} className="relative h-32 w-32">
                           <Image
-                            src={photo}
+                            src={photo.url}
                             alt={`photo ${index + 1}`}
                             fill
                             style={{ objectFit: 'cover' }}
@@ -205,3 +202,4 @@ export default function SubmissionsPage() {
     </div>
   );
 }
+

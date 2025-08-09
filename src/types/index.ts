@@ -18,9 +18,13 @@ export type Profile = {
 export type UserProfile = {
   uid: string;
   email: string;
-  fullName: string;
-  onboardingReason: 'life-partner' | 'for-someone-else' | 'browsing';
+  displayName: string;
+  phone?: string;
   createdAt: any; // Firebase Timestamp
+  lastActiveAt?: any; // Firebase Timestamp
+  role: 'user' | 'admin' | 'moderator';
+  profileCompletion: number;
+  visibility: 'public' | 'private' | 'verified-only';
   profileStatus:
     | 'incomplete'
     | 'in-progress-education'
@@ -29,43 +33,36 @@ export type UserProfile = {
     | 'in-progress-photos'
     | 'pending-review'
     | 'approved'
-    | 'rejected';
-  profile?: {
+    | 'rejected'
+    | 'suspended';
+  
+  basic?: {
     gender?: string;
-    dob?: string;
-    height?: { feet: number; inches: number };
-    bodyType?: string;
-    maritalStatus?: string;
-    motherTongue?: string;
+    dob?: string; // Stored as ISO string
+    heightCm?: number;
+    city?: string;
+    country?: string;
+  };
+
+  education?: {
+    level?: string;
+    field?: string;
+    institution?: string;
+  };
+
+  work?: {
+    occupation?: string;
+    employer?: string;
+    incomeMonthly?: number;
+  };
+
+  family?: {
     familyType?: string;
-    familyValues?: string;
-    canRelocate?: string;
-    wantsKids?: string;
-    phoneNumber?: string;
-    nationality?: string;
-    currentLocation?: string;
-    permanentAddress?: string;
-    caste?: string;
-    religion?: string;
-    complexion?: string;
-    dietaryHabits?: string;
-    smokingHabits?: string;
-    drinkingHabits?: string;
-    bio?: string;
-    membership?: 'Free Membership' | 'Gold Membership' | 'Platinum Membership';
-    onlineStatus?: boolean;
-    education?: {
-      highestEducation: string;
-      college: string;
-      fieldOfStudy: string;
-    };
-    career?: {
-      profession: string;
-      company?: string;
-      workDetails?: string;
-      income?: string;
-    };
-    partnerPreferences?: {
+    parentsOccupation?: string;
+    siblings?: string;
+  };
+
+  preferences?: {
       age?: { min?: number; max?: number };
       height?: { minFt?: number; minIn?: number; maxFt?: number; maxIn?: number };
       maritalStatus?: string;
@@ -89,12 +86,36 @@ export type UserProfile = {
       hobbies?: string;
       wantsKids?: string;
       marriageTimeline?: string;
-      additionalPreferences?: string; // Add this field
+      additionalPreferences?: string;
+  };
+
+  photos?: Array<{
+    id: string;
+    url: string;
+    thumb?: string;
+    status: 'pending' | 'approved' | 'rejected';
+    uploadedAt: any; // Firebase Timestamp
+  }>;
+
+  verification?: {
+    phoneVerified: boolean;
+    idVerified: {
+      status: 'pending' | 'approved' | 'rejected' | 'none';
+      adminId?: string;
+      note?: string;
+      at?: any; // Firebase Timestamp
     };
-    profilePhoto?: string;
-    galleryPhotos?: string[];
-    idDocument?: string;
-    idVerified?: boolean;
+    photoVerified: {
+      status: 'pending' | 'approved' | 'rejected' | 'none';
+      adminId?: string;
+      at?: any; // Firebase Timestamp
+    };
+  };
+
+  activityStats?: {
+    profileViews: number;
+    messagesSent: number;
+    interestsSent: number;
   };
 };
 
