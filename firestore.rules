@@ -1,17 +1,85 @@
-
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      // Allow public read access for approved profiles
-      allow read: if resource.data.profileStatus == 'approved';
-      
-      // Allow authenticated users to read their own data, and any authenticated user to read any profile
-      allow read: if request.auth != null;
-        
-      // Allow authenticated users to write to their own profile,
-      // and allow any authenticated user to update any profile (for admin actions)
-      allow write: if request.auth != null;
+
+    // Helper functions for Role-Based Access Control (RBAC)
+    function isUser(uid) {
+      return request.auth.uid == uid;
+    }
+
+    function isSuperAdmin(uid) {
+      // In a real app, this would be a separate collection or custom claim
+      // For now, we can check against a simple collection of admins
+      return exists(/databases/$(database)/documents/admins/$(uid));
+    }
+
+    function isAdmin(uid) {
+      // Admins have all moderator permissions plus more
+      return isSuperAdmin(uid); // Simplified for now
+    }
+
+    function isModerator(uid) {
+      // Moderators can manage reports and verifications
+      return exists(/databases/$(database)/documents/moderators/$(uid)) || isAdmin(uid);
+    }
+    
+    // Profiles can be read publicly if approved, or by their owner, or by an admin.
+    // Users can only update their own profile, and cannot touch verification or role fields.
+    match /profiles/{uid} {
+      allow read: if resource.data.visibility == 'public' 
+                   || isUser(uid) 
+                   || isAdmin(request.auth.uid);
+                   
+      allow create: if request.auth.uid != null;
+
+      allow update: if isUser(uid) && !('verification' in request.resource.data) && !('role' in request.resource.data)
+                   || isAdmin(request.auth.uid);
+    }
+
+    // A separate collection for user data that should be private.
+    match /privateUserData/{uid} {
+      allow read, write: if isUser(uid) || isAdmin(request.auth.uid);
+    }
+
+    // Users can submit reports, but only moderators/admins can manage them.
+    match /reports/{reportId} {
+      allow create: if request.auth.uid != null;
+      allow read, update, delete: if isModerator(request.auth.uid);
+    }
+
+    // Users can create verification requests, but only admins can act on them.
+    match /verifications/{verificationId} {
+      allow create: if request.auth.uid != null;
+      allow read, update: if isAdmin(request.auth.uid);
+    }
+
+    // Audit logs are write-only for server-side (Admin SDK) operations, and read-only for admins.
+    match /auditLogs/{logId} {
+      allow read: if isAdmin(request.auth.uid);
+      allow write: if false; // Should only be written from a trusted server environment
+    }
+    
+    // Configuration can be read by any authenticated user, but only written by a super admin.
+    match /config/{configId} {
+      allow read: if request.auth.uid != null;
+      allow write: if isSuperAdmin(request.auth.uid);
+    }
+
+    // Matches can be read by the users involved or by an admin.
+    match /matches/{matchId} {
+      allow read: if request.auth.uid in resource.data.uids || isAdmin(request.auth.uid);
+      allow create, update, delete: if false; // Matches created by server functions
+    }
+    
+    // Placeholder for admin/moderator role collections.
+    // These documents would contain the UIDs of users with those roles.
+    match /admins/{uid} {
+      allow read, write: if isSuperAdmin(request.auth.uid);
+    }
+    
+    match /moderators/{uid} {
+      allow read, write: if isAdmin(request.auth.uid);
     }
   }
 }
