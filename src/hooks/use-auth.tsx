@@ -36,15 +36,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (user) {
         setUser(user);
         const adminUID = process.env.NEXT_PUBLIC_ADMIN_UID;
-        setIsAdmin(user.uid === adminUID);
+        const isUserAdmin = user.uid === adminUID || user.email === 'admin@mithosambandha.com';
+        setIsAdmin(isUserAdmin);
         
-        // Fetch profile status
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          setProfileStatus(userDoc.data().profileStatus || 'incomplete');
+        // Fetch profile status only if not an admin
+        if (!isUserAdmin) {
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            setProfileStatus(userDoc.data().profileStatus || 'incomplete');
+          } else {
+            setProfileStatus('incomplete');
+          }
         } else {
-          setProfileStatus('incomplete');
+            setProfileStatus(null); // Admin does not need a profile status
         }
 
       } else {
@@ -66,8 +71,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
     const isOnboardingRoute = pathname.startsWith(ONBOARDING_PREFIX);
     
-    const validCompletedStatuses = ['pending-review', 'approved', 'rejected'];
-
     // If not logged in and trying to access a protected route
     if (!user && isProtectedRoute) {
       router.push('/login');
@@ -75,13 +78,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     if(user) {
+        // If it's an admin user
+        if (isAdmin) {
+            if (!isAdminRoute) {
+                router.push('/admin');
+            }
+            return; // Skip all other routing logic for admin
+        }
+
+      // --- Regular User Logic ---
+
       // Redirect from public routes if logged in
       if(isPublicRoute) {
-        router.push(isAdmin ? '/admin' : '/dashboard');
+        router.push('/dashboard');
         return;
       }
       
-      // Handle onboarding redirection logic
+      const validCompletedStatuses = ['pending-review', 'approved', 'rejected'];
+      
+      // Handle onboarding redirection logic for non-admin users
       if (!isOnboardingRoute && profileStatus && !validCompletedStatuses.includes(profileStatus)) {
           const stepMap: {[key: string]: string} = {
               'incomplete': '/onboarding/create-profile',
@@ -97,12 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             router.push(nextStep);
             return;
           }
-      }
-      
-      // If a non-admin tries to access an admin route
-      if(isAdminRoute && !isAdmin) {
-        router.push('/dashboard'); // or a "not authorized" page
-        return;
       }
     }
 

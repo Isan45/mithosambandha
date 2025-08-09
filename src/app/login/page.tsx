@@ -51,25 +51,21 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsSubmitting(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-      // For developer testing, allow specific email to be admin
-      const isAdmin = userCredential.user.uid === process.env.NEXT_PUBLIC_ADMIN_UID || values.email === 'admin@mithosambandha.com';
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       
       toast({
         title: 'Login Successful',
         description: "Welcome back! You're being redirected.",
       });
 
-      if (isAdmin) {
-        router.push('/admin');
-      } else {
-        router.push('/dashboard'); 
-      }
+      // The useAuth hook will handle redirection automatically
+      // No need to push to /admin or /dashboard here.
+
     } catch (error: any) {
       console.error('Login Error:', error);
       
       let description = 'An unexpected error occurred. Please try again.';
-      if (error.code === 'auth/invalid-credential') {
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
         if (values.email === 'admin@mithosambandha.com') {
             description = "Admin account not found. Please go to the 'Join' page to create it first.";
         } else {
