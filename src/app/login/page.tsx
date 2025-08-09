@@ -52,7 +52,8 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-      const isAdmin = userCredential.user.uid === process.env.NEXT_PUBLIC_ADMIN_UID;
+      // For developer testing, allow specific email to be admin
+      const isAdmin = userCredential.user.uid === process.env.NEXT_PUBLIC_ADMIN_UID || values.email === 'admin@mithosambandha.com';
       
       toast({
         title: 'Login Successful',
