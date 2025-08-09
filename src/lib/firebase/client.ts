@@ -8,13 +8,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig: FirebaseOptions = {
-  apiKey: 'AIzaSyChI2xnoM5a_Afg56r5Y5-n16TCEtFp86E',
-  authDomain: 'monospace-9.firebaseapp.com',
-  projectId: 'monospace-9',
-  storageBucket: 'monospace-9.appspot.com',
-  messagingSenderId: '943158816698',
-  appId: '1:943158816698:web:565f4c1deb6161ee507783',
-  measurementId: 'G-4VC7T24F14',
+  apiKey: "YOUR_API_KEY",
+  authDomain: "mitho-sambandha-c4959.firebaseapp.com",
+  projectId: "mitho-sambandha-c4959",
+  storageBucket: "mitho-sambandha-c4959.appspot.com",
+  messagingSenderId: "107491337536",
+  appId: "1:107491337536:web:65a08234c2b53b5e47852e",
+  measurementId: "G-9XG01W0C69"
 };
 
 // Initialize Firebase
