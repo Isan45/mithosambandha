@@ -1,3 +1,4 @@
+
 // src/app/api/admin/recent-users/route.ts
 import { NextResponse } from 'next/server';
 import { db, auth } from '@/lib/firebase-admin';
@@ -9,7 +10,7 @@ async function verifyAdminFromHeader(authorizationHeader?: string) {
   if (!match) throw new Error('Invalid Authorization header');
   const idToken = match[1];
   const decoded = await auth.verifyIdToken(idToken);
-  if (!decoded || !(decoded.admin || decoded.role === 'admin' || decoded.email === 'admin@mithosambandha.com')) {
+  if (!decoded || !(decoded.admin || decoded.role === 'admin')) {
     throw new Error('Not an admin');
   }
   return decoded.uid;
