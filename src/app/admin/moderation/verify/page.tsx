@@ -93,9 +93,9 @@ export default async function VerificationPage() {
                           <Image
                             src={(profile as any).profile.profilePhoto}
                             alt="Profile Photo"
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            className="rounded-md border-2 border-primary"
+                            width={160}
+                            height={160}
+                            className="rounded-md border-2 border-primary object-cover"
                           />
                         </div>
                     ) : (
@@ -115,9 +115,9 @@ export default async function VerificationPage() {
                           <Image
                             src={photo}
                             alt={`Gallery photo ${index + 1}`}
-                            fill
-                            style={{ objectFit: 'cover' }}
-                            className="rounded-md"
+                            width={128}
+                            height={128}
+                            className="rounded-md object-cover"
                           />
                         </div>
                       ))
@@ -137,9 +137,9 @@ export default async function VerificationPage() {
                           <Image
                             src={(profile as any).profile.idDocument}
                             alt="ID Document"
-                            fill
-                            style={{ objectFit: 'contain' }}
-                            className="rounded-md border p-2"
+                            width={192}
+                            height={128}
+                            className="rounded-md border p-2 object-contain"
                           />
                         </div>
                     ) : (
