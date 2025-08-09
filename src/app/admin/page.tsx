@@ -2,10 +2,11 @@
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { UserCheck, UserPlus, BrainCircuit, Users, BarChart, FileText, DollarSign, LineChart as LineChartIcon, PieChart as PieChartIcon } from 'lucide-react';
+import { UserCheck, UserPlus, BrainCircuit, Users, BarChart, FileText, DollarSign, LineChart as LineChartIcon, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { SignupsChart } from '@/components/admin/charts/signups-chart';
 import { GenderSplitChart } from '@/components/admin/charts/gender-split-chart';
+import { AgeDistributionChart } from '@/components/admin/charts/age-distribution-chart';
 
 const DashboardCard = ({ title, value, icon: Icon, description, href, cta }: any) => (
     <Card>
@@ -64,8 +65,8 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-5 gap-8">
-        <Card className="lg:col-span-3">
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
               <LineChartIcon />
@@ -79,7 +80,7 @@ export default function AdminDashboardPage() {
             <SignupsChart />
           </CardContent>
         </Card>
-         <Card className="lg:col-span-2">
+         <Card className="lg:col-span-1">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
                 <PieChartIcon />
@@ -92,6 +93,22 @@ export default function AdminDashboardPage() {
           <CardContent>
              <GenderSplitChart />
           </CardContent>
+        </Card>
+      </div>
+      <div className="mt-8">
+        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline flex items-center gap-2">
+                    <BarChart3 />
+                    Age Distribution
+                </CardTitle>
+                <CardDescription>
+                    A breakdown of the user base by age groups.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="pl-2">
+                <AgeDistributionChart />
+            </CardContent>
         </Card>
       </div>
     </div>
