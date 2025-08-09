@@ -11,6 +11,7 @@ if (!admin.apps.length) {
   admin.initializeApp({
     credential: cert ? admin.credential.cert(cert) : admin.credential.applicationDefault(),
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET || undefined,
+    projectId: 'mitho-sambandha-c4959', // Forcing the correct project ID
   });
 }
 
