@@ -8,13 +8,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig: FirebaseOptions = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyBV_UssbqWWweViiyDR9Rp8M9mGKR5fHMc",
   authDomain: "mitho-sambandha-c4959.firebaseapp.com",
   projectId: "mitho-sambandha-c4959",
   storageBucket: "mitho-sambandha-c4959.appspot.com",
-  messagingSenderId: "107491337536",
-  appId: "1:107491337536:web:65a08234c2b53b5e47852e",
-  measurementId: "G-9XG01W0C69"
+  messagingSenderId: "943158816698",
+  appId: "1:943158816698:web:565f4c1deb6161ee507783",
+  measurementId: "G-4VC7T24F14"
 };
 
 // Initialize Firebase
