@@ -1,4 +1,5 @@
 
+
 // This is a simplified version for mock data and public profiles
 export type Profile = {
   id: string;
@@ -67,19 +68,28 @@ export type UserProfile = {
     partnerPreferences?: {
       age?: { min?: number; max?: number };
       height?: { minFt?: number; minIn?: number; maxFt?: number; maxIn?: number };
-      wantsKids?: string;
-      relocate?: string;
-      earning?: string;
-      familyType?: string;
-      education?: string;
-      occupation?: string;
+      maritalStatus?: string;
       religion?: string;
       caste?: string;
+      motherTongue?: string;
+      education?: string;
+      occupation?: string;
+      employmentStatus?: string;
+      minIncome?: string;
+      workLocation?: string;
       dietaryHabits?: string;
-      smokingHabits?: string;
       drinkingHabits?: string;
-      currentLocation?: string;
-      additionalPreferences?: string;
+      smokingHabits?: string;
+      religiousBeliefs?: string;
+      astrology?: string;
+      familyType?: string;
+      relocate?: string;
+      location?: string;
+      personality?: string;
+      hobbies?: string;
+      wantsKids?: string;
+      marriageTimeline?: string;
+      additionalPreferences?: string; // Add this field
     };
     profilePhoto?: string;
     galleryPhotos?: string[];

@@ -64,6 +64,7 @@ const PartnerPreferencesPage = () => {
         partnerHobbies: '',
         partnerWantsKids: '',
         partnerMarriageTimeline: '',
+        additionalPreferences: '',
     });
     
     // State for validation errors
@@ -104,6 +105,7 @@ const PartnerPreferencesPage = () => {
                     partnerHobbies: pp.hobbies || '',
                     partnerWantsKids: pp.wantsKids || '',
                     partnerMarriageTimeline: pp.marriageTimeline || '',
+                    additionalPreferences: pp.additionalPreferences || '',
                 });
             }
         }
@@ -188,6 +190,7 @@ const PartnerPreferencesPage = () => {
             hobbies: formState.partnerHobbies,
             wantsKids: formState.partnerWantsKids,
             marriageTimeline: formState.partnerMarriageTimeline,
+            additionalPreferences: formState.additionalPreferences,
         };
         
         try {
@@ -505,6 +508,16 @@ const PartnerPreferencesPage = () => {
                                             <Label>Marriage Timeline</Label>
                                             <Input name="partnerMarriageTimeline" placeholder="e.g. Within 1 year" value={formState.partnerMarriageTimeline} onChange={handleChange}/>
                                         </div>
+                                    </div>
+                                </div>
+                                <Separator />
+
+                                {/* Additional Preferences */}
+                                <div>
+                                    <h3 className="text-lg font-semibold mb-4">8. Additional Preferences</h3>
+                                     <div>
+                                        <Label>Anything else?</Label>
+                                        <Textarea name="additionalPreferences" value={formState.additionalPreferences} onChange={handleChange} placeholder="Please describe any other preferences you have for your partner. This will be shown to the admin to help find a better match."/>
                                     </div>
                                 </div>
                                 
