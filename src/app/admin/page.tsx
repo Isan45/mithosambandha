@@ -96,19 +96,6 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-       <div className="mt-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">Welcome, Admin!</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              Use the navigation on the left to manage the platform. The main queues needing your attention are user verifications and moderation reports.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
