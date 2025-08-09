@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { UserCheck, UserPlus, BrainCircuit, Users, BarChart, FileText, DollarSign, LineChart as LineChartIcon, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
+import { UserPlus, Users, FileText, DollarSign, LineChart as LineChartIcon, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { SignupsChart } from '@/components/admin/charts/signups-chart';
 import { GenderSplitChart } from '@/components/admin/charts/gender-split-chart';
@@ -89,7 +89,7 @@ export default function AdminDashboardPage() {
             <CardDescription>
                 The gender split of all approved users on the platform.
             </CardDescription>
-          </CardHeader>
+          </Header>
           <CardContent>
              <GenderSplitChart />
           </CardContent>
