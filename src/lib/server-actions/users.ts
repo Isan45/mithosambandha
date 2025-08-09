@@ -1,8 +1,9 @@
 
 'use server';
 
-import { adminDb } from '@/lib/firebase-admin';
+import { adminDb, adminAuth } from '@/lib/firebase-admin';
 import type { UserProfile } from '@/types';
+import { logAdminAction } from './audit';
 
 export async function getUsers(): Promise<UserProfile[]> {
   try {
@@ -10,18 +11,22 @@ export async function getUsers(): Promise<UserProfile[]> {
     if (snapshot.empty) {
       return [];
     }
-    
+
     const users: UserProfile[] = [];
     snapshot.forEach(doc => {
-      // Basic validation to ensure it's a UserProfile-like object
       const data = doc.data();
-      if (data.uid && data.displayName) {
-          users.push({
-            ...data,
-            // Ensure dates are serializable
-            createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : null,
-            lastActiveAt: data.lastActiveAt?.toDate ? data.lastActiveAt.toDate().toISOString() : null,
-          } as UserProfile);
+      // Basic validation to ensure it's a UserProfile-like object
+      if (data.uid) {
+        users.push({
+          ...data,
+          // Ensure dates are serializable
+          createdAt: data.createdAt?.toDate
+            ? data.createdAt.toDate().toISOString()
+            : null,
+          lastActiveAt: data.lastActiveAt?.toDate
+            ? data.lastActiveAt.toDate().toISOString()
+            : null,
+        } as UserProfile);
       }
     });
 
@@ -31,5 +36,38 @@ export async function getUsers(): Promise<UserProfile[]> {
     // In a real app, you might want to throw a more specific error
     // or return a result object with an error field.
     return [];
+  }
+}
+
+export async function suspendUser(uid: string, reason: string): Promise<void> {
+  try {
+    const userRef = adminDb.collection('users').doc(uid);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      throw new Error('User not found.');
+    }
+
+    const oldStatus = userDoc.data()?.profileStatus;
+
+    // Set the user's profile status to suspended in Firestore
+    await userRef.update({ profileStatus: 'suspended' });
+
+    // Disable the user in Firebase Auth
+    await adminAuth.updateUser(uid, { disabled: true });
+
+    // Log the action
+    await logAdminAction({
+      action: 'USER_SUSPEND',
+      targetUid: uid,
+      reason: reason,
+      changes: {
+        oldValue: oldStatus,
+        newValue: 'suspended',
+      },
+    });
+  } catch (error) {
+    console.error(`Failed to suspend user ${uid}:`, error);
+    throw new Error('Could not suspend user.');
   }
 }

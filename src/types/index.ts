@@ -1,4 +1,5 @@
 
+import type { AdminAction } from '@/lib/server-actions/audit';
 
 // This is a simplified version for mock data and public profiles
 export type Profile = {
@@ -35,7 +36,7 @@ export type UserProfile = {
     | 'approved'
     | 'rejected'
     | 'suspended';
-  
+
   basic?: {
     gender?: string;
     dob?: string; // Stored as ISO string
@@ -63,30 +64,35 @@ export type UserProfile = {
   };
 
   preferences?: {
-      age?: { min?: number; max?: number };
-      height?: { minFt?: number; minIn?: number; maxFt?: number; maxIn?: number };
-      maritalStatus?: string;
-      religion?: string;
-      caste?: string;
-      motherTongue?: string;
-      education?: string;
-      occupation?: string;
-      employmentStatus?: string;
-      minIncome?: string;
-      workLocation?: string;
-      dietaryHabits?: string;
-      drinkingHabits?: string;
-      smokingHabits?: string;
-      religiousBeliefs?: string;
-      astrology?: string;
-      familyType?: string;
-      relocate?: string;
-      location?: string;
-      personality?: string;
-      hobbies?: string;
-      wantsKids?: string;
-      marriageTimeline?: string;
-      additionalPreferences?: string;
+    age?: { min?: number; max?: number };
+    height?: {
+      minFt?: number;
+      minIn?: number;
+      maxFt?: number;
+      maxIn?: number;
+    };
+    maritalStatus?: string;
+    religion?: string;
+    caste?: string;
+    motherTongue?: string;
+    education?: string;
+    occupation?: string;
+    employmentStatus?: string;
+    minIncome?: string;
+    workLocation?: string;
+    dietaryHabits?: string;
+    drinkingHabits?: string;
+    smokingHabits?: string;
+    religiousBeliefs?: string;
+    astrology?: string;
+    familyType?: string;
+    relocate?: string;
+    location?: string;
+    personality?: string;
+    hobbies?: string;
+    wantsKids?: string;
+    marriageTimeline?: string;
+    additionalPreferences?: string;
   };
 
   photos?: Array<{
@@ -124,4 +130,17 @@ export type SuccessStory = {
   names: string;
   story: string;
   photo: string;
+};
+
+export type AuditLog = {
+  id: string;
+  action: AdminAction;
+  adminUid: string;
+  targetUid: string;
+  timestamp: any; // Firebase Timestamp
+  changes?: {
+    oldValue: any;
+    newValue: any;
+  };
+  reason?: string;
 };
