@@ -7,8 +7,9 @@ import Link from 'next/link';
 import { SignupsChart } from '@/components/admin/charts/signups-chart';
 import { GenderSplitChart } from '@/components/admin/charts/gender-split-chart';
 import { AgeDistributionChart } from '@/components/admin/charts/age-distribution-chart';
+import type React from 'react';
 
-// Correctly defined as a standalone functional component
+// Correctly defined as a standalone functional component outside of the main component.
 const DashboardCard = ({ title, value, icon: Icon, description, href, cta }: {
   title: string;
   value: string;
@@ -31,6 +32,7 @@ const DashboardCard = ({ title, value, icon: Icon, description, href, cta }: {
       </CardContent>
     </Card>
 );
+
 
 export default function AdminDashboardPage() {
   return (
