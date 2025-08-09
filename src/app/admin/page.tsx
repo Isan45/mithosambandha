@@ -8,6 +8,7 @@ import { SignupsChart } from '@/components/admin/charts/signups-chart';
 import { GenderSplitChart } from '@/components/admin/charts/gender-split-chart';
 import { AgeDistributionChart } from '@/components/admin/charts/age-distribution-chart';
 
+// Correctly defined as a standalone functional component
 const DashboardCard = ({ title, value, icon: Icon, description, href, cta }: {
   title: string;
   value: string;
@@ -29,41 +30,40 @@ const DashboardCard = ({ title, value, icon: Icon, description, href, cta }: {
         </Link>
       </CardContent>
     </Card>
-  );
+);
 
 export default function AdminDashboardPage() {
-  
   return (
     <div className="p-4 md:p-8">
       <h1 className="font-headline mb-6 text-3xl font-bold">Admin Mission Control</h1>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <DashboardCard 
-          title="Total Users" 
+        <DashboardCard
+          title="Total Users"
           value="1,254"
           icon={Users}
           description="+20.1% from last month"
           href="/admin/users"
           cta="Manage Users"
         />
-        <DashboardCard 
-          title="Pending Verifications" 
+        <DashboardCard
+          title="Pending Verifications"
           value="12"
           icon={UserPlus}
           description="ID & photo checks needed"
           href="/admin/moderation/verify"
           cta="Go to Queue"
         />
-        <DashboardCard 
-          title="Open Moderation Reports" 
+        <DashboardCard
+          title="Open Moderation Reports"
           value="3"
           icon={FileText}
           description="User-submitted conduct reports"
           href="/admin/moderation"
           cta="Review Reports"
         />
-         <DashboardCard 
-          title="Total Revenue" 
+         <DashboardCard
+          title="Total Revenue"
           value="₹45,231"
           icon={DollarSign}
           description="+180.1% from last month"
