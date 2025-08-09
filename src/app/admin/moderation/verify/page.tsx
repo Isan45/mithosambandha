@@ -1,5 +1,6 @@
 
-import { getUsers } from '@/lib/server-actions/users';
+
+import { getUsers, approveProfile, rejectProfile } from '@/lib/server-actions/users';
 import type { UserProfile } from '@/types';
 import {
   Card,
@@ -13,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, X, Cake, MapPin, Hash, UserCircle, Images } from 'lucide-react';
 import Image from 'next/image';
+import { revalidatePath } from 'next/cache';
 
 function calculateAge(dob?: string) {
   if (!dob) return 'N/A';
@@ -31,6 +33,22 @@ export default async function VerificationPage() {
   const pendingProfiles = allUsers.filter(
     (user) => user.profileStatus === 'pending-review'
   );
+
+  const handleApprove = async (formData: FormData) => {
+    'use server';
+    const uid = formData.get('uid') as string;
+    await approveProfile(uid);
+    revalidatePath('/admin/moderation/verify');
+  };
+
+  const handleReject = async (formData: FormData) => {
+    'use server';
+    const uid = formData.get('uid') as string;
+    // In a real app, you'd have a dialog to collect the reason
+    const reason = "Information incomplete."; 
+    await rejectProfile(uid, reason);
+    revalidatePath('/admin/moderation/verify');
+  };
 
   return (
     <div className="p-4 md:p-8">
@@ -70,10 +88,10 @@ export default async function VerificationPage() {
                 <div>
                   <h4 className="font-semibold text-lg mb-2 flex items-center gap-2"><UserCircle /> Profile Photo</h4>
                    <div className="flex gap-4">
-                    {profile.photos?.find(p => p.id === 'profile-photo') ? (
+                    {(profile as any).profile?.profilePhoto ? (
                        <div className="relative h-40 w-40">
                           <Image
-                            src={profile.photos.find(p => p.id === 'profile-photo')!.url}
+                            src={(profile as any).profile.profilePhoto}
                             alt="Profile Photo"
                             fill
                             style={{ objectFit: 'cover' }}
@@ -91,11 +109,11 @@ export default async function VerificationPage() {
                 <div>
                   <h4 className="font-semibold text-lg mb-2 flex items-center gap-2"><Images /> Gallery Photos</h4>
                   <div className="flex flex-wrap gap-4">
-                    {profile.photos && profile.photos.filter(p => p.id !== 'profile-photo').length > 0 ? (
-                      profile.photos.filter(p => p.id !== 'profile-photo').map((photo, index) => (
+                    {(profile as any).profile?.galleryPhotos && (profile as any).profile.galleryPhotos.length > 0 ? (
+                      (profile as any).profile.galleryPhotos.map((photo: string, index: number) => (
                         <div key={index} className="relative h-32 w-32">
                           <Image
-                            src={photo.url}
+                            src={photo}
                             alt={`Gallery photo ${index + 1}`}
                             fill
                             style={{ objectFit: 'cover' }}
@@ -114,28 +132,45 @@ export default async function VerificationPage() {
                  <div>
                   <h4 className="font-semibold text-lg mb-2">ID Document</h4>
                    <div className="flex gap-4">
-                    {/* Placeholder for ID document - assuming it's stored differently or not displayed directly */}
-                     <p className="text-sm text-muted-foreground">
-                        ID Verification feature to be implemented.
+                    {(profile as any).profile?.idDocument ? (
+                         <div className="relative h-32 w-48">
+                          <Image
+                            src={(profile as any).profile.idDocument}
+                            alt="ID Document"
+                            fill
+                            style={{ objectFit: 'contain' }}
+                            className="rounded-md border p-2"
+                          />
+                        </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No ID document uploaded.
                       </p>
+                    )}
                   </div>
                 </div>
 
               </CardContent>
               <CardFooter className="flex justify-end gap-2 border-t pt-4 mt-4">
-                  <Button
-                    variant="outline"
-                    className="border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    disabled
-                  >
-                    <X className="mr-2 h-4 w-4" /> Reject
-                  </Button>
-                  <Button
-                    className="bg-green-600 text-white hover:bg-green-700"
-                    disabled
-                  >
-                    <Check className="mr-2 h-4 w-4" /> Approve
-                  </Button>
+                  <form action={handleReject}>
+                    <input type="hidden" name="uid" value={profile.uid} />
+                    <Button
+                        type="submit"
+                        variant="outline"
+                        className="border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    >
+                        <X className="mr-2 h-4 w-4" /> Reject
+                    </Button>
+                  </form>
+                   <form action={handleApprove}>
+                    <input type="hidden" name="uid" value={profile.uid} />
+                    <Button
+                        type="submit"
+                        className="bg-green-600 text-white hover:bg-green-700"
+                    >
+                        <Check className="mr-2 h-4 w-4" /> Approve
+                    </Button>
+                  </form>
               </CardFooter>
             </Card>
           ))}
@@ -144,7 +179,7 @@ export default async function VerificationPage() {
         <Card className="text-center">
           <CardHeader>
             <CardTitle>All Caught Up!</CardTitle>
-          </CardHeader>
+          </Header>
           <CardContent>
             <p className="text-muted-foreground">
               There are no pending profile submissions to review.

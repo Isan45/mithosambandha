@@ -79,3 +79,43 @@ export async function suspendUser(uid: string, reason: string): Promise<void> {
     throw new Error('Could not suspend user.');
   }
 }
+
+export async function approveProfile(uid: string): Promise<void> {
+  if (!adminDb || !adminAuth) {
+    console.error('Firebase Admin SDK not initialized. Cannot approve profile.');
+    throw new Error('Admin services not available.');
+  }
+  try {
+    const userRef = adminDb.collection('users').doc(uid);
+    await userRef.update({ profileStatus: 'approved' });
+
+    await logAdminAction({
+      action: 'VERIFICATION_APPROVE',
+      targetUid: uid,
+      reason: 'Profile approved from verification queue.',
+    });
+  } catch (error) {
+    console.error(`Failed to approve profile ${uid}:`, error);
+    throw new Error('Could not approve profile.');
+  }
+}
+
+export async function rejectProfile(uid: string, reason: string): Promise<void> {
+  if (!adminDb || !adminAuth) {
+    console.error('Firebase Admin SDK not initialized. Cannot reject profile.');
+    throw new Error('Admin services not available.');
+  }
+  try {
+    const userRef = adminDb.collection('users').doc(uid);
+    await userRef.update({ profileStatus: 'rejected' });
+
+    await logAdminAction({
+      action: 'VERIFICATION_REJECT',
+      targetUid: uid,
+      reason: `Profile rejected from verification queue: ${reason}`,
+    });
+  } catch (error) {
+    console.error(`Failed to reject profile ${uid}:`, error);
+    throw new Error('Could not reject profile.');
+  }
+}
