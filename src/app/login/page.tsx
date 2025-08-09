@@ -67,13 +67,20 @@ export default function LoginPage() {
       }
     } catch (error: any) {
       console.error('Login Error:', error);
+      
+      let description = 'An unexpected error occurred. Please try again.';
+      if (error.code === 'auth/invalid-credential') {
+        if (values.email === 'admin@mithosambandha.com') {
+            description = "Admin account not found. Please go to the 'Join' page to create it first.";
+        } else {
+            description = 'Invalid email or password.';
+        }
+      }
+
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description:
-          error.code === 'auth/invalid-credential'
-            ? 'Invalid email or password.'
-            : 'An unexpected error occurred. Please try again.',
+        description: description,
       });
     } finally {
       setIsSubmitting(false);
