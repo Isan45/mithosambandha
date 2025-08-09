@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { mockProfiles, mockSuccessStories } from '@/lib/mock-data';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 
 const HowItWorksStep = ({ icon: Icon, step, title, description }) => (
   <div className="flex flex-col items-center text-center p-4">
@@ -119,7 +121,7 @@ const HomePage = () => {
       <Separator />
 
       {/* How It Works Section */}
-      <Section id="how-it-works" className="bg-secondary/50">
+      <Section id="how-it-works" className="bg-secondary">
         <div className="container mx-auto px-4 md:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4">How It Works</h2>
           <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
@@ -245,26 +247,5 @@ const HomePage = () => {
     </div>
   );
 };
-
-// Re-add Avatar and AvatarFallback to this file as they are used in Testimonials
-const Avatar = React.forwardRef(({ className, ...props }, ref) => (
-  <div ref={ref} className={`relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full ${className}`} {...props} />
-));
-Avatar.displayName = 'Avatar';
-
-const AvatarImage = React.forwardRef(({ className, ...props }, ref) => (
-  <img ref={ref} className={`aspect-square h-full w-full ${className}`} {...props} />
-));
-AvatarImage.displayName = 'AvatarImage';
-
-const AvatarFallback = React.forwardRef(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={`flex h-full w-full items-center justify-center rounded-full bg-muted ${className}`}
-    {...props}
-  />
-));
-AvatarFallback.displayName = 'AvatarFallback';
-
 
 export default HomePage;
