@@ -2,8 +2,10 @@
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { UserCheck, UserPlus, BrainCircuit, Users, BarChart, FileText, DollarSign } from 'lucide-react';
+import { UserCheck, UserPlus, BrainCircuit, Users, BarChart, FileText, DollarSign, LineChart as LineChartIcon, PieChart as PieChartIcon } from 'lucide-react';
 import Link from 'next/link';
+import { SignupsChart } from '@/components/admin/charts/signups-chart';
+import { GenderSplitChart } from '@/components/admin/charts/gender-split-chart';
 
 const DashboardCard = ({ title, value, icon: Icon, description, href, cta }: any) => (
     <Card>
@@ -62,37 +64,33 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card>
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
-              <BarChart />
-              Sign-up Metrics
+              <LineChartIcon />
+              Sign-ups This Month
             </CardTitle>
              <CardDescription>
-              A visual representation of user growth and demographics.
+              A visual representation of new user growth over the past 30 days.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">
-              [Sign-up by location map and age/gender charts will be implemented here.]
-            </p>
+          <CardContent className='pl-2'>
+            <SignupsChart />
           </CardContent>
         </Card>
-         <Card>
+         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
-                <BrainCircuit />
-                Matchmaking Analytics
+                <PieChartIcon />
+                Gender Distribution
             </CardTitle>
             <CardDescription>
-                Overview of the match engine performance.
+                The gender split of all approved users on the platform.
             </CardDescription>
           </CardHeader>
           <CardContent>
-             <p className="text-muted-foreground">
-              [Total matches and success rate charts will be implemented here.]
-            </p>
+             <GenderSplitChart />
           </CardContent>
         </Card>
       </div>
