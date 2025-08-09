@@ -1,9 +1,6 @@
 import admin from 'firebase-admin';
-import { config } from 'dotenv';
 
-config();
-
-// Ensure the service account details are provided
+// Ensure the service account details are provided from environment variables
 const serviceAccount = {
   projectId: process.env.FIREBASE_PROJECT_ID,
   privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
@@ -11,7 +8,10 @@ const serviceAccount = {
 };
 
 // Check if all required service account properties are available
-const hasCredentials = serviceAccount.projectId && serviceAccount.privateKey && serviceAccount.clientEmail;
+const hasCredentials =
+  serviceAccount.projectId &&
+  serviceAccount.privateKey &&
+  serviceAccount.clientEmail;
 
 if (!admin.apps.length) {
   if (hasCredentials) {
@@ -25,10 +25,11 @@ if (!admin.apps.length) {
     }
   } else {
     // We are logging this on the server, so it's fine.
-    console.log('Firebase admin credentials not provided. Admin features will be disabled.');
+    console.log(
+      'Firebase admin credentials not provided. Admin features will be disabled.'
+    );
   }
 }
-
 
 // Export initialized services only if the app was initialized
 export const adminDb = admin.apps.length > 0 ? admin.firestore() : null;
