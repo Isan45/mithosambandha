@@ -1,125 +1,257 @@
-
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { UserPlus, Users, FileText, DollarSign, LineChart as LineChartIcon, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
-import { SignupsChart } from '@/components/admin/charts/signups-chart';
-import { GenderSplitChart } from '@/components/admin/charts/gender-split-chart';
-import { AgeDistributionChart } from '@/components/admin/charts/age-distribution-chart';
-import type React from 'react';
+import { Loader2 } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
-// Correctly defined as a standalone functional component outside of the main component.
-const DashboardCard = ({ title, value, icon: Icon, description, href, cta }: {
-  title: string;
-  value: string;
-  icon: React.ElementType;
-  description: string;
-  href: string;
-  cta: string;
-}) => (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        <p className="text-xs text-muted-foreground">{description}</p>
-        <Link href={href} className='text-sm font-bold text-primary pt-2 block hover:underline'>
-          {cta}
-        </Link>
-      </CardContent>
-    </Card>
-);
+type StatsPayload = {
+  totals: {
+    totalUsers: number;
+    usersThisMonth: number;
+    usersThisWeek: number;
+    usersToday: number;
+    totalPremium: number;
+    premiumThisMonth: number;
+    premiumToday: number;
+    totalRevenue: number;
+    revenueMonth: number;
+    revenueDay: number;
+    activeLast7Days: number;
+  };
+  breakdowns: {
+    byCountry: Record<string, number>;
+    byGender: Record<string, number>;
+    profileCompletionBuckets: Record<string, number>;
+  };
+};
 
+type ProfileRow = {
+  uid: string;
+  displayName?: string;
+  email?: string;
+  createdAt?: { _seconds: number };
+  membership?: string;
+  profileStatus?: string;
+  account?: { suspended?: boolean; restricted?: boolean };
+  verification?: any;
+  basic?: any;
+};
 
 export default function AdminDashboardPage() {
+  const { user, getIdToken } = useAuth();
+  const [stats, setStats] = useState<StatsPayload | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<ProfileRow[]>([]);
+  const [busy, setBusy] = useState(false);
+
+  const fetchStats = useCallback(async () => {
+    if (!getIdToken) return;
+    setLoading(true);
+    try {
+      const idToken = await getIdToken();
+      if (!idToken) throw new Error('Could not get ID token.');
+      const res = await fetch('/api/admin/stats', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Failed to fetch stats');
+      setStats(json);
+    } catch (err: any) {
+      console.error('fetchStats', err);
+      alert(`Error fetching stats: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }, [getIdToken]);
+
+  const fetchRecentUsers = useCallback(async () => {
+    if (!getIdToken) return;
+    try {
+      const idToken = await getIdToken();
+      if (!idToken) throw new Error('Could not get ID token.');
+      const res = await fetch('/api/admin/recent-users', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Failed to fetch users');
+      setUsers(json.users || []);
+    } catch (err: any)
+    {
+      console.error('fetchRecentUsers error:', err);
+      alert(`Error fetching users: ${err.message}`);
+    }
+  }, [getIdToken]);
+
+  useEffect(() => {
+    if (user && getIdToken) {
+      fetchStats();
+      fetchRecentUsers();
+    }
+  }, [user, getIdToken, fetchStats, fetchRecentUsers]);
+
+  async function runUserAction(targetUid: string, action: string) {
+    if (!getIdToken) return;
+    if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+    try {
+      setBusy(true);
+      const idToken = await getIdToken();
+      if (!idToken) throw new Error('Could not get ID token.');
+      const res = await fetch('/api/admin/user-action', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ targetUid, action }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error || 'Action failed');
+      alert('Done');
+      fetchStats();
+      fetchRecentUsers();
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || 'Error');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
-    <div className="p-4 md:p-8">
-      <h1 className="font-headline mb-6 text-3xl font-bold">Admin Mission Control</h1>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <DashboardCard
-          title="Total Users"
-          value="1,254"
-          icon={Users}
-          description="+20.1% from last month"
-          href="/admin/users"
-          cta="Manage Users"
-        />
-        <DashboardCard
-          title="Pending Verifications"
-          value="12"
-          icon={UserPlus}
-          description="ID & photo checks needed"
-          href="/admin/moderation/verify"
-          cta="Go to Queue"
-        />
-        <DashboardCard
-          title="Open Moderation Reports"
-          value="3"
-          icon={FileText}
-          description="User-submitted conduct reports"
-          href="/admin/moderation"
-          cta="Review Reports"
-        />
-         <DashboardCard
-          title="Total Revenue"
-          value="₹45,231"
-          icon={DollarSign}
-          description="+180.1% from last month"
-          href="/admin/analytics"
-          cta="View Analytics"
-        />
+    <div className="min-h-screen p-6 bg-secondary/30">
+       <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold font-headline">Admin Control Center</h1>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="text-sm text-muted-foreground hover:underline">Go to site</Link>
+          <Button onClick={() => { fetchStats(); fetchRecentUsers(); }} disabled={loading || busy}>
+            { (loading || busy) ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null }
+            Refresh
+          </Button>
+        </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center gap-2">
-              <LineChartIcon />
-              Sign-ups This Month
-            </CardTitle>
-             <CardDescription>
-              A visual representation of new user growth over the past 30 days.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='pl-2'>
-            <SignupsChart />
-          </CardContent>
-        </Card>
-         <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center gap-2">
-                <PieChartIcon />
-                Gender Distribution
-            </CardTitle>
-            <CardDescription>
-                The gender split of all approved users on the platform.
-            </CardDescription>
-          </Header>
+      {/* Stats cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <Card><CardContent className="pt-6">
+          <div className="text-sm text-muted-foreground">Total Users</div>
+          <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.totalUsers}</div>
+          <div className="text-xs text-muted-foreground mt-1">This month: {loading ? '—' : stats?.totals.usersThisMonth} • Today: {loading ? '—' : stats?.totals.usersToday}</div>
+        </CardContent></Card>
+
+        <Card><CardContent className="pt-6">
+          <div className="text-sm text-muted-foreground">Premium Members</div>
+          <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.totalPremium}</div>
+          <div className="text-xs text-muted-foreground mt-1">This month: {loading ? '—' : stats?.totals.premiumThisMonth} • Today: {loading ? '—' : stats?.totals.premiumToday}</div>
+        </CardContent></Card>
+
+        <Card><CardContent className="pt-6">
+          <div className="text-sm text-muted-foreground">Total Revenue</div>
+          <div className="text-2xl font-bold">₹ {loading ? '—' : (stats?.totals.totalRevenue || 0)}</div>
+          <div className="text-xs text-muted-foreground mt-1">Month: ₹ {loading ? '—' : stats?.totals.revenueMonth} • Today: ₹ {loading ? '—' : stats?.totals.revenueDay}</div>
+        </CardContent></Card>
+
+        <Card><CardContent className="pt-6">
+          <div className="text-sm text-muted-foreground">Active (7d)</div>
+          <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.activeLast7Days}</div>
+          <div className="text-xs text-muted-foreground mt-1">Profiles by completion: {loading ? '—' : Object.values(stats?.breakdowns.profileCompletionBuckets || {}).join(', ')}</div>
+        </CardContent></Card>
+      </div>
+
+      {/* Breakdown charts (simple lists) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <Card><CardHeader><CardTitle>Signups by Country</CardTitle></CardHeader>
           <CardContent>
-             <GenderSplitChart />
+            {!stats ? <p>—</p> : (
+              <div className="space-y-1">
+                {Object.entries(stats.breakdowns.byCountry).slice(0, 20).map(([k, v]) => (
+                  <div key={k} className="flex justify-between text-sm">
+                    <span>{k}</span><span className="font-semibold">{v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card><CardHeader><CardTitle>Signups by Gender</CardTitle></CardHeader>
+          <CardContent>
+            {!stats ? <p>—</p> : (
+              <div className="space-y-1">
+                {Object.entries(stats.breakdowns.byGender).map(([k, v]) => (
+                  <div key={k} className="flex justify-between text-sm">
+                    <span>{k}</span><span className="font-semibold">{v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card><CardHeader><CardTitle>Profile Completion</CardTitle></CardHeader>
+          <CardContent>
+            {!stats ? <p>—</p> : (
+              <div className="space-y-1">
+                {Object.entries(stats.breakdowns.profileCompletionBuckets).map(([k, v]) => (
+                  <div key={k} className="flex justify-between text-sm">
+                    <span>{k}%</span><span className="font-semibold">{v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
-      <div className="mt-8">
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2">
-                    <BarChart3 />
-                    Age Distribution
-                </CardTitle>
-                <CardDescription>
-                    A breakdown of the user base by age groups.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="pl-2">
-                <AgeDistributionChart />
-            </CardContent>
-        </Card>
-      </div>
+
+      {/* Recent users & controls */}
+      <Card>
+        <CardHeader><CardTitle>Recent Users</CardTitle></CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Joined</TableHead>
+                  <TableHead>Membership</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.length === 0 && (
+                  <TableRow><TableCell colSpan={5} className="p-4 text-center text-sm text-muted-foreground">No recent users</TableCell></TableRow>
+                )}
+                {users.map(u => (
+                  <TableRow key={u.uid}>
+                    <TableCell>{u.displayName || u.uid}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{u.email}</TableCell>
+                    <TableCell className="text-sm">{u.createdAt ? new Date(u.createdAt._seconds * 1000).toLocaleDateString() : '—'}</TableCell>
+                    <TableCell className="text-sm">{u.membership || 'Free'}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2 items-center">
+                        <Button size="sm" onClick={() => runUserAction(u.uid, u.account?.suspended ? 'unban' : 'ban')} disabled={busy}>{u.account?.suspended ? 'Unban' : 'Ban'}</Button>
+                        <Button size="sm" variant="outline" onClick={() => runUserAction(u.uid, 'verifyId')} disabled={busy}>Verify ID</Button>
+                        <Button size="sm" variant="link" asChild><Link href={`/admin/users/${u.uid}`}>Inspect</Link></Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

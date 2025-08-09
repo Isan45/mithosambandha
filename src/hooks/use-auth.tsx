@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase/client';
 import { useRouter, usePathname } from 'next/navigation';
@@ -14,9 +14,10 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   profileStatus: UserProfile['profileStatus'] | null;
+  getIdToken: () => Promise<string | null>;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isAdmin: false, profileStatus: null });
+const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isAdmin: false, profileStatus: null, getIdToken: async () => null });
 
 const PROTECTED_ROUTES = ['/dashboard', '/admin', '/discover', '/search', '/settings'];
 const PUBLIC_ROUTES = ['/login', '/join'];
@@ -30,6 +31,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profileStatus, setProfileStatus] = useState<UserProfile['profileStatus'] | null>(null);
   const router = useRouter();
   const pathname = usePathname();
+
+  const getIdToken = useCallback(async () => {
+    if (!user) return null;
+    return user.getIdToken();
+  }, [user]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -94,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       
-      const validCompletedStatuses = ['pending-review', 'approved', 'rejected'];
+      const validCompletedStatuses = ['pending-review', 'approved', 'rejected', 'suspended'];
       
       // Handle onboarding redirection logic for non-admin users
       if (!isOnboardingRoute && profileStatus && !validCompletedStatuses.includes(profileStatus)) {
@@ -108,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           const nextStep = stepMap[profileStatus];
 
-          if(nextStep) {
+          if(nextStep && pathname !== nextStep) {
             router.push(nextStep);
             return;
           }
@@ -127,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, profileStatus }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, profileStatus, getIdToken }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,36 +1,19 @@
-import admin from 'firebase-admin';
-
-// Ensure the service account details are provided from environment variables
-const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-};
-
-// Check if all required service account properties are available
-const hasCredentials =
-  serviceAccount.projectId &&
-  serviceAccount.privateKey &&
-  serviceAccount.clientEmail;
+// src/lib/firebase-admin.ts
+import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
-  if (hasCredentials) {
-    try {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}.firebaseio.com`,
-      });
-    } catch (error: any) {
-      console.error('Firebase admin initialization error', error.stack);
-    }
-  } else {
-    // We are logging this on the server, so it's fine.
-    console.log(
-      'Firebase admin credentials not provided. Admin features will be disabled.'
-    );
-  }
+  // Initialize with service account JSON stored in env (recommended)
+  // On Vercel use VERCEl env variables or use Workload Identity; never commit service account file.
+  const cert = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64
+    ? JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString())
+    : undefined;
+
+  admin.initializeApp({
+    credential: cert ? admin.credential.cert(cert) : admin.credential.applicationDefault(),
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || undefined,
+  });
 }
 
-// Export initialized services only if the app was initialized
-export const adminDb = admin.apps.length > 0 ? admin.firestore() : null;
-export const adminAuth = admin.apps.length > 0 ? admin.auth() : null;
+export default admin;
+export const db = admin.firestore();
+export const auth = admin.auth();
