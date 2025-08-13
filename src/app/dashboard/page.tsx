@@ -48,7 +48,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
-import { mockProfiles } from '@/lib/mock-data';
 
 const DetailItem = ({ icon: Icon, label, value, action }: any) => (
   <div className="flex items-start justify-between py-3 border-b border-border/50">
@@ -97,23 +96,6 @@ const VerificationStatus = ({
       Verify Now
     </Button>
   );
-
-// MOCK DATA FOR NEW SECTIONS
-const MOCK_ACTIVITY_DATA = {
-  profileViews: { total: 125, daily: 5 },
-  messagesReceived: 8,
-  messagesSent: 22,
-  interestsSent: 15,
-  interestsReceived: 12,
-  pendingRequests: 3,
-  streak: 7,
-  badges: ['First Message Sent', 'Popular Member'],
-};
-
-const MOCK_MATCHES = mockProfiles.filter(p => p.status === 'approved').slice(0, 4);
-const MOCK_ONLINE_USERS = mockProfiles.filter(p => p.onlineStatus);
-const MOCK_SMART_MATCH = mockProfiles.find(p => p.id === '2');
-
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
@@ -169,6 +151,33 @@ export default function DashboardPage() {
       </div>
     );
   }
+  
+  if (profile?.profileStatus === 'rejected') {
+    return (
+        <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-4 text-center">
+            <AlertCircle className="w-16 h-16 text-destructive"/>
+            <h1 className="text-2xl font-bold font-headline">Profile Rejected</h1>
+            <p className="text-lg text-muted-foreground max-w-md">
+            Unfortunately, your profile submission did not meet our guidelines. Please review our terms and contact support if you believe this is an error.
+            </p>
+            <Button asChild variant="outline">
+                <Link href="/contact">Contact Support</Link>
+            </Button>
+        </div>
+    )
+  }
+
+  if (profile?.profileStatus === 'pending-review') {
+    return (
+        <div className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-4 text-center">
+            <CheckCircle className="w-16 h-16 text-green-600"/>
+            <h1 className="text-2xl font-bold font-headline">Profile Submitted</h1>
+            <p className="text-lg text-muted-foreground">
+             Your profile is under review by our team. We'll notify you once it's approved.
+            </p>
+        </div>
+    )
+  }
 
   if (!profile || !profile.profile) {
     return (
@@ -186,73 +195,26 @@ export default function DashboardPage() {
   const p = profile.profile;
   const pp = p.partnerPreferences;
   const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
-  const profileCompleteness = 75; // Mock data for now
+  
+  // Calculate profile completeness
+  const totalFields = 20; // Approx number of fields we ask for
+  let completedFields = 0;
+  if (p.bio) completedFields++;
+  if (p.gender) completedFields++;
+  if (p.dob) completedFields++;
+  if (p.height) completedFields++;
+  if (p.maritalStatus) completedFields++;
+  if (p.currentLocation) completedFields++;
+  if (p.education?.highestEducation) completedFields++;
+  if (p.career?.profession) completedFields++;
+  if (p.galleryPhotos?.length > 0) completedFields+=p.galleryPhotos.length;
+  // Add more checks for other fields to get a more accurate percentage
+  const profileCompleteness = Math.min(100, Math.round((completedFields / totalFields) * 100));
+
 
   return (
     <div className="min-h-screen bg-secondary/30">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-        {/* "Your Activity" section as KPI cards */}
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline">
-            Your Activity
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-            <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Profile Views</p>
-                <p className="text-2xl font-bold">
-                  {MOCK_ACTIVITY_DATA.profileViews.total}
-                </p>
-                <p className="text-xs text-green-500">
-                  +{MOCK_ACTIVITY_DATA.profileViews.daily} today
-                </p>
-              </div>
-              <Eye className="w-8 h-8 text-primary/60" />
-            </Card>
-            <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">
-                  Messages Received
-                </p>
-                <p className="text-2xl font-bold">
-                  {MOCK_ACTIVITY_DATA.messagesReceived}
-                </p>
-              </div>
-              <MessageCircle className="w-8 h-8 text-primary/60" />
-            </Card>
-             <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">
-                  Messages Sent
-                </p>
-                <p className="text-2xl font-bold">
-                  {MOCK_ACTIVITY_DATA.messagesSent}
-                </p>
-              </div>
-              <Send className="w-8 h-8 text-primary/60" />
-            </Card>
-            <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">
-                  Interests Received
-                </p>
-                <p className="text-2xl font-bold">
-                  {MOCK_ACTIVITY_DATA.interestsReceived}
-                </p>
-              </div>
-              <HeartHandshake className="w-8 h-8 text-primary/60" />
-            </Card>
-            <Card className="p-5 rounded-2xl shadow-md flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Interests Sent</p>
-                <p className="text-2xl font-bold">
-                  {MOCK_ACTIVITY_DATA.interestsSent}
-                </p>
-              </div>
-              <Trophy className="w-8 h-8 text-primary/60" />
-            </Card>
-          </div>
-        </div>
 
         {/* Main Profile Card (Merged Design) */}
         <Card className="overflow-hidden">
@@ -507,7 +469,7 @@ export default function DashboardPage() {
                       : 'Any'}
                   </p>
                   <p>
-                    <strong>Desired Location:</strong> {pp.currentLocation || 'Any'}
+                    <strong>Desired Location:</strong> {pp.location || 'Any'}
                   </p>
                   <p>
                     <strong>Religion / Caste:</strong> {pp.religion || 'Any'} /{' '}
@@ -522,114 +484,20 @@ export default function DashboardPage() {
                 </div>
               )}
             </ProfileSection>
-          </div>
-        </div>
-        
-        {/* Online Now Section */}
-        <div>
-            <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline">Online Now</h2>
-            <div className="flex space-x-4 overflow-x-auto pb-4 -m-4 p-4">
-                {MOCK_ONLINE_USERS.map((onlineUser) => (
-                    <Link key={onlineUser.id} href={`/profiles/${onlineUser.id}`} className="flex flex-col items-center space-y-2 flex-shrink-0 w-24">
-                        <div className="relative">
-                            <Avatar className="w-20 h-20 border-2 border-accent">
-                                <AvatarImage src={onlineUser.profilePhoto} alt={onlineUser.name} />
-                                <AvatarFallback>{onlineUser.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <span className="absolute bottom-0 right-0 block h-4 w-4 rounded-full bg-green-500 ring-2 ring-background" />
-                        </div>
-                        <p className="text-sm font-medium text-center truncate w-full">{onlineUser.name}</p>
-                    </Link>
-                ))}
-            </div>
-        </div>
-
-        {/* Smart Match Section */}
-        {MOCK_SMART_MATCH && (
-            <div>
-                 <h2 className="text-xl md:text-2xl font-bold mb-4 font-headline flex items-center gap-2">
-                    <Sparkles className="text-primary"/>
-                    Smart Match
-                </h2>
-                <Card className="bg-gradient-to-br from-primary/10 to-accent/10">
-                    <CardContent className="p-6 flex flex-col md:flex-row items-center gap-6">
-                        <Avatar className="w-24 h-24 border-4 border-background shadow-lg">
-                           <AvatarImage src={MOCK_SMART_MATCH.profilePhoto} alt={MOCK_SMART_MATCH.name}/>
-                           <AvatarFallback>{MOCK_SMART_MATCH.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className="text-center md:text-left flex-grow">
-                            <CardTitle className="font-headline text-2xl">{MOCK_SMART_MATCH.name}, {MOCK_SMART_MATCH.age}</CardTitle>
-                            <CardDescription className="mt-1">Based on your preferences, we think you'll get along!</CardDescription>
-                             <p className="text-sm mt-2 line-clamp-2 text-muted-foreground">{MOCK_SMART_MATCH.bio}</p>
-                        </div>
-                        <div className="flex flex-col gap-2 flex-shrink-0">
-                          <Button asChild>
-                            <Link href={`/profiles/${MOCK_SMART_MATCH.id}`}>View Profile</Link>
-                          </Button>
-                          <Button variant="outline">Send Interest</Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        )}
-
-        {/* "Latest Matches" Carousel */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl md:text-2xl font-bold font-headline">
-              Latest Matches
-            </h2>
-            <Button variant="link" asChild className="text-primary p-0 h-auto">
-              <Link href="/search">See More</Link>
-            </Button>
-          </div>
-          <div className="flex space-x-4 overflow-x-auto pb-4 -m-4 p-4">
-            {MOCK_MATCHES.map(match => (
-              <Card
-                key={match.id}
-                className="min-w-[250px] w-64 rounded-2xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-105"
-              >
-                <div className="relative h-48">
-                  <Image
-                    src={match.photos[0]}
-                    alt={match.name}
-                    fill
-                    className="w-full h-full object-cover"
-                    data-ai-hint="portrait person"
-                  />
-                </div>
-                <CardContent className="p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-semibold">
-                      {match.name}, {match.age}
-                    </CardTitle>
-                    <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 transition-colors cursor-pointer" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {match.location}
-                  </p>
-                  <p className="text-xs italic text-foreground/80 line-clamp-2">
-                    "{match.bio}"
-                  </p>
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 rounded-full text-xs"
-                    >
-                      View Profile
-                    </Button>
-                    <Button size="sm" className="flex-1 rounded-full text-xs">
-                      Send Interest
-                    </Button>
-                  </div>
+             {/* Placeholder for future sections */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl">Activity Feed</CardTitle>
+                    <CardDescription>Updates on your matches and interests will appear here.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-muted-foreground">No new activity yet.</p>
                 </CardContent>
-              </Card>
-            ))}
+            </Card>
           </div>
         </div>
       </div>
     </div>
   );
-}
 
+    
