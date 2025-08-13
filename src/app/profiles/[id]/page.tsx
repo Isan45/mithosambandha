@@ -1,5 +1,5 @@
 
-import { mockProfiles } from '@/lib/mock-data';
+import { getUser } from '@/lib/server-actions/users';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import {
@@ -20,14 +20,35 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 
-export default function ProfilePage({ params: { id } }: { params: { id: string }, searchParams: {} }) {
-  const profile = mockProfiles.find(
-    p => p.id === id && p.status === 'approved'
-  );
+const calculateAge = (dob: string | undefined): number | null => {
+  if (!dob) return null;
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
 
-  if (!profile) {
+export default async function ProfilePage({ params: { id } }: { params: { id: string }}) {
+  const user = await getUser(id);
+
+  if (!user || user.profileStatus !== 'approved') {
     notFound();
   }
+  
+  const profile = (user as any).profile || {};
+  const age = calculateAge(profile.dob);
+  const location = profile.currentLocation || 'N/A';
+  const bio = profile.bio || 'No bio provided.';
+  const partnerPreferences = profile.partnerPreferences?.additionalPreferences || 'No preferences specified.';
+  const galleryPhotos = profile.galleryPhotos || [];
+  const profilePhoto = profile.profilePhoto;
+  
+  const allPhotos = profilePhoto ? [profilePhoto, ...galleryPhotos] : galleryPhotos;
+
 
   return (
     <div className="bg-secondary py-12 md:py-20">
@@ -38,16 +59,16 @@ export default function ProfilePage({ params: { id } }: { params: { id: string }
               <div className="p-6 md:p-8">
                 <div className="mb-4 flex flex-col justify-between md:flex-row md:items-center">
                   <CardTitle className="font-headline text-4xl">
-                    {profile.name}
+                    {user.fullName}
                   </CardTitle>
                   <div className="mt-2 flex items-center gap-4 text-muted-foreground md:mt-0">
                     <div className="flex items-center gap-2">
                       <Cake className="h-5 w-5" />
-                      <span>{profile.age} years</span>
+                      <span>{age ? `${age} years` : 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-5 w-5" />
-                      <span>{profile.location}</span>
+                      <span>{location}</span>
                     </div>
                   </div>
                 </div>
@@ -57,7 +78,7 @@ export default function ProfilePage({ params: { id } }: { params: { id: string }
                 <div>
                   <h3 className="font-headline mb-3 text-2xl">About Me</h3>
                   <p className="text-lg leading-relaxed text-foreground/90">
-                    {profile.bio}
+                    {bio}
                   </p>
                 </div>
 
@@ -69,32 +90,45 @@ export default function ProfilePage({ params: { id } }: { params: { id: string }
                     Looking For
                   </h3>
                   <p className="text-lg leading-relaxed text-foreground/90">
-                    {profile.partnerPreferences}
+                    {partnerPreferences}
                   </p>
                 </div>
               </div>
 
               <div className="relative min-h-[400px] p-4 md:p-8">
-                <Carousel className="w-full">
-                  <CarouselContent>
-                    {profile.photos.map((photo, index) => (
-                      <CarouselItem key={index}>
-                        <div className="relative aspect-square w-full">
-                          <Image
-                            src={photo}
-                            alt={`${profile.name}'s photo ${index + 1}`}
+                {allPhotos.length > 0 ? (
+                    <Carousel className="w-full">
+                    <CarouselContent>
+                        {allPhotos.map((photo: string, index: number) => (
+                        <CarouselItem key={index}>
+                            <div className="relative aspect-square w-full">
+                            <Image
+                                src={photo}
+                                alt={`${user.fullName}'s photo ${index + 1}`}
+                                fill
+                                style={{ objectFit: 'cover' }}
+                                className="rounded-lg"
+                                data-ai-hint="portrait person"
+                            />
+                            </div>
+                        </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-2" />
+                    <CarouselNext className="right-2" />
+                    </Carousel>
+                ) : (
+                     <div className="relative aspect-square w-full">
+                        <Image
+                            src={'https://placehold.co/800x600.png'}
+                            alt={`Placeholder for ${user.fullName}`}
                             fill
                             style={{ objectFit: 'cover' }}
                             className="rounded-lg"
-                            data-ai-hint="portrait person"
-                          />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="left-2" />
-                  <CarouselNext className="right-2" />
-                </Carousel>
+                            data-ai-hint="placeholder person"
+                        />
+                    </div>
+                )}
               </div>
             </div>
             <Separator />

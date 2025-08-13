@@ -39,6 +39,36 @@ export async function getUsers(): Promise<UserProfile[]> {
   }
 }
 
+export async function getUser(uid: string): Promise<UserProfile | null> {
+    try {
+        const docRef = db.collection('users').doc(uid);
+        const docSnap = await docRef.get();
+
+        if (!docSnap.exists) {
+            return null;
+        }
+
+        const data = docSnap.data();
+        if (!data) return null;
+
+        return {
+          ...data,
+          // Ensure dates are serializable
+          createdAt: data.createdAt?.toDate
+            ? data.createdAt.toDate().toISOString()
+            : null,
+          lastActiveAt: data.lastActiveAt?.toDate
+            ? data.lastActiveAt.toDate().toISOString()
+            : null,
+        } as UserProfile;
+
+    } catch (error: any) {
+        console.error(`Error fetching user ${uid} (likely due to missing admin credentials):`, error.message);
+        return null;
+    }
+}
+
+
 export async function suspendUser(uid: string, reason: string): Promise<void> {
   if (!db || !auth) {
     console.error('Firebase Admin SDK not initialized. Cannot suspend user.');
