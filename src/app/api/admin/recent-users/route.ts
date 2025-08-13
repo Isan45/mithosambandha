@@ -5,6 +5,7 @@ import { db, auth } from '@/lib/firebase-admin';
 import type { NextRequest } from 'next/server';
 
 async function verifyAdminFromHeader(authorizationHeader?: string) {
+  if (!auth) throw new Error('Firebase Admin SDK not initialized.');
   if (!authorizationHeader) throw new Error('Missing Authorization header');
   const match = authorizationHeader.match(/^Bearer (.+)$/);
   if (!match) throw new Error('Invalid Authorization header');
@@ -18,6 +19,9 @@ async function verifyAdminFromHeader(authorizationHeader?: string) {
 
 export async function GET(req: NextRequest) {
   try {
+    if (!db || !auth) {
+        throw new Error('Firebase Admin SDK has not been initialized. Please set the FIREBASE_SERVICE_ACCOUNT_BASE64 environment variable.');
+    }
     const adminHeader = req.headers.get('authorization') || undefined;
     await verifyAdminFromHeader(adminHeader);
 

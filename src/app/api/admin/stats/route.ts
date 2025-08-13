@@ -6,6 +6,7 @@ import type { NextRequest } from 'next/server';
 import { Timestamp } from 'firebase-admin/firestore';
 
 async function verifyAdminFromHeader(authorizationHeader?: string) {
+  if (!auth) throw new Error('Firebase Admin SDK not initialized.');
   if (!authorizationHeader) throw new Error('Missing Authorization header');
   const match = authorizationHeader.match(/^Bearer (.+)$/);
   if (!match) throw new Error('Invalid Authorization header');
@@ -39,6 +40,9 @@ function startOfMonth(ts: Date) {
 
 export async function GET(req: NextRequest) {
   try {
+    if (!db || !auth) {
+        throw new Error('Firebase Admin SDK has not been initialized. Please set the FIREBASE_SERVICE_ACCOUNT_BASE64 environment variable.');
+    }
     const authHeader = req.headers.get('authorization') || undefined;
     await verifyAdminFromHeader(authHeader);
 
