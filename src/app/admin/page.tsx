@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -5,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -14,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type StatsPayload = {
   totals: {
@@ -48,12 +50,15 @@ type ProfileRow = {
   basic?: any;
 };
 
+const FIREBASE_ADMIN_ERROR_MSG = 'Firebase Admin SDK has not been initialized';
+
 export default function AdminDashboardPage() {
   const { user, getIdToken } = useAuth();
   const [stats, setStats] = useState<StatsPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<ProfileRow[]>([]);
   const [busy, setBusy] = useState(false);
+  const [backendError, setBackendError] = useState<string | null>(null);
 
   const fetchStats = useCallback(async () => {
     if (!getIdToken) return;
@@ -69,7 +74,11 @@ export default function AdminDashboardPage() {
       setStats(json);
     } catch (err: any) {
       console.error('fetchStats', err);
-      alert(`Error fetching stats: ${err.message}`);
+      if (err.message?.includes(FIREBASE_ADMIN_ERROR_MSG)) {
+        setBackendError(err.message);
+      } else {
+        alert(`Error fetching stats: ${err.message}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -89,7 +98,11 @@ export default function AdminDashboardPage() {
     } catch (err: any)
     {
       console.error('fetchRecentUsers error:', err);
-      alert(`Error fetching users: ${err.message}`);
+      if (err.message?.includes(FIREBASE_ADMIN_ERROR_MSG)) {
+        setBackendError(err.message);
+      } else {
+        alert(`Error fetching users: ${err.message}`);
+      }
     }
   }, [getIdToken]);
 
@@ -122,7 +135,11 @@ export default function AdminDashboardPage() {
       fetchRecentUsers();
     } catch (err: any) {
       console.error(err);
-      alert(err.message || 'Error');
+      if (err.message?.includes(FIREBASE_ADMIN_ERROR_MSG)) {
+        setBackendError(err.message);
+      } else {
+        alert(err.message || 'Error');
+      }
     } finally {
       setBusy(false);
     }
@@ -134,12 +151,23 @@ export default function AdminDashboardPage() {
         <h1 className="text-2xl font-bold font-headline">Admin Control Center</h1>
         <div className="flex items-center gap-3">
           <Link href="/" className="text-sm text-muted-foreground hover:underline">Go to site</Link>
-          <Button onClick={() => { fetchStats(); fetchRecentUsers(); }} disabled={loading || busy}>
+          <Button onClick={() => { setBackendError(null); fetchStats(); fetchRecentUsers(); }} disabled={loading || busy}>
             { (loading || busy) ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null }
             Refresh
           </Button>
         </div>
       </div>
+
+      {backendError && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Backend Configuration Error</AlertTitle>
+          <AlertDescription>
+            The admin dashboard cannot fetch live data. Please ensure the `FIREBASE_SERVICE_ACCOUNT_BASE64` environment variable is set correctly on the server.
+            <pre className="mt-2 bg-black/20 p-2 rounded-md text-xs whitespace-pre-wrap">{backendError}</pre>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
