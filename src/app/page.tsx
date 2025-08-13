@@ -1,26 +1,29 @@
 
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import {
   User,
   HeartHandshake,
   Search,
   CheckCircle,
-  MapPin,
-  Heart
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { mockProfiles, mockSuccessStories } from '@/lib/mock-data';
+import { Separator } from '@/components/ui/separator';
+import { mockSuccessStories } from '@/lib/mock-data';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardTitle,
+} from '@/components/ui/card';
+import { getUsers } from '@/lib/server-actions/users';
+import type { UserProfile } from '@/types';
+import { ProfileCard } from '@/components/profile-card';
 
 
-const HowItWorksStep = ({ icon: Icon, step, title, description }) => (
+const HowItWorksStep = ({ icon: Icon, step, title, description }: {icon: React.ElementType, step: string, title: string, description: string}) => (
   <div className="flex flex-col items-center text-center p-4">
     <div className="w-16 h-16 rounded-full flex items-center justify-center bg-primary/10 text-primary mb-4">
       <Icon className="w-8 h-8" />
@@ -31,48 +34,41 @@ const HowItWorksStep = ({ icon: Icon, step, title, description }) => (
   </div>
 );
 
-const ProfileCard = ({ profile }) => (
-  <Card className="rounded-2xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-105 group">
-    <div className="relative h-64">
-      <Image 
-        src={profile.photos[0]} 
-        alt={profile.name} 
-        fill
-        className="object-cover"
-        data-ai-hint="portrait person"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-    </div>
-    <CardContent className="p-4 space-y-2">
-      <div className="flex items-center justify-between">
-        <CardTitle className="text-lg font-headline group-hover:text-primary transition-colors">{profile.name}, {profile.age}</CardTitle>
-        <Heart className="w-5 h-5 text-gray-400 hover:text-red-500 transition-colors cursor-pointer" />
-      </div>
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <MapPin className="w-4 h-4" />
-        <span>{profile.location}</span>
-      </div>
-      <div className="flex gap-2 pt-2">
-        <Button asChild variant="outline" size="sm" className="flex-1 rounded-full text-xs">
-          <Link href={`/profiles/${profile.id}`}>View Profile</Link>
-        </Button>
-        <Button asChild size="sm" className="flex-1 rounded-full text-xs bg-accent hover:bg-accent/90 text-accent-foreground">
-          <Link href="/join">Send Interest</Link>
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const Section = ({ id, children, className = '' }) => (
+const Section = ({ id, children, className = '' }: {id?: string, children: React.ReactNode, className?: string}) => (
   <section id={id} className={`py-16 md:py-24 ${className}`}>
     {children}
   </section>
 );
 
-const HomePage = () => {
-  const featuredProfiles = mockProfiles.filter(p => p.status === 'approved').slice(0, 4);
-  const newMembers = mockProfiles.filter(p => p.status === 'approved').slice(4, 8);
+export default async function HomePage() {
+  const allUsers = await getUsers();
+  const approvedProfiles = allUsers.filter(
+    (user) => user.profileStatus === 'approved'
+  );
+
+  // We'll use a helper function to get a photo, falling back to a placeholder
+  const getPhotoUrl = (user: UserProfile) => {
+     if (user.photos && user.photos.length > 0) {
+      const primaryPhoto = user.photos.find(p => p.status === 'approved');
+      if (primaryPhoto) return primaryPhoto.url;
+    }
+    return 'https://placehold.co/800x600.png';
+  }
+
+  // Create a simplified profile object for the card, ensuring all fields are there.
+  const mapUserToProfileCard = (user: UserProfile) => ({
+    id: user.uid,
+    name: user.displayName || 'Unnamed User',
+    age: user.basic?.dob ? new Date().getFullYear() - new Date(user.basic.dob).getFullYear() : 0,
+    location: user.basic?.city || 'Unknown Location',
+    bio: (user as any).profile?.bio || 'No bio provided.',
+    photos: (user.photos || []).map(p => p.url),
+    profilePhoto: getPhotoUrl(user)
+  });
+
+
+  const featuredProfiles = approvedProfiles.slice(0, 4);
+  const newMembers = approvedProfiles.slice(4, 8);
   const successStories = mockSuccessStories.slice(0, 3);
 
   return (
@@ -81,11 +77,8 @@ const HomePage = () => {
       {/* Hero Section */}
       <Section id="home" className="relative pt-12 md:pt-20">
         <div className="container mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center gap-12">
-          <motion.div 
+          <div
             className="flex-1 text-center md:text-left space-y-6"
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
           >
             <h1 className="text-4xl md:text-6xl font-headline font-bold leading-tight tracking-tighter">
               Finding Your Forever in the Nepali Way.
@@ -96,12 +89,9 @@ const HomePage = () => {
             <Button asChild size="lg" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg font-bold transition-all duration-300 transform hover:scale-105">
               <Link href="/join">Join Now</Link>
             </Button>
-          </motion.div>
-          <motion.div 
+          </div>
+          <div
             className="flex-1 w-full flex justify-center md:justify-end"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
           >
             <div className="w-full max-w-md md:max-w-xl rounded-3xl overflow-hidden shadow-2xl relative transition-all duration-500 transform hover:scale-105">
               <Image 
@@ -114,7 +104,7 @@ const HomePage = () => {
                 data-ai-hint="happy couple"
               />
             </div>
-          </motion.div>
+          </div>
         </div>
       </Section>
 
@@ -169,7 +159,7 @@ const HomePage = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {featuredProfiles.map(profile => (
-              <ProfileCard key={profile.id} profile={profile} />
+              <ProfileCard key={profile.uid} profile={profile} />
             ))}
           </div>
         </div>
@@ -188,7 +178,7 @@ const HomePage = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {newMembers.map(profile => (
-              <ProfileCard key={profile.id} profile={profile} />
+              <ProfileCard key={profile.uid} profile={profile} />
             ))}
           </div>
         </div>
@@ -247,5 +237,3 @@ const HomePage = () => {
     </div>
   );
 };
-
-export default HomePage;

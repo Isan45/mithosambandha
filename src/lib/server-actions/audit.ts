@@ -1,7 +1,7 @@
 
 'use server';
 
-import { adminDb } from '@/lib/firebase-admin';
+import { db as adminDb, auth } from '@/lib/firebase-admin';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -20,7 +20,7 @@ async function getCurrentAdminUid() {
     // In a proper setup, you'd get this from the session.
     // As a placeholder, let's find our default admin user.
     try {
-        const adminUser = await getAuth().getUserByEmail('admin@mithosambandha.com');
+        const adminUser = await auth.getUserByEmail('admin@mithosambandha.com');
         return adminUser.uid;
     } catch (error) {
         console.error("Could not find admin user for audit log, using placeholder.");

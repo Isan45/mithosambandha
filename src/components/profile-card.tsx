@@ -1,4 +1,5 @@
-import type { Profile } from '@/types';
+
+import type { UserProfile } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -12,17 +13,36 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Cake } from 'lucide-react';
 
 type ProfileCardProps = {
-  profile: Profile;
+  profile: UserProfile;
 };
 
+// Helper function to calculate age from DOB string
+const calculateAge = (dob: string | undefined): number => {
+  if (!dob) return 0;
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+};
+
+
 export function ProfileCard({ profile }: ProfileCardProps) {
+  const photoUrl = (profile as any).profile?.profilePhoto || (profile.photos && profile.photos.length > 0 ? profile.photos[0].url : 'https://placehold.co/800x600.png');
+  const bio = (profile as any).profile?.bio || "This user has not written a bio yet.";
+  const age = calculateAge(profile.basic?.dob);
+  const location = profile.basic?.city || 'Unknown';
+
   return (
     <Card className="flex h-full flex-col overflow-hidden shadow-sm transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="p-0">
         <div className="relative h-64 w-full">
           <Image
-            src={profile.photos[0]}
-            alt={profile.name}
+            src={photoUrl}
+            alt={profile.displayName}
             fill
             style={{ objectFit: 'cover' }}
             className="rounded-t-lg"
@@ -32,23 +52,23 @@ export function ProfileCard({ profile }: ProfileCardProps) {
       </CardHeader>
       <CardContent className="flex-grow p-4 md:p-6">
         <CardTitle className="font-headline mb-2 text-2xl">
-          {profile.name}
+          {profile.displayName}
         </CardTitle>
         <div className="space-y-2 text-muted-foreground">
           <div className="flex items-center gap-2">
             <Cake className="h-4 w-4" />
-            <span>{profile.age} years old</span>
+            <span>{age > 0 ? `${age} years old` : 'Age not specified'}</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4" />
-            <span>{profile.location}</span>
+            <span>{location}</span>
           </div>
-          <p className="pt-2 text-foreground/80 line-clamp-3">{profile.bio}</p>
+          <p className="pt-2 text-foreground/80 line-clamp-3">{bio}</p>
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 md:p-6">
         <Button asChild className="w-full">
-          <Link href={`/profiles/${profile.id}`}>View Full Profile</Link>
+          <Link href={`/profiles/${profile.uid}`}>View Full Profile</Link>
         </Button>
       </CardFooter>
     </Card>
