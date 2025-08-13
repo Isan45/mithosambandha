@@ -46,27 +46,6 @@ export default async function HomePage() {
     (user) => user.profileStatus === 'approved'
   );
 
-  // We'll use a helper function to get a photo, falling back to a placeholder
-  const getPhotoUrl = (user: UserProfile) => {
-     if (user.photos && user.photos.length > 0) {
-      const primaryPhoto = user.photos.find(p => p.status === 'approved');
-      if (primaryPhoto) return primaryPhoto.url;
-    }
-    return 'https://placehold.co/800x600.png';
-  }
-
-  // Create a simplified profile object for the card, ensuring all fields are there.
-  const mapUserToProfileCard = (user: UserProfile) => ({
-    id: user.uid,
-    name: user.displayName || 'Unnamed User',
-    age: user.basic?.dob ? new Date().getFullYear() - new Date(user.basic.dob).getFullYear() : 0,
-    location: user.basic?.city || 'Unknown Location',
-    bio: (user as any).profile?.bio || 'No bio provided.',
-    photos: (user.photos || []).map(p => p.url),
-    profilePhoto: getPhotoUrl(user)
-  });
-
-
   const featuredProfiles = approvedProfiles.slice(0, 4);
   const newMembers = approvedProfiles.slice(4, 8);
   const successStories = mockSuccessStories.slice(0, 3);

@@ -24,11 +24,8 @@ import { Eye, Ban } from 'lucide-react';
 import { revalidatePath } from 'next/cache';
 
 function getPhotoUrl(user: UserProfile) {
-  if (user.photos && user.photos.length > 0) {
-    const approvedPhoto = user.photos.find(p => p.status === 'approved');
-    return approvedPhoto?.thumb || approvedPhoto?.url || user.photos[0].url;
-  }
-  return 'https://placehold.co/40x40.png';
+    const p = (user as any).profile || {};
+    return p.profilePhoto || 'https://placehold.co/40x40.png';
 }
 
 function getAge(dob?: string) {
@@ -78,26 +75,28 @@ export default async function UsersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map(user => (
+              {users.map(user => {
+                const profile = (user as any).profile || {};
+                return (
                 <TableRow key={user.uid} className={user.profileStatus === 'suspended' ? 'bg-destructive/10' : ''}>
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Image
                         src={getPhotoUrl(user)}
-                        alt={user.displayName}
+                        alt={user.fullName}
                         width={40}
                         height={40}
                         className="rounded-full object-cover"
                       />
                       <div>
-                        <p className="font-medium">{user.displayName}</p>
+                        <p className="font-medium">{user.fullName}</p>
                         <p className="text-xs text-muted-foreground">
                           {user.email}
                         </p>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{user.basic?.city || 'N/A'}</TableCell>
+                  <TableCell>{profile.currentLocation || 'N/A'}</TableCell>
                   <TableCell>
                     {user.profileCompletion
                       ? `${(user.profileCompletion * 100).toFixed(0)}%`
@@ -140,7 +139,7 @@ export default async function UsersPage() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )})}
             </TableBody>
           </Table>
         </CardContent>

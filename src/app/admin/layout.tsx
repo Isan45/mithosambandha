@@ -1,3 +1,4 @@
+
 import {
   SidebarProvider,
   Sidebar,
@@ -20,7 +21,15 @@ import {
   BarChart,
   Settings,
   LogOut,
+  Wand2,
 } from 'lucide-react';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Admin Dashboard',
+  description: 'Manage users, profiles, and settings for Mitho Sambandha.',
+};
+
 
 export default function AdminLayout({
   children,
@@ -67,17 +76,17 @@ export default function AdminLayout({
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href="/admin/moderation">
+                <Link href="/admin/moderation/verify">
                   <ShieldCheck />
-                  Moderation
+                  Verification
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href="/admin/matches">
-                  <HeartHandshake />
-                  Matches
+                <Link href="/admin/matchmaking">
+                  <Wand2 />
+                  Matchmaking
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

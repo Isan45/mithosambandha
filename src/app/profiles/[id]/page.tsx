@@ -19,6 +19,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import type { Metadata } from 'next';
 
 const calculateAge = (dob: string | undefined): number | null => {
   if (!dob) return null;
@@ -31,6 +32,28 @@ const calculateAge = (dob: string | undefined): number | null => {
   }
   return age;
 };
+
+type Props = {
+  params: { id: string };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const user = await getUser(params.id);
+
+  if (!user) {
+    return {
+      title: 'Profile Not Found',
+    };
+  }
+
+  return {
+    title: `${user.fullName}'s Profile`,
+    description: `View the profile of ${user.fullName}. Age: ${calculateAge(
+      (user as any).profile?.dob
+    )}, Location: ${(user as any).profile?.currentLocation}.`,
+  };
+}
+
 
 export default async function ProfilePage({ params: { id } }: { params: { id: string }}) {
   const user = await getUser(id);

@@ -1,34 +1,20 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import {
   Loader2,
-  User,
   Mail,
   Phone,
   ShieldCheck,
-  Building,
-  GraduationCap,
-  Heart,
-  Image as ImageIcon,
+  ImageIcon,
   CheckCircle,
   AlertCircle,
-  Eye,
-  HeartHandshake,
-  Users,
   Edit,
-  MapPin,
-  Cake,
   Search,
-  MessageCircle,
-  Crown,
-  Trophy,
-  Sparkles,
-  Send,
 } from 'lucide-react';
 import type { UserProfile } from '@/types';
 import Image from 'next/image';
@@ -44,10 +30,11 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { ProfileSection } from '@/components/dashboard/profile-section';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
+import type { Metadata } from 'next';
+
 
 const DetailItem = ({ icon: Icon, label, value, action }: any) => (
   <div className="flex items-start justify-between py-3 border-b border-border/50">
@@ -103,33 +90,33 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    async function fetchProfile() {
-      if (authLoading) return;
-      if (user) {
-        setLoading(true);
-        try {
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            setProfile(userDoc.data() as UserProfile);
-          }
-        } catch (error) {
-          console.error('Error fetching user profile:', error);
-          toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Could not load your profile.',
-          });
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
+  const fetchProfile = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        setProfile(userDoc.data() as UserProfile);
       }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not load your profile.',
+      });
+    } finally {
+      setLoading(false);
     }
-    fetchProfile();
-  }, [user, authLoading, toast]);
+  }, [user, toast]);
+
+
+  useEffect(() => {
+    if (user) {
+        fetchProfile();
+    }
+  }, [user, fetchProfile]);
 
   if (loading || authLoading) {
     return (
@@ -409,91 +396,6 @@ export default function DashboardPage() {
               )}
             </ProfileSection>
 
-            {/* Education Section */}
-            <ProfileSection
-              title="Education & Career"
-              icon={GraduationCap}
-              editPath="/onboarding/education"
-            >
-              <p>
-                <strong>Highest Education:</strong>{' '}
-                {p.education?.highestEducation || 'N/A'}
-              </p>
-              <p>
-                <strong>College/University:</strong> {p.education?.college || 'N/A'}
-              </p>
-              <p>
-                <strong>Profession:</strong> {p.career?.profession || 'N/A'}
-              </p>
-              <p>
-                <strong>Company:</strong> {p.career?.company || 'N/A'}
-              </p>
-              <p>
-                <strong>Work Details:</strong> {p.career?.workDetails || 'N/A'}
-              </p>
-              <p>
-                <strong>Income:</strong>{' '}
-                {p.career?.income ? `NPR ${p.career.income}` : 'N/A'}
-              </p>
-            </ProfileSection>
-          </div>
-
-          <div className="space-y-8">
-            {/* Partner Preferences Section */}
-            <ProfileSection
-              title="Partner Preferences"
-              icon={HeartHandshake}
-              editPath="/onboarding/partner-preferences"
-            >
-              {!p.partnerPreferences && (
-                <div className="flex items-center gap-3 rounded-md border border-amber-500/50 bg-amber-500/10 p-3 text-amber-700">
-                  <AlertCircle className="h-5 w-5 flex-shrink-0" />
-                  <p className="text-sm font-medium">
-                    Please complete this section so that we can find your perfect
-                    match.
-                  </p>
-                </div>
-              )}
-              {pp && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                  <p>
-                    <strong>Age Range:</strong>{' '}
-                    {pp.age?.min && pp.age?.max
-                      ? `${pp.age.min} - ${pp.age.max} years`
-                      : 'Any'}
-                  </p>
-                  <p>
-                    <strong>Height Range:</strong>{' '}
-                    {pp.height?.minFt && pp.height?.maxFt
-                      ? `${pp.height.minFt}'${pp.height.minIn}" - ${pp.height.maxFt}'${pp.height.maxIn}"`
-                      : 'Any'}
-                  </p>
-                  <p>
-                    <strong>Desired Location:</strong> {pp.location || 'Any'}
-                  </p>
-                  <p>
-                    <strong>Religion / Caste:</strong> {pp.religion || 'Any'} /{' '}
-                    {pp.caste || 'Any'}
-                  </p>
-                  <p>
-                    <strong>Education:</strong> {pp.education || 'Any'}
-                  </p>
-                  <p>
-                    <strong>Occupation:</strong> {pp.occupation || 'Any'}
-                  </p>
-                </div>
-              )}
-            </ProfileSection>
-             {/* Placeholder for future sections */}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-xl">Activity Feed</CardTitle>
-                    <CardDescription>Updates on your matches and interests will appear here.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground">No new activity yet.</p>
-                </CardContent>
-            </Card>
           </div>
         </div>
       </div>

@@ -7,8 +7,11 @@ import { Footer } from '@/components/layout/footer';
 import { AuthProvider } from '@/hooks/use-auth';
 
 export const metadata: Metadata = {
-  title: 'Mitho Sambandha',
-  description: 'A new approach to finding your life partner.',
+  title: {
+    default: 'Mitho Sambandha',
+    template: '%s | Mitho Sambandha',
+  },
+  description: 'A new approach to finding your life partner in the Nepali community.',
 };
 
 export default function RootLayout({

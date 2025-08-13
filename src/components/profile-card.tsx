@@ -31,10 +31,12 @@ const calculateAge = (dob: string | undefined): number => {
 
 
 export function ProfileCard({ profile }: ProfileCardProps) {
-  const photoUrl = (profile as any).profile?.profilePhoto || (profile.photos && profile.photos.length > 0 ? profile.photos[0].url : 'https://placehold.co/800x600.png');
-  const bio = (profile as any).profile?.bio || "This user has not written a bio yet.";
-  const age = calculateAge(profile.basic?.dob);
-  const location = profile.basic?.city || 'Unknown';
+  const p = (profile as any).profile || {};
+
+  const photoUrl = p.profilePhoto || 'https://placehold.co/800x600.png';
+  const bio = p.bio || "This user has not written a bio yet.";
+  const age = calculateAge(p.dob);
+  const location = p.currentLocation || 'Unknown';
 
   return (
     <Card className="flex h-full flex-col overflow-hidden shadow-sm transition-shadow duration-300 hover:shadow-xl">
@@ -42,7 +44,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
         <div className="relative h-64 w-full">
           <Image
             src={photoUrl}
-            alt={profile.displayName}
+            alt={profile.fullName}
             fill
             style={{ objectFit: 'cover' }}
             className="rounded-t-lg"
@@ -52,7 +54,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
       </CardHeader>
       <CardContent className="flex-grow p-4 md:p-6">
         <CardTitle className="font-headline mb-2 text-2xl">
-          {profile.displayName}
+          {profile.fullName}
         </CardTitle>
         <div className="space-y-2 text-muted-foreground">
           <div className="flex items-center gap-2">
