@@ -1,4 +1,3 @@
-
 // This file is for client-side Firebase initialization
 'use client';
 
