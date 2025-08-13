@@ -3,6 +3,12 @@ import type { SuccessStory } from '@/types';
 import { SuccessStoryCard } from '@/components/success-story-card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Success Stories',
+  description: 'Read the stories of couples who found their life partner through Mitho Sambandha.',
+};
 
 export default function SuccessStoriesPage() {
   return (

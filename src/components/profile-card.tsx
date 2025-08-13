@@ -16,9 +16,8 @@ type ProfileCardProps = {
   profile: UserProfile;
 };
 
-// Helper function to calculate age from DOB string
-const calculateAge = (dob: string | undefined): number => {
-  if (!dob) return 0;
+const calculateAge = (dob: string | undefined): number | null => {
+  if (!dob) return null;
   const birthDate = new Date(dob);
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
@@ -29,10 +28,8 @@ const calculateAge = (dob: string | undefined): number => {
   return age;
 };
 
-
 export function ProfileCard({ profile }: ProfileCardProps) {
   const p = (profile as any).profile || {};
-
   const photoUrl = p.profilePhoto || 'https://placehold.co/800x600.png';
   const bio = p.bio || "This user has not written a bio yet.";
   const age = calculateAge(p.dob);
@@ -59,7 +56,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
         <div className="space-y-2 text-muted-foreground">
           <div className="flex items-center gap-2">
             <Cake className="h-4 w-4" />
-            <span>{age > 0 ? `${age} years old` : 'Age not specified'}</span>
+            <span>{age ? `${age} years old` : 'Age not specified'}</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4" />

@@ -36,7 +36,6 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import type { Metadata } from 'next';
 
 const step1Schema = z.object({
   fullName: z
@@ -81,6 +80,8 @@ export default function JoinPage() {
         fullName: values.fullName,
         onboardingReason: values.onboardingReason,
         profileStatus: 'incomplete',
+        role: 'user',
+        profileCompletion: 0.1,
         createdAt: new Date(),
       });
 

@@ -4,6 +4,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Contact Us',
+  description: 'Get in touch with the Mitho Sambandha team. We are here to help you on your journey.',
+};
 
 export default function ContactPage() {
   return (

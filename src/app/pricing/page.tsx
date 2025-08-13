@@ -12,6 +12,12 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import React from 'react';
 import Image from 'next/image';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Pricing Plans',
+  description: 'Choose a membership plan that fits your needs. We offer free and premium options.',
+};
 
 const PlanCard = ({
   plan,

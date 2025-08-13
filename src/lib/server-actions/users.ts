@@ -6,6 +6,10 @@ import type { UserProfile } from '@/types';
 import { logAdminAction } from './audit';
 
 export async function getUsers(): Promise<UserProfile[]> {
+  if (!db) {
+    console.warn('[getUsers] Firebase Admin is not initialized. Returning empty array.');
+    return [];
+  }
   try {
     const snapshot = await db.collection('users').get();
     if (snapshot.empty) {
@@ -32,14 +36,16 @@ export async function getUsers(): Promise<UserProfile[]> {
 
     return users;
   } catch (error: any) {
-    // This allows the app to run even if the admin SDK isn't configured.
-    // The missing FIREBASE_SERVICE_ACCOUNT_BASE64 env var will cause an error here.
     console.error('Error fetching users (likely due to missing admin credentials):', error.message);
     return [];
   }
 }
 
 export async function getUser(uid: string): Promise<UserProfile | null> {
+    if (!db) {
+      console.warn(`[getUser] Firebase Admin is not initialized. Cannot fetch user ${uid}.`);
+      return null;
+    }
     try {
         const docRef = db.collection('users').doc(uid);
         const docSnap = await docRef.get();

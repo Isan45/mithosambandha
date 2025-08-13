@@ -4,6 +4,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Blog',
+  description: 'Articles, advice, and stories related to relationships, culture, and matchmaking in the Nepali community.',
+};
 
 export default function BlogPage() {
   return (

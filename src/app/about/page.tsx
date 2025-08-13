@@ -3,6 +3,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Globe, HeartHandshake, ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'About Us',
+  description: 'Learn the story behind Mitho Sambandha, our mission, and our commitment to the Nepali community.',
+};
 
 export default function AboutPage() {
   return (
@@ -87,6 +93,17 @@ export default function AboutPage() {
                   We honor and understand the unique traditions and values of
                   the Nepali community. Our platform is designed to celebrate
                   our shared heritage.
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardContent className="p-8">
+                <HeartHandshake className="mx-auto mb-4 h-12 w-12 text-primary" />
+                <h3 className="font-headline mb-2 text-2xl">A Human Touch</h3>
+                <p className="text-muted-foreground">
+                  We believe in personal connection. Our admin team provides a
+                  curated experience, going beyond algorithms to help you find
+                  your perfect match.
                 </p>
               </CardContent>
             </Card>

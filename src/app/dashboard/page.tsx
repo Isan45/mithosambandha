@@ -33,8 +33,6 @@ import { ProfileSection } from '@/components/dashboard/profile-section';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
-import type { Metadata } from 'next';
-
 
 const DetailItem = ({ icon: Icon, label, value, action }: any) => (
   <div className="flex items-start justify-between py-3 border-b border-border/50">
@@ -90,11 +88,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  const fetchProfile = useCallback(async () => {
-    if (!user) return;
+  const fetchProfile = useCallback(async (uid: string) => {
     setLoading(true);
     try {
-      const userDocRef = doc(db, 'users', user.uid);
+      const userDocRef = doc(db, 'users', uid);
       const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
         setProfile(userDoc.data() as UserProfile);
@@ -109,12 +106,12 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  }, [toast]);
 
 
   useEffect(() => {
     if (user) {
-        fetchProfile();
+        fetchProfile(user.uid);
     }
   }, [user, fetchProfile]);
 
@@ -183,20 +180,7 @@ export default function DashboardPage() {
   const pp = p.partnerPreferences;
   const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
   
-  // Calculate profile completeness
-  const totalFields = 20; // Approx number of fields we ask for
-  let completedFields = 0;
-  if (p.bio) completedFields++;
-  if (p.gender) completedFields++;
-  if (p.dob) completedFields++;
-  if (p.height) completedFields++;
-  if (p.maritalStatus) completedFields++;
-  if (p.currentLocation) completedFields++;
-  if (p.education?.highestEducation) completedFields++;
-  if (p.career?.profession) completedFields++;
-  if (p.galleryPhotos?.length > 0) completedFields+=p.galleryPhotos.length;
-  // Add more checks for other fields to get a more accurate percentage
-  const profileCompleteness = Math.min(100, Math.round((completedFields / totalFields) * 100));
+  const profileCompleteness = profile.profileCompletion ? Math.round(profile.profileCompletion * 100) : 0;
 
 
   return (
@@ -373,7 +357,7 @@ export default function DashboardPage() {
             >
               {p.galleryPhotos && p.galleryPhotos.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {p.galleryPhotos.map((photo, index) => (
+                  {p.galleryPhotos.map((photo: string, index: number) => (
                     <div key={index} className="relative aspect-square w-full">
                       <Image
                         src={photo}
@@ -401,5 +385,3 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-
-    

@@ -19,7 +19,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { getUsers } from '@/lib/server-actions/users';
-import type { UserProfile } from '@/types';
 import { ProfileCard } from '@/components/profile-card';
 
 
