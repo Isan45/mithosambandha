@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { suspendUser } from '@/lib/server-actions/users';
-import { revalidatePath } from 'next/cache';
 
 type StatsPayload = {
   totals: {
@@ -148,11 +147,16 @@ export default function AdminDashboardPage() {
   }
 
   const handleSuspend = async (formData: FormData) => {
-    'use server';
     const uid = formData.get('uid') as string;
     if (uid) {
-      await suspendUser(uid, 'Suspended by admin from dashboard.');
-      revalidatePath('/admin');
+        try {
+            await suspendUser(uid, 'Suspended by admin from dashboard.');
+            // Re-fetch data after suspension to update UI
+            await fetchRecentUsers();
+            await fetchStats();
+        } catch (error: any) {
+            alert(`Failed to suspend user: ${error.message}`);
+        }
     }
   };
 
@@ -260,7 +264,7 @@ export default function AdminDashboardPage() {
                   <TableRow><TableCell colSpan={4} className="text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
                 )}
                 {users.map(u => (
-                  <TableRow key={u.uid}>
+                  <TableRow key={u.uid} className={u.profileStatus === 'suspended' ? 'bg-destructive/10' : ''}>
                     <TableCell>
                       <div className="font-medium">{u.displayName || 'N/A'}</div>
                       <div className="text-sm text-muted-foreground">{u.email}</div>
@@ -272,7 +276,7 @@ export default function AdminDashboardPage() {
                         <Button asChild variant="outline" size="sm"><Link href={`/admin/users/${u.uid}`}>Inspect</Link></Button>
                          <form action={handleSuspend} className="inline-block">
                            <input type="hidden" name="uid" value={u.uid} />
-                           <Button type="submit" variant="destructive" size="sm">Suspend</Button>
+                           <Button type="submit" variant="destructive" size="sm" disabled={u.profileStatus === 'suspended'}>Suspend</Button>
                         </form>
                       </div>
                     </TableCell>

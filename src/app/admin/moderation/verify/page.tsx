@@ -64,7 +64,7 @@ export default async function VerificationPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="font-headline text-2xl">
-                      {profile.displayName}
+                      {profile.fullName}
                     </CardTitle>
                     <CardDescription className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-sm">
                        <span className="flex items-center gap-1.5">
@@ -72,11 +72,11 @@ export default async function VerificationPage() {
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Cake className="h-4 w-4" />{' '}
-                        {calculateAge(profile.basic?.dob)} years old
+                        {calculateAge((profile as any).profile?.dob)} years old
                       </span>
                       <span className="flex items-center gap-1.5">
                         <MapPin className="h-4 w-4" />{' '}
-                        {profile.basic?.city || 'N/A'}
+                        {(profile as any).profile?.currentLocation || 'N/A'}
                       </span>
                     </CardDescription>
                   </div>
