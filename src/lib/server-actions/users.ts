@@ -5,6 +5,7 @@ import { db, auth } from '@/lib/firebase-admin';
 import type { UserProfile } from '@/types';
 import { logAdminAction } from './audit';
 import { revalidatePath } from 'next/cache';
+import type * as admin from 'firebase-admin';
 
 export async function getUsers(filters?: { [key: string]: any }): Promise<UserProfile[]> {
   if (!db) {
@@ -12,24 +13,13 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
     return [];
   }
   try {
-    let query: admin.firestore.Query = db.collection('users');
-
-    if (filters) {
-        if (filters.status) {
-            query = query.where('profileStatus', '==', filters.status);
-        }
-        if (filters.role) {
-            query = query.where('role', '==', filters.role);
-        }
-    }
-    
-    const snapshot = await query.orderBy('createdAt', 'desc').get();
+    const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
     
     if (snapshot.empty) {
       return [];
     }
 
-    const users: UserProfile[] = [];
+    let users: UserProfile[] = [];
     snapshot.forEach(doc => {
       const data = doc.data();
       // Basic validation to ensure it's a UserProfile-like object
@@ -46,6 +36,35 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
         } as UserProfile);
       }
     });
+
+    // Manual filtering since Firestore doesn't support all complex queries we need
+    if (filters) {
+      users = users.filter(user => {
+        if (filters.status && filters.status !== 'all' && user.profileStatus !== filters.status) {
+          return false;
+        }
+        if (filters.role && filters.role !== 'all' && user.role !== filters.role) {
+          return false;
+        }
+        if (filters.query) {
+          const queryLower = filters.query.toLowerCase();
+          const nameMatch = user.fullName?.toLowerCase().includes(queryLower);
+          const emailMatch = user.email?.toLowerCase().includes(queryLower);
+          if (!nameMatch && !emailMatch) {
+            return false;
+          }
+        }
+        if (filters.location) {
+          const locationLower = filters.location.toLowerCase();
+          const profile = (user as any).profile;
+          if (!profile?.currentLocation?.toLowerCase().includes(locationLower)) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+
 
     return users;
   } catch (error: any) {

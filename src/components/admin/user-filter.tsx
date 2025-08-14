@@ -7,12 +7,15 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FilterIcon } from 'lucide-react';
+import { FilterIcon, Search } from 'lucide-react';
 
 const filterSchema = z.object({
   status: z.string().optional(),
   role: z.string().optional(),
+  query: z.string().optional(),
+  location: z.string().optional(),
 });
 
 type FilterFormValues = z.infer<typeof filterSchema>;
@@ -26,6 +29,8 @@ export function UserFilter() {
     defaultValues: {
       status: searchParams.get('status') || 'all',
       role: searchParams.get('role') || 'all',
+      query: searchParams.get('query') || '',
+      location: searchParams.get('location') || '',
     },
   });
 
@@ -44,7 +49,31 @@ export function UserFilter() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="mb-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+          <FormField
+            control={form.control}
+            name="query"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name or Email</FormLabel>
+                <FormControl>
+                  <Input placeholder="Search by name or email..." {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Location</FormLabel>
+                <FormControl>
+                  <Input placeholder="Search by location..." {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="status"
@@ -91,8 +120,10 @@ export function UserFilter() {
               </FormItem>
             )}
           />
-          <Button type="submit">
-            <FilterIcon className="mr-2 h-4 w-4" />
+        </div>
+        <div className="flex justify-end mt-4">
+           <Button type="submit">
+            <Search className="mr-2 h-4 w-4" />
             Apply Filters
           </Button>
         </div>

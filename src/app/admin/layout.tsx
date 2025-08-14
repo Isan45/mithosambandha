@@ -26,6 +26,7 @@ import {
   Megaphone,
   Activity,
   LogOut,
+  ShieldCheck,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 
@@ -74,7 +75,15 @@ export default function AdminLayout({
               <SidebarMenuButton asChild>
                 <Link href="/admin/users">
                   <Users />
-                  User Management (CRM)
+                  User Management
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/moderation/verify">
+                  <ShieldCheck />
+                  Verification Queue
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -82,7 +91,7 @@ export default function AdminLayout({
               <SidebarMenuButton asChild>
                 <Link href="/admin/matchmaking">
                   <HeartHandshake />
-                  Match Management
+                  Matchmaking
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -98,7 +107,7 @@ export default function AdminLayout({
               <SidebarMenuButton asChild>
                 <Link href="/admin/content">
                   <FileText />
-                  Content Management (CMS)
+                  Content Management
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
