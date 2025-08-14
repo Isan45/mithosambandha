@@ -19,7 +19,7 @@ export type Profile = {
 export type UserProfile = {
   uid: string;
   email: string;
-  displayName: string;
+  fullName: string;
   phone?: string;
   createdAt: any; // Firebase Timestamp
   lastActiveAt?: any; // Firebase Timestamp
