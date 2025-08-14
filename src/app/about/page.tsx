@@ -107,17 +107,6 @@ export default function AboutPage() {
                 </p>
               </CardContent>
             </Card>
-            <Card className="text-center">
-              <CardContent className="p-8">
-                <HeartHandshake className="mx-auto mb-4 h-12 w-12 text-primary" />
-                <h3 className="font-headline mb-2 text-2xl">A Human Touch</h3>
-                <p className="text-muted-foreground">
-                  We believe in personal connection. Our admin team provides a
-                  curated experience, going beyond algorithms to help you find
-                  your perfect match.
-                </p>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
