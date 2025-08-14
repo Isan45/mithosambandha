@@ -134,6 +134,9 @@ export async function suspendUser(uid: string, reason: string): Promise<void> {
 
     // Disable the user in Firebase Auth
     await auth.updateUser(uid, { disabled: true });
+    
+    // Revoke their session tokens to log them out
+    await auth.revokeRefreshTokens(uid);
 
     // Log the action
     await logAdminAction({
