@@ -13,6 +13,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-8 p-4 md:p-8">
       <h1 className="font-headline text-3xl font-bold">Analytics</h1>
+      <p className="text-muted-foreground">This page is a placeholder for more detailed, filterable reports. Key metrics are available on the main dashboard.</p>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <Card className="lg:col-span-2">

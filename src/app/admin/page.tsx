@@ -3,10 +3,23 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import Link from 'next/link';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import {
+  Loader2,
+  AlertTriangle,
+  Users,
+  Activity,
+  DollarSign,
+  UserCheck,
+} from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -17,38 +30,32 @@ import {
 } from '@/components/ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { suspendUser } from '@/lib/server-actions/users';
+import { SignupsChart } from '@/components/admin/charts/signups-chart';
+import { AgeDistributionChart } from '@/components/admin/charts/age-distribution-chart';
+import { GenderSplitChart } from '@/components/admin/charts/gender-split-chart';
 
 type StatsPayload = {
   totals: {
     totalUsers: number;
-    usersThisMonth: number;
-    usersThisWeek: number;
-    usersToday: number;
-    totalPremium: number;
-    premiumThisMonth: number;
-    premiumToday: number;
-    totalRevenue: number;
-    revenueMonth: number;
-    revenueDay: number;
     activeLast7Days: number;
+    totalRevenue: number;
+    pendingVerifications: number;
   };
   breakdowns: {
-    byCountry: Record<string, number>;
     byGender: Record<string, number>;
-    profileCompletionBuckets: Record<string, number>;
+  };
+  charts: {
+    signupsLast10Days: { date: string; signups: number }[];
+    ageDistribution: { ageGroup: string; users: number }[];
   };
 };
 
 type ProfileRow = {
   uid: string;
-  displayName?: string;
+  fullName?: string;
   email?: string;
-  createdAt?: { _seconds: number };
-  membership?: string;
+  createdAt?: { _seconds: number; _nanoseconds: number };
   profileStatus?: string;
-  account?: { suspended?: boolean; restricted?: boolean };
-  verification?: any;
-  basic?: any;
 };
 
 const FIREBASE_ADMIN_ERROR_MSG = 'Firebase Admin SDK has not been initialized';
@@ -61,224 +68,238 @@ export default function AdminDashboardPage() {
   const [busy, setBusy] = useState(false);
   const [backendError, setBackendError] = useState<string | null>(null);
 
-  const fetchStats = useCallback(async () => {
+  const fetchDashboardData = useCallback(async () => {
     if (!getIdToken) return;
     setLoading(true);
+    setBackendError(null);
     try {
       const idToken = await getIdToken();
       if (!idToken) throw new Error('Could not get ID token.');
-      const res = await fetch('/api/admin/stats', {
-        headers: { Authorization: `Bearer ${idToken}` },
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || 'Failed to fetch stats');
-      setStats(json);
+
+      // Fetch stats and users in parallel
+      const [statsRes, usersRes] = await Promise.all([
+        fetch('/api/admin/stats', {
+          headers: { Authorization: `Bearer ${idToken}` },
+        }),
+        fetch('/api/admin/recent-users', {
+          headers: { Authorization: `Bearer ${idToken}` },
+        }),
+      ]);
+
+      const statsJson = await statsRes.json();
+      if (!statsRes.ok)
+        throw new Error(statsJson?.error || 'Failed to fetch stats');
+      setStats(statsJson);
+
+      const usersJson = await usersRes.json();
+      if (!usersRes.ok)
+        throw new Error(usersJson?.error || 'Failed to fetch users');
+      setUsers(usersJson.users || []);
     } catch (err: any) {
-      console.error('fetchStats', err);
+      console.error('Dashboard fetch error:', err);
       if (err.message?.includes(FIREBASE_ADMIN_ERROR_MSG)) {
         setBackendError(err.message);
       } else {
-        alert(`Error fetching stats: ${err.message}`);
+        setBackendError('An unknown error occurred while fetching data.');
       }
     } finally {
       setLoading(false);
     }
   }, [getIdToken]);
 
-  const fetchRecentUsers = useCallback(async () => {
-    if (!getIdToken) return;
-    try {
-      const idToken = await getIdToken();
-      if (!idToken) throw new Error('Could not get ID token.');
-      const res = await fetch('/api/admin/recent-users', {
-        headers: { Authorization: `Bearer ${idToken}` },
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || 'Failed to fetch users');
-      setUsers(json.users || []);
-    } catch (err: any)
-    {
-      console.error('fetchRecentUsers error:', err);
-      if (err.message?.includes(FIREBASE_ADMIN_ERROR_MSG)) {
-        setBackendError(err.message);
-      } else {
-        alert(`Error fetching users: ${err.message}`);
-      }
-    }
-  }, [getIdToken]);
-
   useEffect(() => {
     if (user && getIdToken) {
-      fetchStats();
-      fetchRecentUsers();
+      fetchDashboardData();
     }
-  }, [user, getIdToken, fetchStats, fetchRecentUsers]);
-
-  async function runUserAction(targetUid: string, action: string) {
-    if (!getIdToken) return;
-    if (!confirm(`Are you sure you want to ${action} this user?`)) return;
-    try {
-      setBusy(true);
-      const idToken = await getIdToken();
-      if (!idToken) throw new Error('Could not get ID token.');
-      const res = await fetch('/api/admin/user-action', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${idToken}`,
-        },
-        body: JSON.stringify({ targetUid, action }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json?.error || 'Action failed');
-      alert('Done');
-      fetchStats();
-      fetchRecentUsers();
-    } catch (err: any) {
-      console.error(err);
-      if (err.message?.includes(FIREBASE_ADMIN_ERROR_MSG)) {
-        setBackendError(err.message);
-      } else {
-        alert(err.message || 'Error');
-      }
-    } finally {
-      setBusy(false);
-    }
-  }
+  }, [user, getIdToken, fetchDashboardData]);
 
   const handleSuspend = async (formData: FormData) => {
     const uid = formData.get('uid') as string;
     if (uid) {
-        try {
-            await suspendUser(uid, 'Suspended by admin from dashboard.');
-            // Re-fetch data after suspension to update UI
-            await fetchRecentUsers();
-            await fetchStats();
-        } catch (error: any) {
-            alert(`Failed to suspend user: ${error.message}`);
-        }
+      try {
+        await suspendUser(uid, 'Suspended by admin from dashboard.');
+        await fetchDashboardData(); // Refetch all data
+      } catch (error: any) {
+        alert(`Failed to suspend user: ${error.message}`);
+      }
     }
   };
 
+  const MetricCard = ({ title, value, icon, description }: any) => (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        {icon}
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{loading ? '...' : value}</div>
+        <p className="text-xs text-muted-foreground">{description}</p>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <div className="p-4 md:p-8">
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div className="p-4 md:p-8 space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="font-headline text-3xl font-bold">Dashboard</h1>
-         <Button onClick={() => { setBackendError(null); fetchStats(); fetchRecentUsers(); }} disabled={loading || busy}>
-            { (loading || busy) ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null }
-            Refresh Data
-          </Button>
+        <Button
+          onClick={() => {
+            fetchDashboardData();
+          }}
+          disabled={loading || busy}
+        >
+          {loading || busy ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : null}
+          Refresh Data
+        </Button>
       </div>
-      
-       {backendError && (
-        <Alert variant="destructive" className="mb-6">
+
+      {backendError && (
+        <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Backend Configuration Error</AlertTitle>
           <AlertDescription>
-            The admin dashboard cannot fetch live data. Please ensure the `FIREBASE_SERVICE_ACCOUNT_BASE64` environment variable is set correctly on the server.
-            <pre className="mt-2 bg-black/20 p-2 rounded-md text-xs whitespace-pre-wrap">{backendError}</pre>
+            The admin dashboard cannot fetch live data. Please ensure the
+            `FIREBASE_SERVICE_ACCOUNT_BASE64` environment variable is set
+            correctly on the server.
+            <pre className="mt-2 bg-black/20 p-2 rounded-md text-xs whitespace-pre-wrap">
+              {backendError}
+            </pre>
           </AlertDescription>
         </Alert>
       )}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+        <MetricCard
+          title="Total Users"
+          value={stats?.totals.totalUsers ?? '0'}
+          icon={<Users className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Active Users (7d)"
+          value={stats?.totals.activeLast7Days ?? '0'}
+          icon={<Activity className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Total Revenue"
+          value={`$${stats?.totals.totalRevenue ?? '0'}`}
+          description="(All time)"
+          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+        />
+        <MetricCard
+          title="Pending Verifications"
+          value={stats?.totals.pendingVerifications ?? '0'}
+          icon={<UserCheck className="h-4 w-4 text-muted-foreground" />}
+          description={
+            <Link
+              href="/admin/moderation/verify"
+              className="text-primary hover:underline"
+            >
+              Review now
+            </Link>
+          }
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Recent Sign-ups</CardTitle>
+            <CardDescription>User sign-ups over the last 10 days.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              +{stats?.totals.usersThisWeek} this week
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users (7d)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.activeLast7Days}</div>
-            <p className="text-xs text-muted-foreground">
-              {loading ? '—' : `${(
-                ((stats?.totals.activeLast7Days || 0) /
-                  (stats?.totals.totalUsers || 1)) *
-                100
-              ).toFixed(1)}% of total users`}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Signups by Gender</CardTitle>
-          </CardHeader>
-          <CardContent>
-             {loading ? <p>—</p> : (
-              <div className="space-y-1 text-sm">
-                {Object.entries(stats?.breakdowns.byGender || {}).map(([k, v]) => (
-                  <div key={k} className="flex justify-between">
-                    <span>{k}</span><span className="font-semibold">{v}</span>
-                  </div>
-                ))}
+            {loading ? (
+              <div className="h-[250px] w-full flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin" />
               </div>
+            ) : (
+              <SignupsChart data={stats?.charts.signupsLast10Days} />
             )}
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Signups by Country</CardTitle>
+          <CardHeader>
+            <CardTitle>Gender Distribution</CardTitle>
+            <CardDescription>Ratio of male to female users.</CardDescription>
           </CardHeader>
           <CardContent>
-           {!stats || loading ? <p>—</p> : (
-              <div className="space-y-1">
-                {Object.entries(stats.breakdowns.byCountry).slice(0, 3).map(([k, v]) => (
-                  <div key={k} className="flex justify-between text-sm">
-                    <span>{k}</span><span className="font-semibold">{v}</span>
-                  </div>
-                ))}
+            {loading ? (
+              <div className="h-[250px] w-full flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin" />
               </div>
+            ) : (
+              <GenderSplitChart data={stats?.breakdowns.byGender} />
             )}
           </CardContent>
         </Card>
       </div>
-      <div className="mt-6">
-        <Card>
+      
+       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+         <Card className="lg:col-span-3">
+            <CardHeader>
+              <CardTitle>User Age Distribution</CardTitle>
+              <CardDescription>Breakdown of users by age groups.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                {loading ? (
+                <div className="h-[300px] w-full flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                </div>
+                ) : (
+                <AgeDistributionChart data={stats?.charts.ageDistribution} />
+                )}
+            </CardContent>
+        </Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Recent Signups</CardTitle>
+            <CardTitle>Recently Joined</CardTitle>
+            <CardDescription>
+              The last 5 users to sign up.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>User</TableHead>
-                  <TableHead>Joined</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users.length === 0 && !loading && (
-                  <TableRow><TableCell colSpan={4} className="text-center">No recent users</TableCell></TableRow>
-                )}
-                 {loading && users.length === 0 && (
-                  <TableRow><TableCell colSpan={4} className="text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
-                )}
-                {users.map(u => (
-                  <TableRow key={u.uid} className={u.profileStatus === 'suspended' ? 'bg-destructive/10' : ''}>
-                    <TableCell>
-                      <div className="font-medium">{u.displayName || 'N/A'}</div>
-                      <div className="text-sm text-muted-foreground">{u.email}</div>
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center">
+                      No recent users
                     </TableCell>
-                    <TableCell>{u.createdAt ? new Date(u.createdAt._seconds * 1000).toLocaleDateString() : '—'}</TableCell>
-                    <TableCell>{u.profileStatus}</TableCell>
+                  </TableRow>
+                )}
+                {loading && users.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center">
+                      <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                    </TableCell>
+                  </TableRow>
+                )}
+                {users.slice(0, 5).map(u => (
+                  <TableRow
+                    key={u.uid}
+                    className={
+                      u.profileStatus === 'suspended' ? 'bg-destructive/10' : ''
+                    }
+                  >
                     <TableCell>
-                      <div className="flex gap-2">
-                        <Button asChild variant="outline" size="sm"><Link href={`/admin/users/${u.uid}`}>Inspect</Link></Button>
-                         <form action={handleSuspend} className="inline-block">
-                           <input type="hidden" name="uid" value={u.uid} />
-                           <Button type="submit" variant="destructive" size="sm" disabled={u.profileStatus === 'suspended'}>Suspend</Button>
-                        </form>
+                      <div className="font-medium">{u.fullName || 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground truncate">
+                        {u.email}
                       </div>
+                    </TableCell>
+                    <TableCell>{u.profileStatus}</TableCell>
+                    <TableCell className="text-right">
+                       <Button asChild variant="outline" size="sm">
+                         <Link href={`/admin/users/${u.uid}`}>Inspect</Link>
+                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -286,7 +307,7 @@ export default function AdminDashboardPage() {
             </Table>
           </CardContent>
         </Card>
-      </div>
+       </div>
     </div>
   );
 }

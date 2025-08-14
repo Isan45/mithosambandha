@@ -1,62 +1,57 @@
 
 'use client';
 
-import { TrendingUp } from 'lucide-react';
-import { Pie, PieChart } from 'recharts';
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Pie, PieChart, ResponsiveContainer, Cell } from 'recharts';
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  ChartConfig,
 } from '@/components/ui/chart';
 
-const chartData = [
-  { gender: 'female', users: 68, fill: 'var(--color-female)' },
-  { gender: 'male', users: 32, fill: 'var(--color-male)' },
-];
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
 
-const chartConfig = {
-  users: {
-    label: 'Users',
-  },
-  male: {
-    label: 'Male',
-    color: 'hsl(var(--chart-1))',
-  },
-  female: {
-    label: 'Female',
-    color: 'hsl(var(--chart-2))',
-  },
-} satisfies ChartConfig;
+export function GenderSplitChart({ data }: { data?: Record<string, number> }) {
+  
+  const chartData = data ? Object.entries(data).map(([gender, users]) => ({ gender, users })) : [];
 
-export function GenderSplitChart() {
+  if (!chartData || chartData.length === 0) {
+    return <div className="h-[250px] w-full flex items-center justify-center text-muted-foreground">No gender data available</div>
+  }
+
+  const chartConfig = {
+    users: {
+      label: 'Users',
+    },
+    ...chartData.reduce((acc, item, index) => {
+      acc[item.gender] = {
+        label: item.gender.charAt(0).toUpperCase() + item.gender.slice(1),
+        color: COLORS[index % COLORS.length],
+      };
+      return acc;
+    }, {} as any),
+  };
+  
   return (
-    <ChartContainer
-      config={chartConfig}
-      className="mx-auto aspect-square h-[250px]"
-    >
-      <PieChart>
-        <ChartTooltip
-          cursor={false}
-          content={<ChartTooltipContent hideLabel />}
-        />
-        <Pie
-          data={chartData}
-          dataKey="users"
-          nameKey="gender"
-          innerRadius={60}
-          strokeWidth={5}
-        />
-      </PieChart>
-    </ChartContainer>
+     <div style={{ width: '100%', height: 250 }}>
+        <ResponsiveContainer>
+            <PieChart>
+                <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel nameKey="gender"/>}
+                />
+                 <Pie
+                    data={chartData}
+                    dataKey="users"
+                    nameKey="gender"
+                    innerRadius={60}
+                    strokeWidth={5}
+                >
+                    {chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={chartConfig[entry.gender]?.color} />
+                    ))}
+                </Pie>
+            </PieChart>
+        </ResponsiveContainer>
+    </div>
   );
 }
