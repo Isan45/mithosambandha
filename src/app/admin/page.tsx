@@ -42,6 +42,7 @@ type StatsPayload = {
     totalUsers: number;
     activeLast7Days: number;
     totalRevenue: number;
+
     pendingVerifications: number;
     totalPremiumUsers: number;
     revenueThisWeek: number;
