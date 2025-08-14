@@ -61,7 +61,10 @@ export default async function UsersPage({
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>S.no</TableHead>
                   <TableHead>User</TableHead>
+                  <TableHead>UID</TableHead>
+                  <TableHead>Joining Date</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Completion</TableHead>
                   <TableHead>Status</TableHead>
@@ -70,10 +73,11 @@ export default async function UsersPage({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map(user => {
+                {users.map((user, index) => {
                   const profile = (user as any).profile || {};
                   return (
                   <TableRow key={user.uid} className={user.profileStatus === 'suspended' ? 'bg-destructive/10' : ''}>
+                    <TableCell>{index + 1}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Image
@@ -90,6 +94,12 @@ export default async function UsersPage({
                           </p>
                         </div>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="font-mono text-xs">{user.uid}</span>
+                    </TableCell>
+                    <TableCell>
+                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                     </TableCell>
                     <TableCell>{profile.currentLocation || 'N/A'}</TableCell>
                     <TableCell>
