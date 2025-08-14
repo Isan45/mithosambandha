@@ -12,9 +12,10 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Cake, MapPin, Hash, UserCircle, Images } from 'lucide-react';
+import { Check, X, Cake, MapPin, Hash, UserCircle, Images, FileText, Heart } from 'lucide-react';
 import Image from 'next/image';
 import { revalidatePath } from 'next/cache';
+import { Separator } from '@/components/ui/separator';
 
 function calculateAge(dob?: string) {
   if (!dob) return 'N/A';
@@ -45,7 +46,7 @@ export default async function VerificationPage() {
     'use server';
     const uid = formData.get('uid') as string;
     // In a real app, you'd have a dialog to collect the reason
-    const reason = "Information incomplete."; 
+    const reason = "Information incomplete or does not meet guidelines."; 
     await rejectProfile(uid, reason);
     revalidatePath('/admin/moderation/verify');
   };
@@ -58,25 +59,27 @@ export default async function VerificationPage() {
 
       {pendingProfiles.length > 0 ? (
         <div className="space-y-6">
-          {pendingProfiles.map((profile) => (
-            <Card key={profile.uid}>
+          {pendingProfiles.map((user) => {
+            const profile = (user as any).profile || {};
+            return (
+            <Card key={user.uid}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="font-headline text-2xl">
-                      {profile.fullName}
+                      {user.fullName}
                     </CardTitle>
                     <CardDescription className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-sm">
                        <span className="flex items-center gap-1.5">
-                        <Hash className="h-4 w-4" /> {profile.uid}
+                        <Hash className="h-4 w-4" /> {user.uid}
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Cake className="h-4 w-4" />{' '}
-                        {calculateAge((profile as any).profile?.dob)} years old
+                        {calculateAge(profile.dob)} years old
                       </span>
                       <span className="flex items-center gap-1.5">
                         <MapPin className="h-4 w-4" />{' '}
-                        {(profile as any).profile?.currentLocation || 'N/A'}
+                        {profile.currentLocation || 'N/A'}
                       </span>
                     </CardDescription>
                   </div>
@@ -85,32 +88,72 @@ export default async function VerificationPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 
-                <div>
-                  <h4 className="font-semibold text-lg mb-2 flex items-center gap-2"><UserCircle /> Profile Photo</h4>
-                   <div className="flex gap-4">
-                    {(profile as any).profile?.profilePhoto ? (
-                       <div className="relative h-40 w-40">
-                          <Image
-                            src={(profile as any).profile.profilePhoto}
-                            alt="Profile Photo"
-                            width={160}
-                            height={160}
-                            className="rounded-md border-2 border-primary object-cover"
-                          />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-6">
+                         <div>
+                          <h4 className="font-semibold text-lg mb-2 flex items-center gap-2"><UserCircle /> Bio</h4>
+                           <p className="text-sm text-muted-foreground bg-secondary/50 p-3 rounded-md border">
+                            {profile.bio || "No bio provided."}
+                           </p>
                         </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        No profile photo uploaded.
-                      </p>
-                    )}
-                  </div>
+                         <div>
+                          <h4 className="font-semibold text-lg mb-2 flex items-center gap-2"><Heart /> Partner Preferences</h4>
+                           <p className="text-sm text-muted-foreground bg-secondary/50 p-3 rounded-md border">
+                            {profile.partnerPreferences?.additionalPreferences || "No specific preferences provided."}
+                           </p>
+                        </div>
+                    </div>
+                     <div className="space-y-6">
+                        <div>
+                            <h4 className="font-semibold text-lg mb-2 flex items-center gap-2"><UserCircle /> Profile Photo</h4>
+                            <div className="flex gap-4">
+                                {profile.profilePhoto ? (
+                                <div className="relative h-40 w-40">
+                                    <Image
+                                        src={profile.profilePhoto}
+                                        alt="Profile Photo"
+                                        width={160}
+                                        height={160}
+                                        className="rounded-md border-2 border-primary object-cover"
+                                    />
+                                    </div>
+                                ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    No profile photo uploaded.
+                                </p>
+                                )}
+                            </div>
+                        </div>
+                         <div>
+                            <h4 className="font-semibold text-lg mb-2 flex items-center gap-2"><FileText /> ID Document</h4>
+                            <div className="flex gap-4">
+                                {profile.idDocument ? (
+                                    <div className="relative h-32 w-48">
+                                    <Image
+                                        src={profile.idDocument}
+                                        alt="ID Document"
+                                        width={192}
+                                        height={128}
+                                        className="rounded-md border p-2 object-contain"
+                                    />
+                                    </div>
+                                ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    No ID document uploaded.
+                                </p>
+                                )}
+                            </div>
+                        </div>
+                     </div>
                 </div>
+
+                <Separator />
 
                 <div>
                   <h4 className="font-semibold text-lg mb-2 flex items-center gap-2"><Images /> Gallery Photos</h4>
                   <div className="flex flex-wrap gap-4">
-                    {(profile as any).profile?.galleryPhotos && (profile as any).profile.galleryPhotos.length > 0 ? (
-                      (profile as any).profile.galleryPhotos.map((photo: string, index: number) => (
+                    {profile.galleryPhotos && profile.galleryPhotos.length > 0 ? (
+                      profile.galleryPhotos.map((photo: string, index: number) => (
                         <div key={index} className="relative h-32 w-32">
                           <Image
                             src={photo}
@@ -129,31 +172,10 @@ export default async function VerificationPage() {
                   </div>
                 </div>
 
-                 <div>
-                  <h4 className="font-semibold text-lg mb-2">ID Document</h4>
-                   <div className="flex gap-4">
-                    {(profile as any).profile?.idDocument ? (
-                         <div className="relative h-32 w-48">
-                          <Image
-                            src={(profile as any).profile.idDocument}
-                            alt="ID Document"
-                            width={192}
-                            height={128}
-                            className="rounded-md border p-2 object-contain"
-                          />
-                        </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">
-                        No ID document uploaded.
-                      </p>
-                    )}
-                  </div>
-                </div>
-
               </CardContent>
               <CardFooter className="flex justify-end gap-2 border-t pt-4 mt-4">
                   <form action={handleReject}>
-                    <input type="hidden" name="uid" value={profile.uid} />
+                    <input type="hidden" name="uid" value={user.uid} />
                     <Button
                         type="submit"
                         variant="outline"
@@ -163,7 +185,7 @@ export default async function VerificationPage() {
                     </Button>
                   </form>
                    <form action={handleApprove}>
-                    <input type="hidden" name="uid" value={profile.uid} />
+                    <input type="hidden" name="uid" value={user.uid} />
                     <Button
                         type="submit"
                         className="bg-green-600 text-white hover:bg-green-700"
@@ -173,13 +195,13 @@ export default async function VerificationPage() {
                   </form>
               </CardFooter>
             </Card>
-          ))}
+          )})}
         </div>
       ) : (
         <Card className="text-center">
           <CardHeader>
             <CardTitle>All Caught Up!</CardTitle>
-          </Header>
+          </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
               There are no pending profile submissions to review.
