@@ -4,14 +4,27 @@
 import { db, auth } from '@/lib/firebase-admin';
 import type { UserProfile } from '@/types';
 import { logAdminAction } from './audit';
+import { revalidatePath } from 'next/cache';
 
-export async function getUsers(): Promise<UserProfile[]> {
+export async function getUsers(filters?: { [key: string]: any }): Promise<UserProfile[]> {
   if (!db) {
     console.warn('[getUsers] Firebase Admin is not initialized. Returning empty array.');
     return [];
   }
   try {
-    const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
+    let query: admin.firestore.Query = db.collection('users');
+
+    if (filters) {
+        if (filters.status) {
+            query = query.where('profileStatus', '==', filters.status);
+        }
+        if (filters.role) {
+            query = query.where('role', '==', filters.role);
+        }
+    }
+    
+    const snapshot = await query.orderBy('createdAt', 'desc').get();
+    
     if (snapshot.empty) {
       return [];
     }
@@ -56,9 +69,16 @@ export async function getUser(uid: string): Promise<UserProfile | null> {
 
         const data = docSnap.data();
         if (!data) return null;
+        
+        const profile = data.profile || {};
 
         return {
           ...data,
+          // Ensure nested profile object exists
+          profile: {
+             ...profile,
+             profileCompletion: profile.profileCompletion || data.profileCompletion || 0,
+          },
           // Ensure dates are serializable
           createdAt: data.createdAt?.toDate
             ? data.createdAt.toDate().toISOString()
@@ -149,5 +169,34 @@ export async function rejectProfile(uid: string, reason: string): Promise<void> 
   } catch (error) {
     console.error(`Failed to reject profile ${uid}:`, error);
     throw new Error('Could not reject profile.');
+  }
+}
+
+export async function updateUser(uid: string, data: { fullName: string; role: 'user' | 'admin' | 'moderator' }): Promise<void> {
+  if (!db) {
+    console.error('Firebase Admin SDK not initialized. Cannot update user.');
+    throw new Error('Admin services not available.');
+  }
+  try {
+    const userRef = db.collection('users').doc(uid);
+    const userDoc = await userRef.get();
+    if (!userDoc.exists) throw new Error("User not found.");
+
+    const oldData = { fullName: userDoc.data()?.fullName, role: userDoc.data()?.role };
+
+    await userRef.update(data);
+    
+    await logAdminAction({
+      action: 'PROFILE_EDIT',
+      targetUid: uid,
+      changes: { oldValue: oldData, newValue: data },
+      reason: 'Admin updated user from edit page.'
+    });
+
+    revalidatePath(`/admin/users`);
+    revalidatePath(`/admin/users/${uid}`);
+  } catch (error: any) {
+    console.error(`Failed to update user ${uid}:`, error);
+    throw new Error(`Could not update user: ${error.message}`);
   }
 }

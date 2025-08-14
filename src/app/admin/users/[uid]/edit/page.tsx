@@ -1,6 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function EditUserPage({ params }: { params: { uid: string } }) {
+import { getUser } from '@/lib/server-actions/users';
+import { notFound } from 'next/navigation';
+import { EditUserForm } from '@/components/admin/edit-user-form';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+
+export default async function EditUserPage({ params }: { params: { uid: string } }) {
+  const user = await getUser(params.uid);
+  if (!user) {
+    notFound();
+  }
+
   return (
     <div className="p-4 md:p-8">
       <h1 className="font-headline mb-6 text-3xl font-bold">
@@ -8,10 +17,11 @@ export default function EditUserPage({ params }: { params: { uid: string } }) {
       </h1>
       <Card>
         <CardHeader>
-          <CardTitle>Editing Profile: {params.uid}</CardTitle>
+          <CardTitle>Editing: {user.fullName}</CardTitle>
+          <CardDescription>UID: {user.uid}</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">This page will contain a form for admins to edit a user's profile information.</p>
+          <EditUserForm user={user} />
         </CardContent>
       </Card>
     </div>

@@ -24,8 +24,6 @@ export type UserProfile = {
   createdAt: any; // Firebase Timestamp
   lastActiveAt?: any; // Firebase Timestamp
   role: 'user' | 'admin' | 'moderator';
-  profileCompletion: number;
-  visibility: 'public' | 'private' | 'verified-only';
   profileStatus:
     | 'incomplete'
     | 'in-progress-education'
@@ -37,92 +35,39 @@ export type UserProfile = {
     | 'rejected'
     | 'suspended';
 
-  basic?: {
+  profile: {
+    profileCompletion: number;
     gender?: string;
     dob?: string; // Stored as ISO string
-    heightCm?: number;
-    city?: string;
-    country?: string;
-  };
-
-  education?: {
-    level?: string;
-    field?: string;
-    institution?: string;
-  };
-
-  work?: {
-    occupation?: string;
-    employer?: string;
-    incomeMonthly?: number;
-  };
-
-  family?: {
-    familyType?: string;
-    parentsOccupation?: string;
-    siblings?: string;
-  };
-
-  preferences?: {
-    age?: { min?: number; max?: number };
     height?: {
-      minFt?: number;
-      minIn?: number;
-      maxFt?: number;
-      maxIn?: number;
+      feet?: number;
+      inches?: number;
     };
+    currentLocation?: string;
+    permanentAddress?: string;
     maritalStatus?: string;
     religion?: string;
     caste?: string;
-    motherTongue?: string;
-    education?: string;
-    occupation?: string;
-    employmentStatus?: string;
-    minIncome?: string;
-    workLocation?: string;
-    dietaryHabits?: string;
-    drinkingHabits?: string;
-    smokingHabits?: string;
-    religiousBeliefs?: string;
-    astrology?: string;
-    familyType?: string;
-    relocate?: string;
-    location?: string;
-    personality?: string;
-    hobbies?: string;
-    wantsKids?: string;
-    marriageTimeline?: string;
-    additionalPreferences?: string;
-  };
-
-  photos?: Array<{
-    id: string;
-    url: string;
-    thumb?: string;
-    status: 'pending' | 'approved' | 'rejected';
-    uploadedAt: any; // Firebase Timestamp
-  }>;
-
-  verification?: {
-    phoneVerified: boolean;
-    idVerified: {
-      status: 'pending' | 'approved' | 'rejected' | 'none';
-      adminId?: string;
-      note?: string;
-      at?: any; // Firebase Timestamp
+    profilePhoto?: string;
+    galleryPhotos?: string[];
+    bio?: string;
+    
+    education?: {
+      highestEducation?: string;
+      fieldOfStudy?: string;
+      college?: string;
     };
-    photoVerified: {
-      status: 'pending' | 'approved' | 'rejected' | 'none';
-      adminId?: string;
-      at?: any; // Firebase Timestamp
+    
+    career?: {
+        profession?: string;
+        company?: string;
+        income?: string;
     };
-  };
-
-  activityStats?: {
-    profileViews: number;
-    messagesSent: number;
-    interestsSent: number;
-  };
+    
+    partnerPreferences?: {
+        additionalPreferences?: string;
+    }
+  }
 };
 
 export type SuccessStory = {

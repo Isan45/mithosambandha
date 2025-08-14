@@ -27,6 +27,8 @@ import {
   Edit,
   Ban,
   CheckCircle2,
+  History,
+  HeartHandshake
 } from 'lucide-react';
 
 function calculateAge(dob?: string) {
@@ -116,7 +118,7 @@ export default async function UserInspectorPage({ params }: { params: { uid: str
                     </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Profile %:</span>
-                        <span>{user.profileCompletion ? `${(user.profileCompletion * 100).toFixed(0)}%` : 'N/A'}</span>
+                        <span>{p.profileCompletion ? `${(p.profileCompletion * 100).toFixed(0)}%` : 'N/A'}</span>
                     </div>
                 </div>
             </CardContent>
@@ -183,6 +185,20 @@ export default async function UserInspectorPage({ params }: { params: { uid: str
                     </div>
                 </CardContent>
             </Card>
+
+            <Card>
+                <CardHeader><CardTitle className="flex items-center gap-2"><History /> Activity Log</CardTitle></CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">User login/activity logs will appear here.</p>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader><CardTitle className="flex items-center gap-2"><HeartHandshake /> Match History</CardTitle></CardHeader>
+                <CardContent>
+                   <p className="text-muted-foreground">A history of matches made for this user will appear here.</p>
+                </CardContent>
+            </Card>
+
         </div>
       </div>
     </div>
