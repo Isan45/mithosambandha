@@ -24,15 +24,15 @@ export function UserFilter() {
   const form = useForm<FilterFormValues>({
     resolver: zodResolver(filterSchema),
     defaultValues: {
-      status: searchParams.get('status') || '',
-      role: searchParams.get('role') || '',
+      status: searchParams.get('status') || 'all',
+      role: searchParams.get('role') || 'all',
     },
   });
 
   const onSubmit = (data: FilterFormValues) => {
     const params = new URLSearchParams(searchParams);
     Object.entries(data).forEach(([key, value]) => {
-      if (value) {
+      if (value && value !== 'all') {
         params.set(key, value);
       } else {
         params.delete(key);
@@ -58,7 +58,7 @@ export function UserFilter() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">All Statuses</SelectItem>
+                    <SelectItem value="all">All Statuses</SelectItem>
                     <SelectItem value="approved">Approved</SelectItem>
                     <SelectItem value="pending-review">Pending Review</SelectItem>
                     <SelectItem value="rejected">Rejected</SelectItem>
@@ -82,7 +82,7 @@ export function UserFilter() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">All Roles</SelectItem>
+                    <SelectItem value="all">All Roles</SelectItem>
                     <SelectItem value="user">User</SelectItem>
                     <SelectItem value="moderator">Moderator</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
