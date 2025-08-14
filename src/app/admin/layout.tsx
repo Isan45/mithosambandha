@@ -16,12 +16,16 @@ import Image from 'next/image';
 import {
   LayoutDashboard,
   Users,
-  ShieldCheck,
   HeartHandshake,
-  BarChart,
+  DollarSign,
+  FileText,
+  BarChart3,
+  MessageSquareHeart,
+  UsersRound,
   Settings,
+  Megaphone,
+  Activity,
   LogOut,
-  Wand2,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 
@@ -70,31 +74,55 @@ export default function AdminLayout({
               <SidebarMenuButton asChild>
                 <Link href="/admin/users">
                   <Users />
-                  Users
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/admin/moderation/verify">
-                  <ShieldCheck />
-                  Verification
+                  User Management (CRM)
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link href="/admin/matchmaking">
-                  <Wand2 />
-                  Matchmaking
+                  <HeartHandshake />
+                  Match Management
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/monetization">
+                  <DollarSign />
+                  Monetization
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/content">
+                  <FileText />
+                  Content Management (CMS)
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <Link href="/admin/analytics">
-                  <BarChart />
-                  Analytics
+                  <BarChart3 />
+                  Analytics & Reports
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/support">
+                  <MessageSquareHeart />
+                  Support & Ticketing
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/community">
+                  <UsersRound />
+                  Community Features
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -102,7 +130,23 @@ export default function AdminLayout({
               <SidebarMenuButton asChild>
                 <Link href="/admin/settings">
                   <Settings />
-                  Settings
+                  Settings & Configuration
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/marketing">
+                  <Megaphone />
+                  Marketing & Campaigns
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/admin/monitoring">
+                  <Activity />
+                  System Monitoring
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
