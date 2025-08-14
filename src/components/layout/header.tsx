@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase/client';
 import { signOut } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { LogOut, LayoutDashboard, Compass, Search, Settings } from 'lucide-react';
+import { LogOut, LayoutDashboard, Compass, Search, Settings, Gem } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -65,6 +65,12 @@ export function Header() {
                 </Link>
               </Button>
               <Button variant="ghost" asChild>
+                 <Link href="/pricing" className={navLinkClasses('/pricing')}>
+                  <Gem className="mr-2 h-4 w-4" />
+                  Plans
+                </Link>
+              </Button>
+              <Button variant="ghost" asChild>
                 <Link
                   href={isAdmin ? '/admin' : '/dashboard'}
                   className={navLinkClasses(
@@ -90,6 +96,9 @@ export function Header() {
             <>
               <Button variant="ghost" asChild>
                 <Link href="/">Home</Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link href="/pricing">Pricing</Link>
               </Button>
               <Button variant="ghost" asChild>
                 <Link href="/login">Login</Link>

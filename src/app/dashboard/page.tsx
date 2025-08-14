@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Edit,
   Search,
+  Gem,
 } from 'lucide-react';
 import type { UserProfile } from '@/types';
 import Image from 'next/image';
@@ -257,7 +258,7 @@ export default function DashboardPage() {
                         size="sm"
                         className="p-0 h-auto"
                       >
-                        <Link href="/pricing">Upgrade Plan</Link>
+                        <Link href="/pricing"><Gem className="mr-1 h-3 w-3"/>Upgrade Plan</Link>
                       </Button>
                     </div>
                   </div>
