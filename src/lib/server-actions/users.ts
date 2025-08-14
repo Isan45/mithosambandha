@@ -219,3 +219,5 @@ export async function updateUser(uid: string, data: { fullName: string; role: 'u
     throw new Error(`Could not update user: ${error.message}`);
   }
 }
+
+    
