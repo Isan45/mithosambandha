@@ -33,6 +33,14 @@ const calculateAge = (dobString?: string) => {
     return age;
 };
 
+// Helper to get the start of the week (Monday)
+const getStartOfWeek = (d: Date) => {
+  d = new Date(d);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+  return new Date(d.setDate(diff));
+};
+
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,17 +57,22 @@ export async function GET(req: NextRequest) {
     // Total Users
     const totalUsers = allUsersSnap.size;
 
+    // Premium Users (assuming a 'membership' field)
+    const totalPremiumUsers = allUsersData.filter(u => u.profile?.membership === 'Platinum' || u.profile?.membership === 'Gold').length;
+
     // Active Users (last 7 days)
     const sevenDaysAgo = Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
     const activeLast7Days = allUsersData.filter(u => u.lastActiveAt && u.lastActiveAt >= sevenDaysAgo).length;
 
-    // For simplicity, we assume premium and revenue are not yet implemented.
+    // For simplicity, we assume revenue is not yet implemented and will be zero.
     const totalRevenue = 0;
+    const revenueThisWeek = 0;
+    const revenueThisMonth = 0;
     
     // Pending Verifications
     const pendingVerifications = allUsersData.filter(u => u.profileStatus === 'pending-review').length;
     
-    // Gender Breakdown
+    // Gender Breakdown for all users
     const genderCounts: Record<string, number> = {};
     allUsersData.forEach((u) => {
         const gender = u.profile?.gender || 'Unknown';
@@ -106,8 +119,11 @@ export async function GET(req: NextRequest) {
     const payload = {
       totals: {
         totalUsers,
+        totalPremiumUsers,
         activeLast7Days,
         totalRevenue,
+        revenueThisWeek,
+        revenueThisMonth,
         pendingVerifications
       },
       breakdowns: {
