@@ -11,7 +11,7 @@ export async function getUsers(): Promise<UserProfile[]> {
     return [];
   }
   try {
-    const snapshot = await db.collection('users').get();
+    const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
     if (snapshot.empty) {
       return [];
     }
