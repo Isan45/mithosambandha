@@ -23,7 +23,7 @@ const ProfileSchema = z.object({
   age: z.number().describe('The age of the user.'),
   location: z.string().describe('The location of the user.'),
   bio: z.string().describe('A detailed biography of the user.'),
-  partnerPreferences: z.string().describe('The partner preferences of the user.'),
+  partnerPreferences: z.string().describe('The stated partner preferences of the user.'),
 });
 
 const SuggestMatchesInputSchema = z.array(ProfileSchema).describe('An array of user profiles to analyze for match suggestions.');
@@ -46,7 +46,7 @@ const suggestMatchesPrompt = ai.definePrompt({
   name: 'suggestMatchesPrompt',
   input: {schema: SuggestMatchesInputSchema},
   output: {schema: SuggestMatchesOutputSchema},
-  prompt: `You are an expert matchmaker. Given the following list of user profiles, analyze their bios and partner preferences and suggest potential matches.
+  prompt: `You are an expert matchmaker for a Nepali matrimonial service. Given the following list of user profiles, analyze their bios and partner preferences and suggest potential matches.
 
 Profiles:
 {{#each this}}
@@ -60,7 +60,7 @@ Preferences: {{partnerPreferences}}
 
 Suggest potential matches based on shared interests, compatible preferences, and complementary backgrounds. Explain your reasoning for each suggested match.
 
-Format your output as a JSON array of objects, where each object contains profile1, profile2, and reason fields.
+Format your output as a JSON array of objects, where each object contains profile1, profile2, and reason fields. Only suggest matches between a male and a female. Do not suggest same-gender matches. If you cannot find any suitable matches, return an empty array.
 `,
 });
 

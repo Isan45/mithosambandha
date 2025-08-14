@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,7 +6,6 @@ import {
   suggestMatches,
   type SuggestMatchesOutput,
 } from '@/ai/flows/suggest-matches';
-import { mockProfiles } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -14,12 +14,32 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Loader2, Wand2, Lightbulb } from 'lucide-react';
+import { getUsers } from '@/lib/server-actions/users';
+import type { UserProfile } from '@/types';
 
-// Server action to call the AI flow
+// Server action to call the AI flow with real user data
 async function getAiSuggestions() {
   'use server';
-  const approvedProfiles = mockProfiles.filter(p => p.status === 'approved');
-  const result = await suggestMatches(approvedProfiles);
+  const allUsers = await getUsers();
+  const approvedUsers = allUsers.filter(user => user.profileStatus === 'approved');
+
+  // Map UserProfile to the format expected by the AI flow
+  const profilesForAI = approvedUsers.map(user => {
+    const p = (user as any).profile || {};
+    return {
+      name: user.fullName,
+      age: p.dob ? new Date().getFullYear() - new Date(p.dob).getFullYear() : 0,
+      location: p.currentLocation || 'N/A',
+      bio: p.bio || '',
+      partnerPreferences: p.partnerPreferences?.additionalPreferences || '',
+    };
+  });
+  
+  if (profilesForAI.length < 2) {
+      throw new Error("Not enough approved profiles to generate matches.");
+  }
+
+  const result = await suggestMatches(profilesForAI);
   return result;
 }
 
@@ -33,10 +53,13 @@ export function AiSuggestions() {
     setError(null);
     try {
       const result = await getAiSuggestions();
+      if(result.length === 0) {
+        setError("The AI couldn't find any strong matches at this time.");
+      }
       setSuggestions(result);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      setError('Failed to generate suggestions. Please try again.');
+      setError(e.message || 'Failed to generate suggestions. Please try again.');
     } finally {
       setIsLoading(false);
     }
