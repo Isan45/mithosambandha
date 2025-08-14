@@ -16,6 +16,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { suspendUser } from '@/lib/server-actions/users';
+import { revalidatePath } from 'next/cache';
 
 type StatsPayload = {
   totals: {
@@ -145,20 +147,26 @@ export default function AdminDashboardPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen p-6 bg-secondary/30">
-       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold font-headline">Admin Control Center</h1>
-        <div className="flex items-center gap-3">
-          <Link href="/" className="text-sm text-muted-foreground hover:underline">Go to site</Link>
-          <Button onClick={() => { setBackendError(null); fetchStats(); fetchRecentUsers(); }} disabled={loading || busy}>
-            { (loading || busy) ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null }
-            Refresh
-          </Button>
-        </div>
-      </div>
+  const handleSuspend = async (formData: FormData) => {
+    'use server';
+    const uid = formData.get('uid') as string;
+    if (uid) {
+      await suspendUser(uid, 'Suspended by admin from dashboard.');
+      revalidatePath('/admin');
+    }
+  };
 
-      {backendError && (
+  return (
+    <div className="p-4 md:p-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <h1 className="font-headline text-3xl font-bold">Dashboard</h1>
+         <Button onClick={() => { setBackendError(null); fetchStats(); fetchRecentUsers(); }} disabled={loading || busy}>
+            { (loading || busy) ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : null }
+            Refresh Data
+          </Button>
+      </div>
+      
+       {backendError && (
         <Alert variant="destructive" className="mb-6">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Backend Configuration Error</AlertTitle>
@@ -169,40 +177,57 @@ export default function AdminDashboardPage() {
         </Alert>
       )}
 
-      {/* Stats cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <Card><CardContent className="pt-6">
-          <div className="text-sm text-muted-foreground">Total Users</div>
-          <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.totalUsers}</div>
-          <div className="text-xs text-muted-foreground mt-1">This month: {loading ? '—' : stats?.totals.usersThisMonth} • Today: {loading ? '—' : stats?.totals.usersToday}</div>
-        </CardContent></Card>
-
-        <Card><CardContent className="pt-6">
-          <div className="text-sm text-muted-foreground">Premium Members</div>
-          <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.totalPremium}</div>
-          <div className="text-xs text-muted-foreground mt-1">This month: {loading ? '—' : stats?.totals.premiumThisMonth} • Today: {loading ? '—' : stats?.totals.premiumToday}</div>
-        </CardContent></Card>
-
-        <Card><CardContent className="pt-6">
-          <div className="text-sm text-muted-foreground">Total Revenue</div>
-          <div className="text-2xl font-bold">₹ {loading ? '—' : (stats?.totals.totalRevenue || 0)}</div>
-          <div className="text-xs text-muted-foreground mt-1">Month: ₹ {loading ? '—' : stats?.totals.revenueMonth} • Today: ₹ {loading ? '—' : stats?.totals.revenueDay}</div>
-        </CardContent></Card>
-
-        <Card><CardContent className="pt-6">
-          <div className="text-sm text-muted-foreground">Active (7d)</div>
-          <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.activeLast7Days}</div>
-          <div className="text-xs text-muted-foreground mt-1">Profiles by completion: {loading ? '—' : Object.values(stats?.breakdowns.profileCompletionBuckets || {}).join(', ')}</div>
-        </CardContent></Card>
-      </div>
-
-      {/* Breakdown charts (simple lists) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <Card><CardHeader><CardTitle>Signups by Country</CardTitle></CardHeader>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+          </CardHeader>
           <CardContent>
-            {!stats ? <p>—</p> : (
+            <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.totalUsers}</div>
+            <p className="text-xs text-muted-foreground">
+              +{stats?.totals.usersThisWeek} this week
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Users (7d)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{loading ? '—' : stats?.totals.activeLast7Days}</div>
+            <p className="text-xs text-muted-foreground">
+              {loading ? '—' : `${(
+                ((stats?.totals.activeLast7Days || 0) /
+                  (stats?.totals.totalUsers || 1)) *
+                100
+              ).toFixed(1)}% of total users`}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Signups by Gender</CardTitle>
+          </CardHeader>
+          <CardContent>
+             {loading ? <p>—</p> : (
+              <div className="space-y-1 text-sm">
+                {Object.entries(stats?.breakdowns.byGender || {}).map(([k, v]) => (
+                  <div key={k} className="flex justify-between">
+                    <span>{k}</span><span className="font-semibold">{v}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Signups by Country</CardTitle>
+          </CardHeader>
+          <CardContent>
+           {!stats || loading ? <p>—</p> : (
               <div className="space-y-1">
-                {Object.entries(stats.breakdowns.byCountry).slice(0, 20).map(([k, v]) => (
+                {Object.entries(stats.breakdowns.byCountry).slice(0, 3).map(([k, v]) => (
                   <div key={k} className="flex justify-between text-sm">
                     <span>{k}</span><span className="font-semibold">{v}</span>
                   </div>
@@ -211,75 +236,53 @@ export default function AdminDashboardPage() {
             )}
           </CardContent>
         </Card>
-
-        <Card><CardHeader><CardTitle>Signups by Gender</CardTitle></CardHeader>
-          <CardContent>
-            {!stats ? <p>—</p> : (
-              <div className="space-y-1">
-                {Object.entries(stats.breakdowns.byGender).map(([k, v]) => (
-                  <div key={k} className="flex justify-between text-sm">
-                    <span>{k}</span><span className="font-semibold">{v}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card><CardHeader><CardTitle>Profile Completion</CardTitle></CardHeader>
-          <CardContent>
-            {!stats ? <p>—</p> : (
-              <div className="space-y-1">
-                {Object.entries(stats.breakdowns.profileCompletionBuckets).map(([k, v]) => (
-                  <div key={k} className="flex justify-between text-sm">
-                    <span>{k}%</span><span className="font-semibold">{v}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
-
-      {/* Recent users & controls */}
-      <Card>
-        <CardHeader><CardTitle>Recent Users</CardTitle></CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
+      <div className="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Signups</CardTitle>
+          </CardHeader>
+          <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead>User</TableHead>
                   <TableHead>Joined</TableHead>
-                  <TableHead>Membership</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.length === 0 && (
-                  <TableRow><TableCell colSpan={5} className="p-4 text-center text-sm text-muted-foreground">No recent users</TableCell></TableRow>
+                {users.length === 0 && !loading && (
+                  <TableRow><TableCell colSpan={4} className="text-center">No recent users</TableCell></TableRow>
+                )}
+                 {loading && users.length === 0 && (
+                  <TableRow><TableCell colSpan={4} className="text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin"/></TableCell></TableRow>
                 )}
                 {users.map(u => (
                   <TableRow key={u.uid}>
-                    <TableCell>{u.displayName || u.uid}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{u.email}</TableCell>
-                    <TableCell className="text-sm">{u.createdAt ? new Date(u.createdAt._seconds * 1000).toLocaleDateString() : '—'}</TableCell>
-                    <TableCell className="text-sm">{u.membership || 'Free'}</TableCell>
                     <TableCell>
-                      <div className="flex gap-2 items-center">
-                        <Button size="sm" onClick={() => runUserAction(u.uid, u.account?.suspended ? 'unban' : 'ban')} disabled={busy}>{u.account?.suspended ? 'Unban' : 'Ban'}</Button>
-                        <Button size="sm" variant="outline" onClick={() => runUserAction(u.uid, 'verifyId')} disabled={busy}>Verify ID</Button>
-                        <Button size="sm" variant="link" asChild><Link href={`/admin/users/${u.uid}`}>Inspect</Link></Button>
+                      <div className="font-medium">{u.displayName || 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground">{u.email}</div>
+                    </TableCell>
+                    <TableCell>{u.createdAt ? new Date(u.createdAt._seconds * 1000).toLocaleDateString() : '—'}</TableCell>
+                    <TableCell>{u.profileStatus}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button asChild variant="outline" size="sm"><Link href={`/admin/users/${u.uid}`}>Inspect</Link></Button>
+                         <form action={handleSuspend} className="inline-block">
+                           <input type="hidden" name="uid" value={u.uid} />
+                           <Button type="submit" variant="destructive" size="sm">Suspend</Button>
+                        </form>
                       </div>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
