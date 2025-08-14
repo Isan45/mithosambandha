@@ -26,7 +26,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase/client';
+import { auth, db } from '@/lib/firebase/client';
+import { doc, setDoc } from 'firebase/firestore';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -51,7 +52,12 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsSubmitting(true);
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      const user = userCredential.user;
+
+      // Update last active timestamp
+      const userDocRef = doc(db, 'users', user.uid);
+      await setDoc(userDocRef, { lastActiveAt: new Date() }, { merge: true });
       
       toast({
         title: 'Login Successful',
