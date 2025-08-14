@@ -212,5 +212,5 @@ export function SearchForm() {
           </Form>
         </CardContent>
       </Card>
-    )
+    );
 }
