@@ -47,7 +47,7 @@ type SearchFormValues = z.infer<typeof searchSchema>;
 export function SearchForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const [advancedOpen, setAdvancedOpen] = useState(false);
+    const [advancedOpen, setAdvancedOpen] = useState(!!(searchParams.get('religion') || searchParams.get('education') || searchParams.get('caste')));
 
     const form = useForm<SearchFormValues>({
         resolver: zodResolver(searchSchema),
@@ -65,7 +65,7 @@ export function SearchForm() {
     const onSubmit = (data: SearchFormValues) => {
         const params = new URLSearchParams(searchParams);
         Object.entries(data).forEach(([key, value]) => {
-            if (value) {
+            if (value && value !== 'Any') {
                 params.set(key, value);
             } else {
                 params.delete(key);
@@ -135,7 +135,7 @@ export function SearchForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="">Any</SelectItem>
+                          <SelectItem value="Any">Any</SelectItem>
                           <SelectItem value="never-married">Never Married</SelectItem>
                           <SelectItem value="divorced">Divorced</SelectItem>
                           <SelectItem value="widowed">Widowed</SelectItem>
@@ -149,6 +149,7 @@ export function SearchForm() {
               <Accordion
                 type="single"
                 collapsible
+                defaultValue={advancedOpen ? "advanced-search" : undefined}
                 onValueChange={value => setAdvancedOpen(!!value)}
               >
                 <AccordionItem value="advanced-search">
@@ -180,7 +181,7 @@ export function SearchForm() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="">Any</SelectItem>
+                                  <SelectItem value="Any">Any</SelectItem>
                                   <SelectItem value="Hindu">Hindu</SelectItem>
                                   <SelectItem value="Buddhist">Buddhist</SelectItem>
                                   <SelectItem value="Christian">Christian</SelectItem>
@@ -203,7 +204,7 @@ export function SearchForm() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="">Any</SelectItem>
+                                    <SelectItem value="Any">Any</SelectItem>
                                     <SelectItem value="high-school">High School</SelectItem>
                                     <SelectItem value="bachelors">Bachelor's Degree</SelectItem>
                                     <SelectItem value="masters">Master's Degree</SelectItem>

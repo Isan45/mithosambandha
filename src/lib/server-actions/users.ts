@@ -7,6 +7,19 @@ import { logAdminAction } from './audit';
 import { revalidatePath } from 'next/cache';
 import type * as admin from 'firebase-admin';
 
+// Helper to calculate age from DOB string
+function calculateAge(dob?: string): number {
+  if (!dob) return 0;
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
 export async function getUsers(filters?: { [key: string]: any }): Promise<UserProfile[]> {
   if (!db) {
     console.warn('[getUsers] Firebase Admin is not initialized. Returning empty array.');
@@ -15,11 +28,20 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
   try {
     let query: admin.firestore.Query<admin.firestore.DocumentData> = db.collection('users');
 
+    // Default filter for public searches is 'approved' users
+    if (filters && Object.keys(filters).length > 0) {
+        if (!filters.status) {
+             query = query.where('profileStatus', '==', 'approved');
+        }
+    } else if (!filters?.status) {
+        query = query.where('profileStatus', '==', 'approved');
+    }
+
     // Server-side filtering for indexed fields
-    if (filters?.status && filters.status !== 'all') {
+    if (filters?.status && filters.status !== 'all' && filters.status !== 'Any') {
       query = query.where('profileStatus', '==', filters.status);
     }
-    if (filters?.role && filters.role !== 'all') {
+    if (filters?.role && filters.role !== 'all' && filters.role !== 'Any') {
       query = query.where('role', '==', filters.role);
     }
     if (filters?.religion && filters.religion !== 'Any') {
@@ -32,7 +54,9 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
       query = query.where('profile.education.highestEducation', '==', filters.education);
     }
 
+    // Always sort to ensure consistent results, especially for pagination later
     query = query.orderBy('createdAt', 'desc');
+
     const snapshot = await query.get();
     
     if (snapshot.empty) {
@@ -57,11 +81,15 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
       }
     });
 
-    // Manual filtering for fields that aren't indexed or require partial matching.
-    if (filters) {
+    // Manual client-side style filtering for non-indexed fields or complex logic
+    if (filters && Object.keys(filters).length > 0) {
       users = users.filter(user => {
         const profile = (user as any).profile || {};
-        
+        const age = calculateAge(profile.dob);
+
+        if (filters.minAge && age < Number(filters.minAge)) return false;
+        if (filters.maxAge && age > Number(filters.maxAge)) return false;
+
         if (filters.query) {
           const queryLower = filters.query.toLowerCase();
           const nameMatch = user.fullName?.toLowerCase().includes(queryLower);
@@ -86,7 +114,6 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
         return true;
       });
     }
-
 
     return users;
   } catch (error: any) {
