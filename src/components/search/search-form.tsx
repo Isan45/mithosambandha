@@ -55,17 +55,17 @@ export function SearchForm() {
             minAge: searchParams.get('minAge') || '',
             maxAge: searchParams.get('maxAge') || '',
             location: searchParams.get('location') || '',
+            maritalStatus: searchParams.get('maritalStatus') || '',
             religion: searchParams.get('religion') || '',
             education: searchParams.get('education') || '',
             caste: searchParams.get('caste') || '',
-            maritalStatus: searchParams.get('maritalStatus') || '',
         },
     });
 
     const onSubmit = (data: SearchFormValues) => {
         const params = new URLSearchParams(searchParams);
         Object.entries(data).forEach(([key, value]) => {
-            if (value && value !== 'Any') {
+            if (value && value !== 'Any' && value !== '') {
                 params.set(key, value);
             } else {
                 params.delete(key);
