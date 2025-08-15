@@ -20,6 +20,7 @@ import {z} from 'genkit';
 
 const ProfileSchema = z.object({
   name: z.string().describe('The name of the user.'),
+  gender: z.string().describe('The gender of the user. Important for suggesting male-female matches.'),
   age: z.number().describe('The age of the user.'),
   location: z.string().describe('The location of the user.'),
   bio: z.string().describe('A detailed biography of the user.'),
@@ -51,6 +52,7 @@ const suggestMatchesPrompt = ai.definePrompt({
 Profiles:
 {{#each this}}
 Name: {{name}}
+Gender: {{gender}}
 Age: {{age}}
 Location: {{location}}
 Bio: {{bio}}

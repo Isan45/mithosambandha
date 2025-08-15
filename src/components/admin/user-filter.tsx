@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FilterIcon, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 const filterSchema = z.object({
   status: z.string().optional(),
@@ -55,9 +55,9 @@ export function UserFilter() {
             name="query"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name or Email</FormLabel>
+                <FormLabel>Name, Email, or UID</FormLabel>
                 <FormControl>
-                  <Input placeholder="Search by name or email..." {...field} />
+                  <Input placeholder="Search..." {...field} />
                 </FormControl>
               </FormItem>
             )}

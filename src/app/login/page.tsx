@@ -27,7 +27,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase/client';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -57,7 +57,7 @@ export default function LoginPage() {
 
       // Update last active timestamp
       const userDocRef = doc(db, 'users', user.uid);
-      await setDoc(userDocRef, { lastActiveAt: new Date() }, { merge: true });
+      await setDoc(userDocRef, { lastActiveAt: serverTimestamp() }, { merge: true });
       
       toast({
         title: 'Login Successful',
@@ -71,7 +71,7 @@ export default function LoginPage() {
       console.error('Login Error:', error);
       
       let description = 'An unexpected error occurred. Please try again.';
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found') {
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
         if (values.email === 'admin@mithosambandha.com') {
             description = "Admin account not found. Please go to the 'Join' page to create it first.";
         } else {

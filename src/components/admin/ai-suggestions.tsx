@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/card';
 import { Loader2, Wand2, Lightbulb } from 'lucide-react';
 import { getUsers } from '@/lib/server-actions/users';
-import type { UserProfile } from '@/types';
 
 // Server action to call the AI flow with real user data
 async function getAiSuggestions() {
@@ -28,6 +27,7 @@ async function getAiSuggestions() {
     const p = (user as any).profile || {};
     return {
       name: user.fullName,
+      gender: p.gender || 'Not specified',
       age: p.dob ? new Date().getFullYear() - new Date(p.dob).getFullYear() : 0,
       location: p.currentLocation || 'N/A',
       bio: p.bio || '',
@@ -51,6 +51,7 @@ export function AiSuggestions() {
   const handleGenerate = async () => {
     setIsLoading(true);
     setError(null);
+    setSuggestions([]);
     try {
       const result = await getAiSuggestions();
       if(result.length === 0) {

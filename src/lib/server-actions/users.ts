@@ -13,7 +13,21 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
     return [];
   }
   try {
-    const snapshot = await db.collection('users').orderBy('createdAt', 'desc').get();
+    let query: admin.firestore.Query<admin.firestore.DocumentData> = db.collection('users');
+
+    // This is a simplified query builder.
+    // For more complex filters, especially text search, a dedicated search service
+    // like Algolia or Elasticsearch would be much more efficient.
+    // Firestore does not support native text search on multiple fields.
+    if (filters?.status && filters.status !== 'all') {
+      query = query.where('profileStatus', '==', filters.status);
+    }
+    if (filters?.role && filters.role !== 'all') {
+      query = query.where('role', '==', filters.role);
+    }
+
+    query = query.orderBy('createdAt', 'desc');
+    const snapshot = await query.get();
     
     if (snapshot.empty) {
       return [];
@@ -37,15 +51,9 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
       }
     });
 
-    // Manual filtering since Firestore doesn't support all complex queries we need
+    // Manual filtering for text search and location since Firestore doesn't support it well.
     if (filters) {
       users = users.filter(user => {
-        if (filters.status && filters.status !== 'all' && user.profileStatus !== filters.status) {
-          return false;
-        }
-        if (filters.role && filters.role !== 'all' && user.role !== filters.role) {
-          return false;
-        }
         if (filters.query) {
           const queryLower = filters.query.toLowerCase();
           const nameMatch = user.fullName?.toLowerCase().includes(queryLower);
