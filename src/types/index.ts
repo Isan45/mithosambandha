@@ -1,4 +1,5 @@
 
+
 import type { AdminAction } from '@/lib/server-actions/audit';
 
 // This is a simplified version for mock data and public profiles
@@ -34,23 +35,38 @@ export type UserProfile = {
     | 'approved'
     | 'rejected'
     | 'suspended';
-
-  profile: {
-    profileCompletion: number;
+  onboardingReason?: 'life-partner' | 'for-someone-else' | 'browsing';
+  profileCompletion: number;
+  profile?: {
     gender?: string;
     dob?: string; // Stored as ISO string
     height?: {
       feet?: number;
       inches?: number;
     };
+    bodyType?: string;
+    maritalStatus?: 'never-married' | 'divorced' | 'widowed';
+    motherTongue?: string;
+    familyType?: 'joint' | 'nuclear';
+    familyValues?: 'traditional' | 'moderate' | 'liberal';
+    canRelocate?: 'yes' | 'no' | 'maybe';
+    wantsKids?: 'yes' | 'no' | 'undecided';
+    phoneNumber?: string;
+    nationality?: string;
     currentLocation?: string;
     permanentAddress?: string;
-    maritalStatus?: string;
-    religion?: string;
     caste?: string;
+    religion?: string;
+    complexion?: string;
+    dietaryHabits?: 'vegetarian' | 'non-vegetarian' | 'eggetarian' | 'vegan';
+    smokingHabits?: 'no' | 'yes' | 'occasionally';
+    drinkingHabits?: 'no' | 'yes' | 'occasionally';
+    bio?: string;
     profilePhoto?: string;
     galleryPhotos?: string[];
-    bio?: string;
+    idDocument?: string;
+    idVerified?: boolean;
+    membership?: 'Free' | 'Gold' | 'Platinum';
     
     education?: {
       highestEducation?: string;
@@ -99,4 +115,3 @@ export type AuditLog = {
   };
   reason?: string;
 };
-

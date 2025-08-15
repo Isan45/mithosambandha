@@ -26,7 +26,7 @@ export default async function SearchPage({
     (user) => user.profileStatus === 'approved'
   );
 
-  const { minAge, maxAge, location, religion, caste, education } = searchParams || {};
+  const { minAge, maxAge, location, religion, caste, education, maritalStatus } = searchParams || {};
 
   const filteredProfiles = approvedProfiles.filter(profile => {
     // The profile structure from Firestore is nested under a `profile` object
@@ -39,6 +39,7 @@ export default async function SearchPage({
     if (religion && typeof religion === 'string' && p.religion && p.religion.toLowerCase() !== religion.toLowerCase()) return false;
     if (caste && typeof caste === 'string' && p.caste && !p.caste.toLowerCase().includes(caste.toLowerCase())) return false;
     if (education && typeof education === 'string' && p.education?.highestEducation && p.education.highestEducation !== education) return false;
+    if (maritalStatus && typeof maritalStatus === 'string' && p.maritalStatus && p.maritalStatus !== maritalStatus) return false;
     
     return true;
   });

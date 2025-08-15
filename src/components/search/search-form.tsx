@@ -39,6 +39,7 @@ const searchSchema = z.object({
   religion: z.string().optional(),
   education: z.string().optional(),
   caste: z.string().optional(),
+  maritalStatus: z.string().optional(),
 });
 
 type SearchFormValues = z.infer<typeof searchSchema>;
@@ -57,6 +58,7 @@ export function SearchForm() {
             religion: searchParams.get('religion') || '',
             education: searchParams.get('education') || '',
             caste: searchParams.get('caste') || '',
+            maritalStatus: searchParams.get('maritalStatus') || '',
         },
     });
 
@@ -117,10 +119,10 @@ export function SearchForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="religion"
+                  name="maritalStatus"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Religion</FormLabel>
+                      <FormLabel>Marital Status</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -132,10 +134,9 @@ export function SearchForm() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="">Any</SelectItem>
-                          <SelectItem value="Hindu">Hindu</SelectItem>
-                          <SelectItem value="Buddhist">Buddhist</SelectItem>
-                          <SelectItem value="Christian">Christian</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
+                          <SelectItem value="never-married">Never Married</SelectItem>
+                          <SelectItem value="divorced">Divorced</SelectItem>
+                          <SelectItem value="widowed">Widowed</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormItem>
@@ -160,7 +161,33 @@ export function SearchForm() {
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <div className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-4 pt-4 md:grid-cols-3">
+                      <FormField
+                          control={form.control}
+                          name="religion"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Religion</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Any" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="">Any</SelectItem>
+                                  <SelectItem value="Hindu">Hindu</SelectItem>
+                                  <SelectItem value="Buddhist">Buddhist</SelectItem>
+                                  <SelectItem value="Christian">Christian</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormItem>
+                          )}
+                        />
                       <FormField
                         control={form.control}
                         name="education"
@@ -204,7 +231,7 @@ export function SearchForm() {
 
               <div className="flex justify-end pt-4">
                 <Button type="submit">
-                  <SearchIcon className="mr-2" />
+                  <SearchIcon className="mr-2 h-4 w-4" />
                   Search
                 </Button>
               </div>

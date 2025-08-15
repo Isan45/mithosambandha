@@ -45,12 +45,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: 'Profile Not Found',
     };
   }
+  
+  const p = (user as any).profile || {};
 
   return {
     title: `${user.fullName}'s Profile`,
     description: `View the profile of ${user.fullName}. Age: ${calculateAge(
-      (user as any).profile?.dob
-    )}, Location: ${(user as any).profile?.currentLocation}.`,
+      p.dob
+    )}, Location: ${p.currentLocation}.`,
   };
 }
 
@@ -66,7 +68,7 @@ export default async function ProfilePage({ params: { id } }: { params: { id: st
   const age = calculateAge(profile.dob);
   const location = profile.currentLocation || 'N/A';
   const bio = profile.bio || 'No bio provided.';
-  const partnerPreferences = profile.partnerPreferences?.additionalPreferences || 'No preferences specified.';
+  const partnerPreferences = profile.partnerPreferences?.general || 'No preferences specified.';
   const galleryPhotos = profile.galleryPhotos || [];
   const profilePhoto = profile.profilePhoto;
   
@@ -79,7 +81,7 @@ export default async function ProfilePage({ params: { id } }: { params: { id: st
         <Card className="mx-auto max-w-4xl overflow-hidden shadow-lg">
           <CardContent className="p-0">
             <div className="grid grid-cols-1 md:grid-cols-2">
-              <div className="p-6 md:p-8">
+              <div className="p-6 md:p-8 md:order-2">
                 <div className="mb-4 flex flex-col justify-between md:flex-row md:items-center">
                   <CardTitle className="font-headline text-4xl">
                     {user.fullName}
@@ -118,7 +120,7 @@ export default async function ProfilePage({ params: { id } }: { params: { id: st
                 </div>
               </div>
 
-              <div className="relative min-h-[400px] p-4 md:p-8">
+              <div className="relative min-h-[400px] p-4 md:p-8 md:order-1">
                 {allPhotos.length > 0 ? (
                     <Carousel className="w-full">
                     <CarouselContent>
