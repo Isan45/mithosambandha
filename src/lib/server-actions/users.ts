@@ -44,6 +44,9 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
     if (filters?.role && filters.role !== 'all' && filters.role !== 'Any') {
       query = query.where('role', '==', filters.role);
     }
+     if (filters?.gender && filters.gender !== 'all' && filters.gender !== 'Any') {
+      query = query.where('profile.gender', '==', filters.gender);
+    }
     if (filters?.religion && filters.religion !== 'Any') {
       query = query.where('profile.religion', '==', filters.religion);
     }
@@ -108,6 +111,12 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
         if (filters.caste) {
             const casteLower = filters.caste.toLowerCase();
             if (!profile?.caste?.toLowerCase().includes(casteLower)) {
+                return false;
+            }
+        }
+         if (filters.occupation) {
+            const occupationLower = filters.occupation.toLowerCase();
+            if (!profile?.career?.profession?.toLowerCase().includes(occupationLower)) {
                 return false;
             }
         }
