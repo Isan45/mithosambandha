@@ -178,7 +178,6 @@ export default function DashboardPage() {
   }
 
   const p = profile.profile;
-  const pp = p.partnerPreferences;
   const profilePhotoUrl = p?.profilePhoto || 'https://placehold.co/800x600.png';
   
   const profileCompleteness = profile.profileCompletion ? Math.round(profile.profileCompletion * 100) : 0;
@@ -188,97 +187,12 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-secondary/30">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
 
-        {/* Main Profile Card (Merged Design) */}
-        <Card className="overflow-hidden">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-              {/* Left Side: Photo & Verification */}
-              <div className="md:col-span-4 lg:col-span-3 space-y-4">
-                <Image
-                  src={profilePhotoUrl}
-                  alt="Profile Photo"
-                  width={400}
-                  height={400}
-                  className="aspect-square w-full rounded-lg object-cover shadow-md"
-                  data-ai-hint="person portrait"
-                />
-                <div className="space-y-1">
-                  <DetailItem
-                    icon={Mail}
-                    label="Email"
-                    value={profile.email}
-                    action={<VerificationStatus verified={user?.emailVerified} />}
-                  />
-                  <DetailItem
-                    icon={Phone}
-                    label="Phone"
-                    value={p.phoneNumber}
-                    action={<VerificationStatus verified={!!p.phoneNumber} />}
-                  />
-                  <DetailItem
-                    icon={ShieldCheck}
-                    label="ID"
-                    value={p.idVerified ? 'Verified' : 'Not Verified'}
-                    action={
-                      !p.idVerified && (
-                        <Button
-                          asChild
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-xs"
-                        >
-                          <Link href="/onboarding/photos">Upload ID</Link>
-                        </Button>
-                      )
-                    }
-                  />
-                </div>
-              </div>
-
-              {/* Right Side: Details & Actions */}
-              <div className="md:col-span-8 lg:col-span-9 space-y-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                  <div>
-                    <h1 className="font-headline text-4xl font-bold">
-                      {profile.fullName}
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      ID: {user.uid.substring(0, 8).toUpperCase()} | Member
-                      since:{' '}
-                      {profile.createdAt?.toDate().toLocaleDateString() || 'N/A'}
-                    </p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="secondary" className="text-base font-semibold">
-                        {p.membership || 'Free Membership'}
-                      </Badge>
-                      <Button
-                        asChild
-                        variant="link"
-                        size="sm"
-                        className="p-0 h-auto"
-                      >
-                        <Link href="/pricing"><Gem className="mr-1 h-3 w-3"/>Upgrade Plan</Link>
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex w-full sm:w-auto flex-col sm:flex-row gap-2">
-                    <Button asChild size="lg" className="w-full sm:w-auto">
-                      <Link href="/search">
-                        <Search className="mr-2 h-4 w-4" />
-                        Find Matches
-                      </Link>
-                    </Button>
-                    <Button asChild variant="outline" size="lg">
-                      <Link href="/onboarding/create-profile">
-                        <Edit className="mr-2 h-4 w-4" />
-                        Edit Profile
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Profile Completeness */}
+        <Card>
+           <CardHeader>
+             <CardTitle className="font-headline text-2xl">Welcome to your Dashboard, {profile.fullName}!</CardTitle>
+             <CardDescription>This is your central hub for managing your profile and finding matches.</CardDescription>
+           </CardHeader>
+           <CardContent>
                 <div>
                   <Label htmlFor="profile-completeness">
                     Profile Completeness
@@ -299,90 +213,82 @@ export default function DashboardPage() {
                     for better matches.
                   </p>
                 </div>
-
-                <Separator />
-
-                {/* Bio */}
-                <div>
-                  <h4 className="font-semibold text-primary text-lg">
-                    About Me
-                  </h4>
-                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                    {p.bio ||
-                      'No bio provided. Complete your profile to get better matches!'}
-                  </p>
-                </div>
-
-                <Separator />
-
-                {/* Personal Details Pills */}
-                <div>
-                  <h4 className="font-semibold text-primary text-lg mb-3">
-                    Personal Details
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    <InfoPill label="Gender" value={p.gender} />
-                    <InfoPill
-                      label="Age"
-                      value={
-                        p.dob
-                          ? `${
-                              new Date().getFullYear() - new Date(p.dob).getFullYear()
-                            } yrs`
-                          : null
-                      }
-                    />
-                    <InfoPill
-                      label="Height"
-                      value={
-                        p.height ? `${p.height.feet}' ${p.height.inches}"` : null
-                      }
-                    />
-                    <InfoPill label="Religion" value={p.religion} />
-                    <InfoPill label="Location" value={p.currentLocation} />
-                    <InfoPill label="Profession" value={p.career?.profession} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
+                 <div className="mt-6 flex flex-wrap gap-4">
+                    <Button asChild size="lg" className="w-full sm:w-auto">
+                      <Link href="/discover">
+                        <Search className="mr-2 h-4 w-4" />
+                        Discover Matches
+                      </Link>
+                    </Button>
+                    <Button asChild variant="outline" size="lg">
+                      <Link href="/onboarding/create-profile">
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit Profile
+                      </Link>
+                    </Button>
+                    <Button
+                        asChild
+                        variant="link"
+                        size="lg"
+                      >
+                        <Link href="/pricing"><Gem className="mr-1 h-3 w-3"/>Upgrade Plan</Link>
+                      </Button>
+                 </div>
+           </CardContent>
         </Card>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-8">
-            {/* Photo Gallery Section */}
-            <ProfileSection
-              title="Photo Gallery"
-              icon={ImageIcon}
-              editPath="/onboarding/photos"
-            >
-              {p.galleryPhotos && p.galleryPhotos.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {p.galleryPhotos.map((photo: string, index: number) => (
-                    <div key={index} className="relative aspect-square w-full">
-                      <Image
-                        src={photo}
-                        alt={`Gallery photo ${index + 1}`}
-                        fill
-                        className="rounded-md object-cover"
-                        data-ai-hint="person gallery"
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
-                  <ImageIcon className="h-10 w-10 mb-2" />
-                  <p>Your photo gallery is empty.</p>
-                  <p className="text-sm">
-                    Add more photos to get more attention.
-                  </p>
-                </div>
-              )}
-            </ProfileSection>
-
-          </div>
+            <Card>
+                 <CardHeader>
+                    <CardTitle className="font-headline text-xl">Activity Feed</CardTitle>
+                    <CardDescription>Recent likes and views on your profile.</CardDescription>
+                 </CardHeader>
+                 <CardContent className="text-center text-muted-foreground">
+                    <p>Activity feed will be displayed here.</p>
+                 </CardContent>
+            </Card>
+             <Card>
+                 <CardHeader>
+                    <CardTitle className="font-headline text-xl">Messages</CardTitle>
+                    <CardDescription>Your recent conversations.</CardDescription>
+                 </CardHeader>
+                 <CardContent className="text-center text-muted-foreground">
+                    <p>Recent messages will be displayed here.</p>
+                 </CardContent>
+            </Card>
         </div>
+
+        <ProfileSection
+            title="Photo Gallery"
+            icon={ImageIcon}
+            editPath="/onboarding/photos"
+        >
+            {p.galleryPhotos && p.galleryPhotos.length > 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {p.galleryPhotos.slice(0, 4).map((photo: string, index: number) => (
+                <div key={index} className="relative aspect-square w-full">
+                    <Image
+                    src={photo}
+                    alt={`Gallery photo ${index + 1}`}
+                    fill
+                    className="rounded-md object-cover"
+                    data-ai-hint="person gallery"
+                    />
+                </div>
+                ))}
+            </div>
+            ) : (
+            <div className="flex flex-col items-center justify-center text-center text-muted-foreground p-8 border-2 border-dashed rounded-lg">
+                <ImageIcon className="h-10 w-10 mb-2" />
+                <p>Your photo gallery is empty.</p>
+                <p className="text-sm">
+                Add more photos to get more attention.
+                </p>
+            </div>
+            )}
+        </ProfileSection>
+
       </div>
     </div>
   );
+}

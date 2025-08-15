@@ -22,13 +22,14 @@ const AuthContext = createContext<AuthContextType>({ user: null, loading: true, 
 const PROTECTED_ROUTES = ['/dashboard', '/admin', '/discover', '/search', '/settings', '/onboarding'];
 const PUBLIC_ONLY_ROUTES = ['/login', '/join'];
 
-const ONBOARDING_STEPS_MAP: Record<string, string> = {
-    'incomplete': '/onboarding/create-profile',
-    'in-progress-education': '/onboarding/education-career',
-    'in-progress-career': '/onboarding/education-career', // Can be same page
-    'in-progress-partner-preferences': '/onboarding/partner-preferences',
-    'in-progress-photos': '/onboarding/photos',
-};
+// This now maps profile statuses that require onboarding to the single profile creation page.
+const ONBOARDING_REQUIRED_STATUSES = [
+    'incomplete',
+    'in-progress-education',
+    'in-progress-career',
+    'in-progress-partner-preferences',
+    'in-progress-photos',
+];
 
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -94,18 +95,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
             return;
         }
-
-        if (profileStatus && ONBOARDING_STEPS_MAP[profileStatus]) {
-            const requiredPath = ONBOARDING_STEPS_MAP[profileStatus];
-            if (pathname !== requiredPath) {
-                router.push(requiredPath);
-            }
-            return; // Return here to prevent the next block from running
-        } 
         
-        // If profile is complete (i.e. not in the onboarding map) but user is on an onboarding path, redirect them
-        if (profileStatus && !ONBOARDING_STEPS_MAP[profileStatus] && pathname.startsWith('/onboarding')) {
-             router.push('/dashboard');
+        // If profile status requires onboarding and user is not on the profile creation page, redirect them.
+        if (profileStatus && ONBOARDING_REQUIRED_STATUSES.includes(profileStatus) && !pathname.startsWith('/onboarding')) {
+             router.push('/onboarding/create-profile');
+             return;
         }
     }
 

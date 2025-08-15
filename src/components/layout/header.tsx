@@ -71,8 +71,8 @@ export function Header() {
                     </Link>
                   </Button>
                    <Button variant="ghost" asChild>
-                    <Link href="/#" className={navLinkClasses('/messages')}>
-                      <MessageSquare/> Messages
+                    <Link href="/search" className={navLinkClasses('/search')}>
+                      <Search/> Search
                     </Link>
                   </Button>
                   <Button variant="ghost" asChild>
