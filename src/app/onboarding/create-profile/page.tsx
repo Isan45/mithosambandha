@@ -160,7 +160,7 @@ export default function CreateProfilePage() {
           newErrors.dob = 'Date of birth is required.';
         } else {
           const date = new Date(Date.UTC(Number(formState.dob_year), Number(formState.dob_month) - 1, Number(formState.dob_day)));
-          if (date.getUTCDate() !== parseInt(formState.dob_day, 10)) {
+          if (isNaN(date.getTime()) || date.getUTCDate() !== parseInt(formState.dob_day, 10)) {
             newErrors.dob = 'The selected date is invalid.';
           }
         }
@@ -206,8 +206,8 @@ export default function CreateProfilePage() {
                 profession: existingData.profile?.career?.profession || '',
             };
             
-            const generatedBioText = await generateBio(bioInput);
-            setFormState(prev => ({ ...prev, bio: generatedBioText.bio }));
+            const result = await generateBio(bioInput);
+            setFormState(prev => ({ ...prev, bio: result.bio }));
 
         } catch (error) {
             console.error("Error generating bio:", error);
@@ -259,15 +259,16 @@ export default function CreateProfilePage() {
             // Fetch existing doc to merge with
             const docSnap = await getDoc(userDocRef);
             const existingData = docSnap.exists() ? docSnap.data() : {};
-            const existingProfile = existingData.profile || {};
+            
+            const updatedProfileData = {
+                ...existingData.profile,
+                ...profileData,
+            };
 
             await setDoc(userDocRef, {
                 fullName: formState.fullName,
                 email: formState.email, 
-                profile: {
-                    ...existingProfile, // Keep existing fields
-                    ...profileData // Overwrite with new form data
-                },
+                profile: updatedProfileData,
                 profileStatus: existingData.profileStatus === 'incomplete' ? 'in-progress-education' : existingData.profileStatus,
             }, { merge: true });
 
@@ -275,9 +276,7 @@ export default function CreateProfilePage() {
                 title: 'Personal Info Saved!',
                 description: "Let's move to the next step.",
             });
-            // This will be updated to point to the next section of the single page form
-            // For now, we'll keep the navigation as is.
-            router.push('/onboarding/create-profile#education-career');
+            router.push('/onboarding/education-career');
         } catch (error) {
             console.error('Error updating profile:', error);
             toast({
@@ -614,3 +613,4 @@ export default function CreateProfilePage() {
         </div>
     );
 }
+

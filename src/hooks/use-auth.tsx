@@ -21,7 +21,15 @@ const AuthContext = createContext<AuthContextType>({ user: null, loading: true, 
 
 const PROTECTED_ROUTES = ['/dashboard', '/admin', '/discover', '/search', '/settings', '/onboarding'];
 const PUBLIC_ONLY_ROUTES = ['/login', '/join'];
-const ONBOARDING_STEP_ROUTE = '/onboarding/create-profile';
+
+const ONBOARDING_STEPS_MAP: Record<string, string> = {
+    'incomplete': '/onboarding/create-profile',
+    'in-progress-education': '/onboarding/education-career',
+    'in-progress-career': '/onboarding/education-career', // Can be same page
+    'in-progress-partner-preferences': '/onboarding/partner-preferences',
+    'in-progress-photos': '/onboarding/photos',
+};
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -69,41 +77,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isPublicOnlyRoute = PUBLIC_ONLY_ROUTES.includes(pathname);
     const isAdminRoute = pathname.startsWith('/admin');
     
-    // If not logged in and trying to access a protected route, redirect to login
     if (!user && isProtectedRoute) {
       router.push('/login');
       return;
     }
 
     if(user) {
-        // If logged in and trying to access a public-only route, redirect to dashboard
         if(isPublicOnlyRoute) {
             router.push('/dashboard');
             return;
         }
 
-        // Handle Admin routing
         if (isAdmin) {
             if (!isAdminRoute) {
                 router.push('/admin');
             }
-            return; // Admins have their own world
-        }
-
-        // Handle regular user routing based on profile status
-        const isProfileComplete = ['pending-review', 'approved', 'rejected', 'suspended'].includes(profileStatus || '');
-        const isOnboardingPage = pathname.startsWith('/onboarding');
-        
-        // If profile is NOT complete, they should be on the onboarding page
-        if (!isProfileComplete && !isOnboardingPage) {
-            router.push(ONBOARDING_STEP_ROUTE);
             return;
         }
 
-        // If profile IS complete, they should NOT be on the onboarding page
-        if (isProfileComplete && isOnboardingPage) {
-            router.push('/dashboard');
-            return;
+        if (profileStatus && ONBOARDING_STEPS_MAP[profileStatus]) {
+            const requiredPath = ONBOARDING_STEPS_MAP[profileStatus];
+            if (pathname !== requiredPath) {
+                router.push(requiredPath);
+            }
+        } else if (profileStatus && !pathname.startsWith('/dashboard') && !pathname.startsWith('/settings')) {
+            // If profile is complete but they are trying to access onboarding
+             router.push('/dashboard');
         }
     }
 

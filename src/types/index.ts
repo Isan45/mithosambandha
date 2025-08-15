@@ -65,7 +65,17 @@ export type UserProfile = {
     };
     
     partnerPreferences?: {
-        additionalPreferences?: string;
+        general?: string;
+        minAge?: number;
+        maxAge?: number;
+        minHeight?: number;
+        maxHeight?: number;
+        maritalStatus?: string[];
+        religion?: string[];
+        caste?: string[];
+        education?: string[];
+        profession?: string[];
+        location?: string[];
     }
   }
 };
@@ -89,3 +99,4 @@ export type AuditLog = {
   };
   reason?: string;
 };
+
