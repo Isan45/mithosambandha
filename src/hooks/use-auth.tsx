@@ -100,8 +100,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (pathname !== requiredPath) {
                 router.push(requiredPath);
             }
-        } else if (profileStatus && !pathname.startsWith('/dashboard') && !pathname.startsWith('/settings')) {
-            // If profile is complete but they are trying to access onboarding
+            return; // Return here to prevent the next block from running
+        } 
+        
+        // If profile is complete (i.e. not in the onboarding map) but user is on an onboarding path, redirect them
+        if (profileStatus && !ONBOARDING_STEPS_MAP[profileStatus] && pathname.startsWith('/onboarding')) {
              router.push('/dashboard');
         }
     }
