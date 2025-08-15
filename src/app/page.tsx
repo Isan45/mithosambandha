@@ -8,28 +8,55 @@ import {
   HeartHandshake,
   Search,
   CheckCircle,
+  Heart,
+  ShieldCheck,
+  Star,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import {
   Card,
   CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import { getUsers } from '@/lib/server-actions/users';
 import { ProfileCard } from '@/components/profile-card';
+import { SuccessStoryCard } from '@/components/success-story-card';
+import { mockSuccessStories } from '@/lib/mock-data';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-
-const HowItWorksStep = ({ icon: Icon, step, title, description }: {icon: React.ElementType, step: string, title: string, description: string}) => (
-  <div className="flex flex-col items-center text-center p-4">
-    <div className="w-16 h-16 rounded-full flex items-center justify-center bg-primary/10 text-primary mb-4">
-      <Icon className="w-8 h-8" />
+const HowItWorksStep = ({
+  icon: Icon,
+  step,
+  title,
+  description,
+}: {
+  icon: React.ElementType;
+  step: string;
+  title: string;
+  description: string;
+}) => (
+  <div className="flex flex-col items-center p-4 text-center">
+    <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+      <Icon className="h-8 w-8" />
     </div>
-    <div className="text-xl font-bold mb-2">{step}</div>
-    <h3 className="text-xl font-headline mb-2">{title}</h3>
+    <div className="mb-2 text-xl font-bold">{step}</div>
+    <h3 className="mb-2 text-xl font-headline">{title}</h3>
     <p className="text-sm text-muted-foreground">{description}</p>
   </div>
 );
 
-const Section = ({ id, children, className = '' }: {id?: string, children: React.ReactNode, className?: string}) => (
+const Section = ({
+  id,
+  children,
+  className = '',
+}: {
+  id?: string;
+  children: React.ReactNode;
+  className?: string;
+}) => (
   <section id={id} className={`py-16 md:py-24 ${className}`}>
     {children}
   </section>
@@ -38,45 +65,52 @@ const Section = ({ id, children, className = '' }: {id?: string, children: React
 export default async function HomePage() {
   const allUsers = await getUsers();
   const approvedProfiles = allUsers.filter(
-    (user) => user.profileStatus === 'approved'
+    user => user.profileStatus === 'approved'
   );
 
   const featuredProfiles = approvedProfiles.slice(0, 4);
+  const featuredStories = mockSuccessStories.slice(0, 3);
 
   return (
-    <div className="bg-background text-foreground font-body">
-      
+    <div className="font-body text-foreground bg-background">
       {/* Hero Section */}
-      <Section id="home" className="relative pt-12 md:pt-20">
-        <div className="container mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center gap-12">
-          <div
-            className="flex-1 text-center md:text-left space-y-6"
-          >
-            <h1 className="text-4xl md:text-6xl font-headline font-bold leading-tight tracking-tighter">
+      <Section id="home" className="pt-12 md:pt-20">
+        <div className="container mx-auto flex flex-col items-center gap-12 px-4 md:px-8 md:flex-row">
+          <div className="flex-1 space-y-6 text-center md:text-left">
+            <h1 className="tracking-tighter text-4xl font-bold leading-tight md:text-6xl font-headline">
               A Sweet Bond, A Lifelong Partner.
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto md:mx-0">
-              Mitho Sambandha is the most trusted matrimonial platform for the Nepali community worldwide, offering a modern approach to finding your soulmate.
+            <p className="mx-auto max-w-lg text-lg text-muted-foreground md:mx-0 md:text-xl">
+              Mitho Sambandha is the most trusted matrimonial platform for the
+              Nepali community worldwide, offering a modern approach to finding
+              your soulmate.
             </p>
-             <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
-                <Button asChild size="lg" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg font-bold transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row md:justify-start">
+              <Button
+                asChild
+                size="lg"
+                className="w-full transform rounded-full font-bold text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 sm:w-auto bg-primary hover:bg-primary/90"
+              >
                 <Link href="/join">Join Free</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full font-bold transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
-                    <Link href="/search">Explore Matches</Link>
-                </Button>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="w-full transform rounded-full font-bold transition-all duration-300 hover:scale-105 sm:w-auto"
+              >
+                <Link href="/search">Explore Matches</Link>
+              </Button>
             </div>
           </div>
-          <div
-            className="flex-1 w-full flex justify-center md:justify-end"
-          >
-            <div className="w-full max-w-md md:max-w-xl rounded-3xl overflow-hidden shadow-2xl relative transition-all duration-500 transform hover:scale-105">
-              <Image 
-                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-hero.avif?alt=media&token=8e9e757c-f045-4b21-a077-94a55383f1d8" 
-                alt="A happily married Nepali couple" 
+          <div className="flex w-full flex-1 justify-center md:justify-end">
+            <div className="relative w-full max-w-md transform overflow-hidden rounded-3xl shadow-2xl transition-all duration-500 hover:scale-105 md:max-w-xl">
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-hero.avif?alt=media&token=8e9e757c-f045-4b21-a077-94a55383f1d8"
+                alt="A happily married Nepali couple"
                 width={1000}
                 height={800}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
                 priority
                 data-ai-hint="happy couple"
               />
@@ -85,16 +119,46 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      <Separator />
+      {/* Search Preview Section */}
+      <Section id="search-preview" className="bg-secondary/50">
+        <div className="container mx-auto px-4 text-center md:px-8">
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl font-headline">
+            Start Your Search
+          </h2>
+          <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
+            Take the first step towards finding your special someone.
+          </p>
+          <Card className="mx-auto max-w-3xl p-6 shadow-lg">
+            <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 md:grid-cols-3">
+              <div>
+                <Label htmlFor="preview-age-from">Age From</Label>
+                <Input id="preview-age-from" type="number" placeholder="25" />
+              </div>
+              <div>
+                <Label htmlFor="preview-age-to">To</Label>
+                <Input id="preview-age-to" type="number" placeholder="32" />
+              </div>
+              <Button asChild size="lg" className="w-full md:col-span-1">
+                <Link href="/search">
+                  <Search className="mr-2" /> Find Your Match
+                </Link>
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </Section>
 
       {/* How It Works Section */}
-      <Section id="how-it-works" className="bg-secondary">
-        <div className="container mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4">How It Works</h2>
-          <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Our simple and secure process helps you find your life partner with ease and confidence.
+      <Section id="how-it-works" className="bg-background">
+        <div className="container mx-auto px-4 text-center md:px-8">
+          <h2 className="mb-4 text-3xl font-bold md:text-4xl font-headline">
+            How It Works
+          </h2>
+          <p className="mx-auto mb-12 max-w-2xl text-lg text-muted-foreground">
+            Our simple and secure process helps you find your life partner with
+            ease and confidence.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <HowItWorksStep
               icon={User}
               step="1"
@@ -122,51 +186,90 @@ export default async function HomePage() {
           </div>
         </div>
       </Section>
-      
+
       <Separator />
-      
+
       {/* Featured Profiles Section */}
-       <Section id="profiles" className="bg-background">
+      <Section id="profiles" className="bg-secondary/30">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl md:text-4xl font-headline font-bold">Featured Profiles</h2>
-            <Button asChild variant="link" className="text-primary hover:text-primary/80 transition-colors">
+          <div className="mb-8 flex items-center justify-between">
+            <h2 className="text-3xl font-bold md:text-4xl font-headline">
+              Featured Profiles
+            </h2>
+            <Button
+              asChild
+              variant="link"
+              className="transition-colors text-primary hover:text-primary/80"
+            >
               <Link href="/search">View All Profiles</Link>
             </Button>
           </div>
-           {featuredProfiles.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                {featuredProfiles.map(profile => (
+          {featuredProfiles.length > 0 ? (
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredProfiles.map(profile => (
                 <ProfileCard key={profile.uid} profile={profile} />
-                ))}
+              ))}
             </div>
-            ) : (
-             <Card className="col-span-full">
-              <CardContent className="p-12 text-center border-2 border-dashed rounded-lg">
-                <h3 className="font-headline text-2xl">No Featured Profiles Yet</h3>
+          ) : (
+            <Card className="col-span-full">
+              <CardContent className="rounded-lg border-2 border-dashed p-12 text-center">
+                <h3 className="text-2xl font-headline">
+                  No Featured Profiles Yet
+                </h3>
                 <p className="mt-2 text-muted-foreground">
-                  As our community grows, featured profiles of approved members will appear here.
+                  As our community grows, featured profiles of approved members
+                  will appear here.
                 </p>
               </CardContent>
-             </Card>
-            )}
+            </Card>
+          )}
         </div>
       </Section>
-      
+
       <Separator />
-      
-      {/* Call to Action Section */}
-      <Section id="cta" className="bg-gradient-to-r from-primary via-primary/90 to-accent/80 text-primary-foreground text-center">
+
+      {/* Success Stories Section */}
+      <Section id="reviews">
         <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-3xl md:text-5xl font-headline font-bold mb-4">Your Journey Begins Here.</h2>
-          <p className="text-lg md:text-xl font-light mb-8 max-w-3xl mx-auto text-primary-foreground/90">
-            Join thousands of individuals finding their perfect match on a platform built on trust, security, and a shared understanding.
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold md:text-4xl font-headline">
+              Stories of Sweet Union
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+              We are honored to have played a part in so many beautiful love
+              stories.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {featuredStories.map(story => (
+              <SuccessStoryCard key={story.id} story={story} />
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* Call to Action Section */}
+      <Section
+        id="cta"
+        className="bg-gradient-to-r from-primary via-primary/90 to-accent/80 text-center text-primary-foreground"
+      >
+        <div className="container mx-auto px-4 md:px-8">
+          <h2 className="mb-4 text-3xl font-bold md:text-5xl font-headline">
+            Your Journey Begins Here.
+          </h2>
+          <p className="mx-auto mb-8 max-w-3xl text-lg font-light text-primary-foreground/90 md:text-xl">
+            Join thousands of individuals finding their perfect match on a
+            platform built on trust, security, and a shared understanding.
           </p>
-          <Button asChild size="lg" className="rounded-full bg-background text-primary hover:bg-background/90 shadow-xl font-bold transition-all duration-300 transform hover:scale-105">
+          <Button
+            asChild
+            size="lg"
+            className="transform rounded-full font-bold text-primary shadow-xl transition-all duration-300 hover:scale-105 bg-background hover:bg-background/90"
+          >
             <Link href="/join">Create Your Free Profile</Link>
           </Button>
         </div>
       </Section>
     </div>
   );
-};
+}
