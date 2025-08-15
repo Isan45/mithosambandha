@@ -15,15 +15,21 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
   try {
     let query: admin.firestore.Query<admin.firestore.DocumentData> = db.collection('users');
 
-    // This is a simplified query builder.
-    // For more complex filters, especially text search, a dedicated search service
-    // like Algolia or Elasticsearch would be much more efficient.
-    // Firestore does not support native text search on multiple fields.
+    // Server-side filtering for indexed fields
     if (filters?.status && filters.status !== 'all') {
       query = query.where('profileStatus', '==', filters.status);
     }
     if (filters?.role && filters.role !== 'all') {
       query = query.where('role', '==', filters.role);
+    }
+    if (filters?.religion && filters.religion !== 'Any') {
+      query = query.where('profile.religion', '==', filters.religion);
+    }
+     if (filters?.maritalStatus && filters.maritalStatus !== 'Any') {
+      query = query.where('profile.maritalStatus', '==', filters.maritalStatus);
+    }
+     if (filters?.education && filters.education !== 'Any') {
+      query = query.where('profile.education.highestEducation', '==', filters.education);
     }
 
     query = query.orderBy('createdAt', 'desc');
@@ -51,23 +57,31 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
       }
     });
 
-    // Manual filtering for text search and location since Firestore doesn't support it well.
+    // Manual filtering for fields that aren't indexed or require partial matching.
     if (filters) {
       users = users.filter(user => {
+        const profile = (user as any).profile || {};
+        
         if (filters.query) {
           const queryLower = filters.query.toLowerCase();
           const nameMatch = user.fullName?.toLowerCase().includes(queryLower);
           const emailMatch = user.email?.toLowerCase().includes(queryLower);
-          if (!nameMatch && !emailMatch) {
+          const uidMatch = user.uid?.toLowerCase().includes(queryLower);
+          if (!nameMatch && !emailMatch && !uidMatch) {
             return false;
           }
         }
         if (filters.location) {
           const locationLower = filters.location.toLowerCase();
-          const profile = (user as any).profile;
           if (!profile?.currentLocation?.toLowerCase().includes(locationLower)) {
             return false;
           }
+        }
+        if (filters.caste) {
+            const casteLower = filters.caste.toLowerCase();
+            if (!profile?.caste?.toLowerCase().includes(casteLower)) {
+                return false;
+            }
         }
         return true;
       });
@@ -76,7 +90,10 @@ export async function getUsers(filters?: { [key: string]: any }): Promise<UserPr
 
     return users;
   } catch (error: any) {
-    console.error('Error fetching users (likely due to missing admin credentials):', error.message);
+    console.error('Error fetching users (likely due to missing admin credentials or composite index):', error.message);
+    // It's possible a query fails due to a missing composite index.
+    // In a production app, you'd log this and create the index in Firestore.
+    // For this environment, we'll return an empty array on failure.
     return [];
   }
 }

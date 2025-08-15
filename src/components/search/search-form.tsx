@@ -63,10 +63,12 @@ export function SearchForm() {
     });
 
     const onSubmit = (data: SearchFormValues) => {
-        const params = new URLSearchParams();
+        const params = new URLSearchParams(searchParams);
         Object.entries(data).forEach(([key, value]) => {
             if (value) {
                 params.set(key, value);
+            } else {
+                params.delete(key);
             }
         });
         router.push(`/search?${params.toString()}`);

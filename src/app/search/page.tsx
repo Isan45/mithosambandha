@@ -21,25 +21,23 @@ export default async function SearchPage({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const allUsers = await getUsers();
+  const allUsers = await getUsers(searchParams);
+  
   const approvedProfiles = allUsers.filter(
     (user) => user.profileStatus === 'approved'
   );
 
-  const { minAge, maxAge, location, religion, caste, education, maritalStatus } = searchParams || {};
-
   const filteredProfiles = approvedProfiles.filter(profile => {
-    // The profile structure from Firestore is nested under a `profile` object
     const p = (profile as any).profile || {};
     const age = calculateAge(p.dob);
     
-    if (minAge && age < Number(minAge)) return false;
-    if (maxAge && age > Number(maxAge)) return false;
-    if (location && typeof location === 'string' && p.currentLocation && !p.currentLocation.toLowerCase().includes(location.toLowerCase())) return false;
-    if (religion && typeof religion === 'string' && p.religion && p.religion.toLowerCase() !== religion.toLowerCase()) return false;
-    if (caste && typeof caste === 'string' && p.caste && !p.caste.toLowerCase().includes(caste.toLowerCase())) return false;
-    if (education && typeof education === 'string' && p.education?.highestEducation && p.education.highestEducation !== education) return false;
-    if (maritalStatus && typeof maritalStatus === 'string' && p.maritalStatus && p.maritalStatus !== maritalStatus) return false;
+    if (searchParams?.minAge && age < Number(searchParams.minAge)) return false;
+    if (searchParams?.maxAge && age > Number(searchParams.maxAge)) return false;
+    if (searchParams?.location && typeof searchParams.location === 'string' && p.currentLocation && !p.currentLocation.toLowerCase().includes(searchParams.location.toLowerCase())) return false;
+    if (searchParams?.religion && typeof searchParams.religion === 'string' && p.religion && p.religion.toLowerCase() !== searchParams.religion.toLowerCase()) return false;
+    if (searchParams?.caste && typeof searchParams.caste === 'string' && p.caste && !p.caste.toLowerCase().includes(searchParams.caste.toLowerCase())) return false;
+    if (searchParams?.education && typeof searchParams.education === 'string' && p.education?.highestEducation && p.education.highestEducation !== searchParams.education) return false;
+    if (searchParams?.maritalStatus && typeof searchParams.maritalStatus === 'string' && p.maritalStatus && p.maritalStatus !== searchParams.maritalStatus) return false;
     
     return true;
   });
