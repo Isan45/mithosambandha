@@ -104,9 +104,9 @@ export default function CreateProfilePage() {
               fullName: data.fullName || '',
               email: data.email || '',
               gender: profile.gender || '',
-              dob_day: dob ? String(dob.getDate()).padStart(2, '0') : '',
-              dob_month: dob ? String(dob.getMonth() + 1).padStart(2, '0') : '',
-              dob_year: dob ? String(dob.getFullYear()) : '',
+              dob_day: dob ? String(dob.getUTCDate()).padStart(2, '0') : '',
+              dob_month: dob ? String(dob.getUTCMonth() + 1).padStart(2, '0') : '',
+              dob_year: dob ? String(dob.getUTCFullYear()) : '',
               height_ft: profile.height?.feet?.toString() || '',
               height_in: profile.height?.inches?.toString() || '',
               bodyType: profile.bodyType || '',
@@ -159,8 +159,8 @@ export default function CreateProfilePage() {
         if (!formState.dob_day || !formState.dob_month || !formState.dob_year) {
           newErrors.dob = 'Date of birth is required.';
         } else {
-          const date = new Date(`${formState.dob_year}-${formState.dob_month}-${formState.dob_day}`);
-          if (date.getDate() !== parseInt(formState.dob_day, 10)) {
+          const date = new Date(Date.UTC(Number(formState.dob_year), Number(formState.dob_month) - 1, Number(formState.dob_day)));
+          if (date.getUTCDate() !== parseInt(formState.dob_day, 10)) {
             newErrors.dob = 'The selected date is invalid.';
           }
         }
@@ -192,9 +192,11 @@ export default function CreateProfilePage() {
             const userDocRef = doc(db, 'users', user.uid);
             const userDoc = await getDoc(userDocRef);
             const existingData = userDoc.exists() ? userDoc.data() : {};
-
-            const dob = new Date(`${formState.dob_year}-${formState.dob_month}-${formState.dob_day}`);
-            const age = new Date().getFullYear() - dob.getFullYear();
+            
+            const dob = new Date(Date.UTC(Number(formState.dob_year), Number(formState.dob_month) - 1, Number(formState.dob_day)));
+            const ageDiffMs = Date.now() - dob.getTime();
+            const ageDate = new Date(ageDiffMs);
+            const age = Math.abs(ageDate.getUTCFullYear() - 1970);
 
             const bioInput = {
                 age,
@@ -233,7 +235,8 @@ export default function CreateProfilePage() {
         }
         
         setIsSubmitting(true);
-        const dob = new Date(`${formState.dob_year}-${formState.dob_month}-${formState.dob_day}`).toISOString();
+        const dob = new Date(Date.UTC(Number(formState.dob_year), Number(formState.dob_month) - 1, Number(formState.dob_day))).toISOString();
+        
         const height = formState.height_ft || formState.height_in ? { feet: parseInt(formState.height_ft) || 0, inches: parseInt(formState.height_in) || 0 } : null;
         
         const { fullName, email, ...profileDataFields } = formState;
@@ -253,18 +256,28 @@ export default function CreateProfilePage() {
 
         try {
             const userDocRef = doc(db, 'users', user.uid);
+            // Fetch existing doc to merge with
+            const docSnap = await getDoc(userDocRef);
+            const existingData = docSnap.exists() ? docSnap.data() : {};
+            const existingProfile = existingData.profile || {};
+
             await setDoc(userDocRef, {
                 fullName: formState.fullName,
                 email: formState.email, 
-                profile: profileData,
-                profileStatus: 'in-progress-education',
+                profile: {
+                    ...existingProfile, // Keep existing fields
+                    ...profileData // Overwrite with new form data
+                },
+                profileStatus: existingData.profileStatus === 'incomplete' ? 'in-progress-education' : existingData.profileStatus,
             }, { merge: true });
 
             toast({
                 title: 'Personal Info Saved!',
                 description: "Let's move to the next step.",
             });
-            router.push('/onboarding/education');
+            // This will be updated to point to the next section of the single page form
+            // For now, we'll keep the navigation as is.
+            router.push('/onboarding/create-profile#education-career');
         } catch (error) {
             console.error('Error updating profile:', error);
             toast({
