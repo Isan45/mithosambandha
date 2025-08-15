@@ -10,13 +10,9 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { mockSuccessStories } from '@/lib/mock-data';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardTitle,
 } from '@/components/ui/card';
 import { getUsers } from '@/lib/server-actions/users';
 import { ProfileCard } from '@/components/profile-card';
@@ -57,10 +53,10 @@ export default async function HomePage() {
             className="flex-1 text-center md:text-left space-y-6"
           >
             <h1 className="text-4xl md:text-6xl font-headline font-bold leading-tight tracking-tighter">
-              Finding Your Forever in the Nepali Way.
+              A Sweet Bond, A Lifelong Partner.
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto md:mx-0">
-              The most trusted matrimonial platform for the Nepali community worldwide.
+              Mitho Sambandha is the most trusted matrimonial platform for the Nepali community worldwide, offering a modern approach to finding your soulmate.
             </p>
              <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
                 <Button asChild size="lg" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg font-bold transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
@@ -76,7 +72,7 @@ export default async function HomePage() {
           >
             <div className="w-full max-w-md md:max-w-xl rounded-3xl overflow-hidden shadow-2xl relative transition-all duration-500 transform hover:scale-105">
               <Image 
-                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/Mithi%20sambandha%20Hero%20Image%20.png?alt=media&token=276a0e88-fe36-47e1-b00a-fc414b3c87a9" 
+                src="https://firebasestorage.googleapis.com/v0/b/mitho-sambandha-c4959.firebasestorage.app/o/mitho-sambandha-hero.avif?alt=media&token=8e9e757c-f045-4b21-a077-94a55383f1d8" 
                 alt="A happily married Nepali couple" 
                 width={1000}
                 height={800}
@@ -145,12 +141,14 @@ export default async function HomePage() {
                 ))}
             </div>
             ) : (
-             <div className="p-12 text-center border-2 border-dashed rounded-lg">
+             <Card className="col-span-full">
+              <CardContent className="p-12 text-center border-2 border-dashed rounded-lg">
                 <h3 className="font-headline text-2xl">No Featured Profiles Yet</h3>
                 <p className="mt-2 text-muted-foreground">
-                  As our community grows, featured profiles will appear here.
+                  As our community grows, featured profiles of approved members will appear here.
                 </p>
-             </div>
+              </CardContent>
+             </Card>
             )}
         </div>
       </Section>
@@ -172,3 +170,4 @@ export default async function HomePage() {
     </div>
   );
 };
+

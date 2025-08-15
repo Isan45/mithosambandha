@@ -62,7 +62,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
             <MapPin className="h-4 w-4" />
             <span>{location}</span>
           </div>
-          <p className="pt-2 text-foreground/80 line-clamp-3">{bio}</p>
+          <p className="pt-2 text-foreground/80 line-clamp-3 h-[60px]">{bio}</p>
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 md:p-6">
