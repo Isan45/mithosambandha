@@ -46,8 +46,6 @@ export default async function HomePage() {
   );
 
   const featuredProfiles = approvedProfiles.slice(0, 4);
-  const newMembers = approvedProfiles.slice(4, 8);
-  const successStories = mockSuccessStories.slice(0, 3);
 
   return (
     <div className="bg-background text-foreground font-body">
@@ -64,9 +62,14 @@ export default async function HomePage() {
             <p className="text-lg md:text-xl text-muted-foreground max-w-lg mx-auto md:mx-0">
               The most trusted matrimonial platform for the Nepali community worldwide.
             </p>
-            <Button asChild size="lg" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg font-bold transition-all duration-300 transform hover:scale-105">
-              <Link href="/join">Join Now</Link>
-            </Button>
+             <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                <Button asChild size="lg" className="rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg font-bold transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
+                <Link href="/join">Join Free</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="rounded-full font-bold transition-all duration-300 transform hover:scale-105 w-full sm:w-auto">
+                    <Link href="/search">Explore Matches</Link>
+                </Button>
+            </div>
           </div>
           <div
             className="flex-1 w-full flex justify-center md:justify-end"
@@ -127,7 +130,7 @@ export default async function HomePage() {
       <Separator />
       
       {/* Featured Profiles Section */}
-      <Section id="profiles" className="bg-background">
+       <Section id="profiles" className="bg-background">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl md:text-4xl font-headline font-bold">Featured Profiles</h2>
@@ -135,69 +138,23 @@ export default async function HomePage() {
               <Link href="/search">View All Profiles</Link>
             </Button>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProfiles.map(profile => (
-              <ProfileCard key={profile.uid} profile={profile} />
-            ))}
-          </div>
+           {featuredProfiles.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {featuredProfiles.map(profile => (
+                <ProfileCard key={profile.uid} profile={profile} />
+                ))}
+            </div>
+            ) : (
+             <div className="p-12 text-center border-2 border-dashed rounded-lg">
+                <h3 className="font-headline text-2xl">No Featured Profiles Yet</h3>
+                <p className="mt-2 text-muted-foreground">
+                  As our community grows, featured profiles will appear here.
+                </p>
+             </div>
+            )}
         </div>
       </Section>
-
-      <Separator />
-
-      {/* New Members Section */}
-      <Section className="bg-secondary/50">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl md:text-4xl font-headline font-bold">New Members</h2>
-            <Button asChild variant="link" className="text-primary hover:text-primary/80 transition-colors">
-              <Link href="/search">View All New Members</Link>
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {newMembers.map(profile => (
-              <ProfileCard key={profile.uid} profile={profile} />
-            ))}
-          </div>
-        </div>
-      </Section>
-
-      <Separator />
-
-      {/* Testimonials Section */}
-      <Section id="testimonials" className="bg-background">
-        <div className="container mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold mb-4">Success Stories</h2>
-          <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Read how Mitho Sambandha has helped thousands of Nepalis find their forever after.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {successStories.map((story) => (
-              <Card key={story.id} className="p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 text-left">
-                 <CardContent className="p-0">
-                  <div className="flex items-center space-x-4 mb-4">
-                     <Avatar className="w-16 h-16">
-                      <AvatarImage src={story.photo} alt={story.names} />
-                      <AvatarFallback>{story.names.split(' & ')[0][0]}{story.names.split(' & ')[1][0]}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle className="text-xl font-headline">{story.names}</CardTitle>
-                      <CardDescription>A Match Made in Heaven</CardDescription>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground italic">
-                    "{story.story}"
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-           <Button asChild variant="link" size="lg" className="mt-8 text-primary hover:text-primary/80 transition-colors">
-              <Link href="/success-stories">Read More Success Stories</Link>
-            </Button>
-        </div>
-      </Section>
-
+      
       <Separator />
       
       {/* Call to Action Section */}

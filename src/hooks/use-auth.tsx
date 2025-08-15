@@ -19,10 +19,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isAdmin: false, profileStatus: null, getIdToken: async () => null });
 
-const PROTECTED_ROUTES = ['/dashboard', '/admin', '/discover', '/search', '/settings'];
-const PUBLIC_ROUTES = ['/login', '/join'];
-const ONBOARDING_PREFIX = '/onboarding';
-
+const PROTECTED_ROUTES = ['/dashboard', '/admin', '/discover', '/search', '/settings', '/onboarding'];
+const PUBLIC_ONLY_ROUTES = ['/login', '/join'];
+const ONBOARDING_STEP_ROUTE = '/onboarding/create-profile';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -45,19 +44,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const isUserAdmin = user.uid === adminUID || user.email === 'admin@mithosambandha.com';
         setIsAdmin(isUserAdmin);
         
-        // Fetch profile status only if not an admin
-        if (!isUserAdmin) {
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
             setProfileStatus(userDoc.data().profileStatus || 'incomplete');
-          } else {
-            setProfileStatus('incomplete');
-          }
         } else {
-            setProfileStatus(null); // Admin does not need a profile status
+            setProfileStatus('incomplete'); // New user who hasn't had a doc created yet
         }
-
       } else {
         setUser(null);
         setIsAdmin(false);
@@ -73,54 +66,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (loading) return;
 
     const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
+    const isPublicOnlyRoute = PUBLIC_ONLY_ROUTES.includes(pathname);
     const isAdminRoute = pathname.startsWith('/admin');
-    const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
-    const isOnboardingRoute = pathname.startsWith(ONBOARDING_PREFIX);
     
-    // If not logged in and trying to access a protected route
+    // If not logged in and trying to access a protected route, redirect to login
     if (!user && isProtectedRoute) {
       router.push('/login');
       return;
     }
 
     if(user) {
-        // If it's an admin user
+        // If logged in and trying to access a public-only route, redirect to dashboard
+        if(isPublicOnlyRoute) {
+            router.push('/dashboard');
+            return;
+        }
+
+        // Handle Admin routing
         if (isAdmin) {
             if (!isAdminRoute) {
                 router.push('/admin');
             }
-            return; // Skip all other routing logic for admin
+            return; // Admins have their own world
         }
 
-      // --- Regular User Logic ---
-
-      // Redirect from public routes if logged in
-      if(isPublicRoute) {
-        router.push('/dashboard');
-        return;
-      }
-      
-      const validCompletedStatuses = ['pending-review', 'approved', 'rejected', 'suspended'];
-      
-      // Handle onboarding redirection logic for non-admin users
-      if (!isOnboardingRoute && profileStatus && !validCompletedStatuses.includes(profileStatus)) {
-          const stepMap: {[key: string]: string} = {
-              'incomplete': '/onboarding/create-profile',
-              'in-progress-education': '/onboarding/education',
-              'in-progress-career': '/onboarding/career',
-              'in-progress-partner-preferences': '/onboarding/partner-preferences',
-              'in-progress-photos': '/onboarding/photos',
-          };
-          
-          const nextStep = stepMap[profileStatus];
-
-          if(nextStep && pathname !== nextStep) {
-            router.push(nextStep);
+        // Handle regular user routing based on profile status
+        const isProfileComplete = ['pending-review', 'approved', 'rejected', 'suspended'].includes(profileStatus || '');
+        const isOnboardingPage = pathname.startsWith('/onboarding');
+        
+        // If profile is NOT complete, they should be on the onboarding page
+        if (!isProfileComplete && !isOnboardingPage) {
+            router.push(ONBOARDING_STEP_ROUTE);
             return;
-          }
-      }
-    }
+        }
 
+        // If profile IS complete, they should NOT be on the onboarding page
+        if (isProfileComplete && isOnboardingPage) {
+            router.push('/dashboard');
+            return;
+        }
+    }
 
   }, [user, loading, pathname, router, isAdmin, profileStatus]);
 
