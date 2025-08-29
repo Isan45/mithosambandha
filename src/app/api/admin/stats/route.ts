@@ -1,7 +1,7 @@
 
 // src/app/api/admin/stats/route.ts
 import { NextResponse } from 'next/server';
-import admin, { db, auth } from '@/lib/firebase-admin';
+import { db, auth } from '@/lib/firebase-admin';
 import type { NextRequest } from 'next/server';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
@@ -21,25 +21,17 @@ async function verifyAdminFromHeader(authorizationHeader?: string) {
   return decoded.uid;
 }
 
-function startOfDay(ts: Date) {
-  const d = new Date(ts);
-  d.setHours(0, 0, 0, 0);
-  return Timestamp.fromDate(d);
-}
-function startOfWeek(ts: Date) {
-  const d = new Date(ts);
-  const day = d.getDay(); // 0 Sun .. 6 Sat
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
-  const monday = new Date(d.setDate(diff));
-  monday.setHours(0, 0, 0, 0);
-  return Timestamp.fromDate(monday);
-}
-function startOfMonth(ts: Date) {
-  const d = new Date(ts);
-  d.setDate(1);
-  d.setHours(0, 0, 0, 0);
-  return Timestamp.fromDate(d);
-}
+const calculateAge = (dobString?: string) => {
+    if (!dobString) return 0;
+    const birthDate = new Date(dobString);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+};
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,81 +41,88 @@ export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('authorization') || undefined;
     await verifyAdminFromHeader(authHeader);
 
-    const now = new Date();
-    const dayStart = startOfDay(now);
-    const weekStart = startOfWeek(now);
-    const monthStart = startOfMonth(now);
-
     const usersCol = db.collection('users');
+    const allUsersSnap = await usersCol.get();
+    const allUsersData = allUsersSnap.docs.map(doc => doc.data());
 
-    // Total users
-    const totalUsersSnap = await usersCol.count().get();
-    const totalUsers = totalUsersSnap.data().count;
+    // Total Users
+    const totalUsers = allUsersSnap.size;
 
-    // Users this month / week / day
-    const usersThisMonthSnap = await usersCol.where('createdAt', '>=', monthStart).count().get();
-    const usersThisMonth = usersThisMonthSnap.data().count;
-    const usersThisWeekSnap = await usersCol.where('createdAt', '>=', weekStart).count().get();
-    const usersThisWeek = usersThisWeekSnap.data().count;
-    const usersTodaySnap = await usersCol.where('createdAt', '>=', dayStart).count().get();
-    const usersToday = usersTodaySnap.data().count;
-    
-    // For simplicity, we assume premium and revenue are not yet implemented.
-    const totalPremium = 0;
-    const premiumThisMonth = 0;
-    const premiumToday = 0;
+    // Premium Users (assuming a 'membership' field)
+    const totalPremiumUsers = allUsersData.filter(u => u.profile?.membership === 'Platinum' || u.profile?.membership === 'Gold').length;
+
+    // Active Users (last 7 days)
+    const sevenDaysAgo = Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
+    const activeLast7Days = allUsersData.filter(u => u.lastActiveAt && u.lastActiveAt.toDate() >= sevenDaysAgo.toDate()).length;
+
+    // For simplicity, we assume revenue is not yet implemented and will be zero.
     const totalRevenue = 0;
-    const revenueMonth = 0;
-    const revenueDay = 0;
-
-
-    // Signins by country & gender (from profile.currentLocation & profile.gender)
-    const countryCounts: Record<string, number> = {};
+    const revenueThisWeek = 0;
+    const revenueThisMonth = 0;
+    
+    // Pending Verifications
+    const pendingVerifications = allUsersData.filter(u => u.profileStatus === 'pending-review').length;
+    
+    // Gender Breakdown for all users
     const genderCounts: Record<string, number> = {};
-    const allProfilesSnap = await usersCol.select('profile.currentLocation', 'profile.gender').get();
-    allProfilesSnap.forEach((d) => {
-      const data = d.data() as any;
-      const country = data?.profile?.currentLocation?.split(',').pop()?.trim() || 'Unknown';
-      const gender = data?.profile?.gender || 'Unknown';
-      countryCounts[country] = (countryCounts[country] || 0) + 1;
-      genderCounts[gender] = (genderCounts[gender] || 0) + 1;
+    allUsersData.forEach((u) => {
+        const gender = u.profile?.gender || 'Unknown';
+        genderCounts[gender] = (genderCounts[gender] || 0) + 1;
     });
 
-    // Active users last 7 days (lastActiveAt)
-    const last7 = Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
-    const active7Snap = await usersCol.where('lastActiveAt', '>=', last7).count().get();
-    const activeLast7Days = active7Snap.data().count;
-
-    // Profile completion distribution
-    const completionBuckets: Record<string, number> = { '0-25': 0, '26-50': 0, '51-75': 0, '76-100': 0 };
-    const completionSnap = await usersCol.select('profileCompletion').get();
-    completionSnap.forEach((d) => {
-      const c = (d.data() as any).profileCompletion || 0;
-      const pct = Math.round(Number(c) * 100);
-      if (pct <= 25) completionBuckets['0-25']++;
-      else if (pct <= 50) completionBuckets['26-50']++;
-      else if (pct <= 75) completionBuckets['51-75']++;
-      else completionBuckets['76-100']++;
+    // Age Distribution
+    const ageBuckets: Record<string, number> = { '18-24': 0, '25-34': 0, '35-44': 0, '45-54': 0, '55+': 0, 'Unknown': 0 };
+    allUsersData.forEach((u) => {
+        const age = calculateAge(u.profile?.dob);
+        if (age >= 18 && age <= 24) ageBuckets['18-24']++;
+        else if (age >= 25 && age <= 34) ageBuckets['25-34']++;
+        else if (age >= 35 && age <= 44) ageBuckets['35-44']++;
+        else if (age >= 45 && age <= 54) ageBuckets['45-54']++;
+        else if (age >= 55) ageBuckets['55+']++;
+        else ageBuckets['Unknown']++;
     });
+    const ageDistribution = Object.entries(ageBuckets).map(([ageGroup, users]) => ({ ageGroup, users }));
+
+
+    // Signups Last 10 Days
+    const signupsLast10Days: { date: string, signups: number }[] = [];
+    const dateCounts: Record<string, number> = {};
+    for (let i = 0; i < 10; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateString = d.toISOString().split('T')[0];
+        dateCounts[dateString] = 0;
+    }
+    allUsersData.forEach(u => {
+        if (u.createdAt) {
+            const signupDate = u.createdAt.toDate().toISOString().split('T')[0];
+            if (dateCounts[signupDate] !== undefined) {
+                dateCounts[signupDate]++;
+            }
+        }
+    });
+    for (const date in dateCounts) {
+        signupsLast10Days.push({ date, signups: dateCounts[date] });
+    }
+    signupsLast10Days.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
 
     const payload = {
       totals: {
         totalUsers,
-        usersThisMonth,
-        usersThisWeek,
-        usersToday,
-        totalPremium,
-        premiumThisMonth,
-        premiumToday,
-        totalRevenue,
-        revenueMonth,
-        revenueDay,
+        totalPremiumUsers,
         activeLast7Days,
+        totalRevenue,
+        revenueThisWeek,
+        revenueThisMonth,
+        pendingVerifications
       },
       breakdowns: {
-        byCountry: countryCounts,
         byGender: genderCounts,
-        profileCompletionBuckets: completionBuckets,
+      },
+      charts: {
+        signupsLast10Days,
+        ageDistribution
       },
       generatedAt: new Date().toISOString(),
     };
@@ -134,3 +133,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: err.message || 'error' }, { status: 500 });
   }
 }
+
+    

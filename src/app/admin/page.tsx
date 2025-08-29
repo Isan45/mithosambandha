@@ -20,9 +20,6 @@ import {
   UserCheck,
   HeartHandshake,
   Wand2,
-  ShieldAlert,
-  BarChart3,
-  DollarSign,
 } from 'lucide-react';
 import {
   Table,
@@ -33,7 +30,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { suspendUser } from '@/lib/server-actions/users';
 import { SignupsChart } from '@/components/admin/charts/signups-chart';
 import { AgeDistributionChart } from '@/components/admin/charts/age-distribution-chart';
 import { GenderSplitChart } from '@/components/admin/charts/gender-split-chart';
@@ -102,10 +98,12 @@ export default function AdminDashboardPage() {
       if (!usersRes.ok)
         throw new Error(usersJson?.error || 'Failed to fetch users');
       setUsers(usersJson.users || []);
-    } catch (err: any)      if (err.message?.includes(FIREBASE_ADMIN_ERROR_MSG)) {
+    } catch (err: any) {
+      if (err.message?.includes(FIREBASE_ADMIN_ERROR_MSG)) {
         setBackendError(err.message);
       } else {
         setBackendError('An unknown error occurred while fetching data.');
+        console.error(err);
       }
     } finally {
       setLoading(false);
@@ -118,19 +116,7 @@ export default function AdminDashboardPage() {
     }
   }, [user, getIdToken, fetchDashboardData]);
 
-  const handleSuspend = async (formData: FormData) => {
-    const uid = formData.get('uid') as string;
-    if (uid) {
-      try {
-        await suspendUser(uid, 'Suspended by admin from dashboard.');
-        await fetchDashboardData(); // Refetch all data
-      } catch (error: any) {
-        alert(`Failed to suspend user: ${error.message}`);
-      }
-    }
-  };
-
-  const MetricCard = ({ title, value, icon, description, children, link }: any) => (
+  const MetricCard = ({ title, value, icon, description, link }: any) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
@@ -147,7 +133,6 @@ export default function AdminDashboardPage() {
             {link.text}
           </Link>
         )}
-        {children}
       </CardContent>
     </Card>
   );
@@ -220,8 +205,8 @@ export default function AdminDashboardPage() {
        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
          <Card className="lg:col-span-3">
             <CardHeader>
-              <CardTitle>Recent Sign-ups & Analytics</CardTitle>
-              <CardDescription>Overview of platform growth and user demographics.</CardDescription>
+              <CardTitle>Recent Sign-ups</CardTitle>
+              <CardDescription>Overview of platform growth over the last 10 days.</CardDescription>
             </CardHeader>
             <CardContent>
                 {loading ? (
@@ -324,3 +309,5 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+
+    
