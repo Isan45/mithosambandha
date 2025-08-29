@@ -24,8 +24,7 @@ import { getUsers } from '@/lib/server-actions/users';
 import { ProfileCard } from '@/components/profile-card';
 import { SuccessStoryCard } from '@/components/success-story-card';
 import { mockSuccessStories } from '@/lib/mock-data';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { SearchForm } from '@/components/search/search-form';
 
 const HowItWorksStep = ({
   icon: Icon,
@@ -119,32 +118,18 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      {/* Search Preview Section */}
-      <Section id="search-preview" className="bg-secondary/50">
+      {/* Search Section */}
+      <Section id="search" className="bg-secondary/50">
         <div className="container mx-auto px-4 text-center md:px-8">
           <h2 className="mb-4 text-3xl font-bold md:text-4xl font-headline">
-            Start Your Search
+            Find Your Mitho Sambandha
           </h2>
           <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
-            Take the first step towards finding your special someone.
+            Take the first step towards finding your special someone using our detailed search.
           </p>
-          <Card className="mx-auto max-w-3xl p-6 shadow-lg">
-            <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-2 md:grid-cols-3">
-              <div>
-                <Label htmlFor="preview-age-from">Age From</Label>
-                <Input id="preview-age-from" type="number" placeholder="25" />
-              </div>
-              <div>
-                <Label htmlFor="preview-age-to">To</Label>
-                <Input id="preview-age-to" type="number" placeholder="32" />
-              </div>
-              <Button asChild size="lg" className="w-full md:col-span-1">
-                <Link href="/search">
-                  <Search className="mr-2" /> Find Your Match
-                </Link>
-              </Button>
-            </div>
-          </Card>
+          <div className="mx-auto max-w-5xl">
+            <SearchForm />
+          </div>
         </div>
       </Section>
 
