@@ -80,11 +80,11 @@ export default function TermsOfServicePage() {
 
           <div className="space-y-2">
             <h3 className="font-headline text-2xl text-foreground">
-              4. Our Admin-Centric Model
+              4. Our Admin-Driven Model
             </h3>
             <p>
               You acknowledge and agree that Mitho Sambandha operates on an
-              admin-centric model. Our admin team has the sole discretion to:
+              admin-driven model. Our admin team has the sole discretion to:
             </p>
             <ul className="list-disc space-y-1 pl-6">
               <li>
@@ -95,10 +95,7 @@ export default function TermsOfServicePage() {
                 inappropriate content, or failure to meet our standards.
               </li>
               <li>
-                <strong>Matchmaking:</strong> Our platform does not feature a
-                user-facing search or messaging system. Matchmaking is
-                facilitated by our admin team, who will connect suitable
-                profiles.
+                <strong>Matchmaking:</strong> Our platform facilitates connections based on the information provided. While we suggest matches, the ultimate decision to connect and communicate rests with the users.
               </li>
               <li>
                 <strong>Content Moderation:</strong> We reserve the right to
@@ -129,7 +126,6 @@ export default function TermsOfServicePage() {
                 Using the platform for any illegal purpose or to violate any
                 laws.
               </li>
-              <li>Attempting to bypass our admin-driven matchmaking process.</li>
             </ul>
           </div>
 
@@ -142,7 +138,7 @@ export default function TermsOfServicePage() {
                 <strong>No Guarantees:</strong> Mitho Sambandha does not
                 guarantee that you will find a partner or that the information
                 on other profiles is completely accurate, despite our best
--                efforts at verification.
+                efforts at verification.
               </li>
               <li>
                 <strong>As-Is Service:</strong> Our services are provided on an
@@ -193,7 +189,7 @@ export default function TermsOfServicePage() {
             </h3>
             <p>
               These Terms shall be governed by and construed in accordance with
-              the laws of [Insert Jurisdiction], without regard to its conflict
+              the laws of Nepal, without regard to its conflict
               of law provisions.
             </p>
           </div>
@@ -203,10 +199,8 @@ export default function TermsOfServicePage() {
               11. Contact Information
             </h3>
             <p>
-              If you have any questions about these Terms, please contact us at:
+              If you have any questions about these Terms, please contact us at: info@mithosambandha.com
             </p>
-            <p>[Insert Contact Email]</p>
-            <p>[Insert WhatsApp Number]</p>
           </div>
         </CardContent>
       </Card>
