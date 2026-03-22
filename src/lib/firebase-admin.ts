@@ -2,35 +2,37 @@
 // src/lib/firebase-admin.ts
 import * as admin from 'firebase-admin';
 
+// This safely decodes your base64 string
+const getServiceAccount = () => {
+    const base64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+    if (!base64) {
+        console.warn('[Firebase Admin] FIREBASE_SERVICE_ACCOUNT_BASE64 is missing');
+        return null;
+    }
+    try {
+        return JSON.parse(Buffer.from(base64, 'base64').toString());
+    } catch (e) {
+        console.error('[Firebase Admin] Failed to parse Service Account Base64');
+        return null;
+    }
+};
+
+const serviceAccount = getServiceAccount();
+
 let app: admin.app.App;
 
-if (!admin.apps.length) {
-  try {
-    // The service account key must be set as a Base64-encoded environment variable.
-    if (!process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
-      throw new Error('FIREBASE_SERVICE_ACCOUNT_BASE64 environment variable is not set.');
-    }
-
-    const cert = JSON.parse(
-      Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString()
-    );
-
+if (admin.apps.length > 0) {
+    app = admin.apps[0]!;
+} else if (serviceAccount) {
     app = admin.initializeApp({
-      credential: admin.credential.cert(cert),
-      projectId: 'mitho-sambandha-c4959',
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'mitho-sambandha-c4959.appspot.com',
+        credential: admin.credential.cert(serviceAccount),
+        projectId: 'mitho-sambandha-c4959',
+        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'mitho-sambandha-c4959.appspot.com',
     });
-  } catch (error: any) {
-    console.warn(
-      `[Firebase Admin] Initialization failed: ${error.message}. Backend services requiring admin privileges will not be available.`
-    );
-  }
 } else {
-  app = admin.app();
+    console.warn('[Firebase Admin] Initialization skipped - no valid credentials');
 }
 
-// We check if `app` is defined before exporting the services.
-// This prevents crashes if initialization failed.
-export const db = app! ? admin.firestore() : null;
-export const auth = app! ? admin.auth() : null;
+export const db = admin.apps.length > 0 ? admin.firestore() : null;
+export const auth = admin.apps.length > 0 ? admin.auth() : null;
 export default admin;
