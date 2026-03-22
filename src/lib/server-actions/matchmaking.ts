@@ -45,6 +45,26 @@ export async function getAIRecommendationsForAdmin(): Promise<any[]> {
   }
 }
 
+export async function recommendMatch(
+  uid1: string,
+  uid2: string,
+  reason: string,
+  adminUid: string
+) {
+  if (!db) throw new Error('DB not initialized');
+  
+  const recommendation = {
+    uids: [uid1, uid2],
+    reason,
+    recommendedBy: adminUid,
+    createdAt: new Date(), // Using native Date for simpler mock/initial impl if serverTimestamp is tricky in certain contexts, but usually preferred.
+    status: 'pending'
+  };
+
+  await db.collection('manualRecommendations').add(recommendation);
+  return { success: true };
+}
+
 function calculateAge(dob?: string) {
   if (!dob) return 0;
   const birthDate = new Date(dob);

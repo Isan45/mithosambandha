@@ -1,16 +1,17 @@
-import { mockSuccessStories } from '@/lib/mock-data';
-import type { SuccessStory } from '@/types';
 import { SuccessStoryCard } from '@/components/success-story-card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import type { Metadata } from 'next';
+import { getSuccessStories } from '@/lib/server-actions/stories';
 
 export const metadata: Metadata = {
   title: 'Success Stories',
   description: 'Read the stories of couples who found their life partner through Mitho Sambandha.',
 };
 
-export default function SuccessStoriesPage() {
+export default async function SuccessStoriesPage() {
+  const stories = await getSuccessStories();
+
   return (
     <div className="bg-background">
       <section className="bg-secondary py-16 md:py-24">
@@ -26,11 +27,17 @@ export default function SuccessStoriesPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {mockSuccessStories.map((story: SuccessStory) => (
-              <SuccessStoryCard key={story.id} story={story} />
-            ))}
-          </div>
+          {stories.length > 0 ? (
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {stories.map((story) => (
+                <SuccessStoryCard key={story.id} story={story} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+               <p className="text-muted-foreground italic">New success stories will be featured here soon.</p>
+            </div>
+          )}
         </div>
       </section>
 

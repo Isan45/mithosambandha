@@ -71,6 +71,22 @@ export type UserProfile = {
     galleryPhotos?: string[];
     idDocument?: string;
     idVerified?: boolean;
+    verificationTier?: 'email' | 'id';
+    verifiedAt?: any; // Firebase Timestamp
+    seriousnessScore?: number;
+    
+    safetySettings?: {
+      showPhotosTo?: 'all' | 'verified-only' | 'none';
+      stealthMode?: boolean;
+    };
+
+    astrology?: {
+      type: 'basic' | 'deep';
+      rashi?: string;
+      nakshatra?: string;
+      manglik?: 'no' | 'yes' | 'partial' | 'unknown';
+      gunaScore?: number;
+    };
     
     education?: {
       highestEducation?: string;

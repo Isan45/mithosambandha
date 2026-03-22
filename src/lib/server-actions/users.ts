@@ -453,3 +453,27 @@ export async function updateUser(uid: string, data: { fullName: string; role: 'u
     throw new Error(`Could not update user: ${error.message}`);
   }
 }
+
+export function calculateSeriousnessScore(user: UserProfile): number {
+  let score = 0;
+  
+  // 1. Profile Completeness (up to 40 points)
+  score += (user.profileCompletion || 0) * 0.4;
+  
+  // 2. Photos (up to 20 points)
+  const photoCount = (user.profile?.galleryPhotos?.length || 0) + (user.profile?.profilePhoto ? 1 : 0);
+  score += Math.min(photoCount * 5, 20);
+  
+  // 3. Verification (up to 30 points)
+  if (user.profile?.idVerified) {
+    score += 30;
+  } else if (user.profile?.verificationTier === 'email') {
+    score += 10;
+  }
+  
+  // 4. Bio length (up to 10 points)
+  const bioLength = user.profile?.bio?.length || 0;
+  score += Math.min(Math.floor(bioLength / 20), 10);
+  
+  return Math.min(score, 100);
+}

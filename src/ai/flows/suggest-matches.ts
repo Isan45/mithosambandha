@@ -28,6 +28,11 @@ const ProfileSchema = z.object({
   education: z.string().optional().describe('Highest education/college.'),
   profession: z.string().optional().describe('Current job/profession.'),
   visaStatus: z.string().optional().describe('Visa status (e.g. PR, Student, Citizen).'),
+  astrology: z.object({
+    rashi: z.string().optional(),
+    nakshatra: z.string().optional(),
+    manglik: z.string().optional(),
+  }).optional().describe('Astrological details for compatibility.'),
   partnerPreferences: z.string().describe('Stated partner preferences.'),
 });
 
@@ -70,9 +75,12 @@ Profiles:
 \n
 {{/each}}
 
-Suggest potential matches based on shared interests, compatible preferences (like age range and location), and complementary backgrounds (Education, Profession, Visa Status are very important in Nepali matrimony). Explain your reasoning for each suggested match specifically citing these matching factors.
+Suggest potential matches based on:
+1. **Mobility Compatibility**: Prioritize matches with low immigration friction (e.g., USA Citizen + USA Green Card is HIGH, while UAE + Canada PR is LOW due to logistics).
+2. **Astrology**: Use Rashi and Nakshatra if available. If birth time is unknown, use "General Alignment" (High/Medium/Low) based on available signs.
+3. **Core Factors**: Shared interests, compatible age ranges, and complementary professions.
 
-Format your output as a JSON array where each object contains profile1Id, profile1Name, profile2Id, profile2Name, and reason fields. Only suggest matches between a male and a female. Do not suggest same-gender matches. If you cannot find any suitable matches, return an empty array.
+Explain your reasoning for each suggested match, specifically mentioning why their Mobility and Astrology factors are compatible. Format your output as a JSON array where each object contains profile1Id, profile1Name, profile2Id, profile2Name, and reason fields. Only suggest matches between a male and a female. If no matches are found, return an empty array.
 `,
 });
 

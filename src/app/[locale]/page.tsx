@@ -72,8 +72,7 @@ export default async function HomePage() {
 
   const featuredProfiles = approvedProfiles.slice(0, 4);
   
-  const realStories = await getSuccessStories();
-  const featuredStories = realStories.length > 0 ? realStories : mockSuccessStories.slice(0, 3);
+  const featuredStories = await getSuccessStories();
 
   return (
     <div className="font-body text-foreground bg-background">

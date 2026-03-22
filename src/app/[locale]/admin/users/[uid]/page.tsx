@@ -34,7 +34,8 @@ import {
   History,
   HeartHandshake,
   Globe,
-  Users
+  Users,
+  Star
 } from 'lucide-react';
 
 function calculateAge(dob?: string) {
@@ -135,6 +136,10 @@ export default async function UserInspectorPage({
                         <span className="text-muted-foreground">Profile %:</span>
                         <span>{p.profileCompletion ? `${(p.profileCompletion * 100).toFixed(0)}%` : 'N/A'}</span>
                     </div>
+                    <div className="flex justify-between font-semibold text-primary">
+                        <span>Seriousness Score:</span>
+                        <span>{p.seriousnessScore || 'N/A'}</span>
+                    </div>
                 </div>
             </CardContent>
           </Card>
@@ -169,6 +174,14 @@ export default async function UserInspectorPage({
                 <DetailItem icon={ShieldCheck} label="Membership Management">
                     <MembershipSelector uid={user.uid} currentTier={user.membership || 'Free'} />
                 </DetailItem>
+                <div className="mt-4 pt-4 border-t">
+                    <Button variant="outline" className="w-full gap-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50" asChild>
+                        <Link href={`/admin/matchmaking?source1=${user.uid}`}>
+                            <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                            Recommend Manual Match
+                        </Link>
+                    </Button>
+                </div>
               </CardContent>
           </Card>
         </div>

@@ -28,8 +28,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { generateBio } from '@/ai/flows/generate-bio';
-import { Wand2, Loader2, User, Mail } from 'lucide-react';
+import { Wand2, Loader2, User, Mail, Star } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { AstrologyForm } from '@/components/profile/astrology-form';
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 100 }, (_, i) => currentYear - 18 - i);
@@ -87,6 +88,7 @@ export default function CreateProfilePage() {
         visaStatus: '',
         familyBackground: '',
         bio: '',
+        astrology: { type: 'basic', rashi: '', nakshatra: '', manglik: 'unknown' },
     });
 
     useEffect(() => {
@@ -131,6 +133,7 @@ export default function CreateProfilePage() {
               visaStatus: profile.visaStatus || '',
               familyBackground: profile.familyBackground || '',
               bio: profile.bio || '',
+              astrology: profile.astrology || { type: 'basic', rashi: '', nakshatra: '', manglik: 'unknown' },
             }));
           }
         } catch (error) {
@@ -571,6 +574,15 @@ export default function CreateProfilePage() {
                                             />
                                         </div>
                                     </div>
+                                </div>
+                                <Separator />
+
+                                <div className="space-y-4">
+                                     <h3 className="text-lg font-semibold text-primary">Astro Compatibility</h3>
+                                     <AstrologyForm 
+                                        initialData={formState.astrology} 
+                                        onSave={(data) => setFormState(prev => ({ ...prev, astrology: data }))}
+                                     />
                                 </div>
                                 <Separator />
 

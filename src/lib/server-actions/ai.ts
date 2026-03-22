@@ -20,6 +20,11 @@ export async function getAiSuggestionsAction() {
       education: p.education?.highestEducation || 'N/A',
       profession: p.career?.profession || 'N/A',
       visaStatus: p.visaStatus || 'N/A',
+      astrology: p.astrology ? {
+        rashi: p.astrology.rashi,
+        nakshatra: p.astrology.nakshatra,
+        manglik: p.astrology.manglik,
+      } : undefined,
       partnerPreferences: p.partnerPreferences?.general || '',
     };
   });

@@ -16,13 +16,15 @@ import {
   GraduationCap, 
   Globe, 
   Users, 
-  User as UserIcon,
-  Info
+   User as UserIcon,
+  Info,
+  ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { MembershipBadge } from '@/components/premium/membership-badge';
+import { ProfileBadges } from '@/components/profile/profile-badges';
 import { ContactAccessGuard } from '@/components/profile/contact-access-guard';
 import {
   Carousel,
@@ -91,6 +93,13 @@ export default async function ProfilePage({
   const profilePhoto = profile.profilePhoto;
   
   const allPhotos = profilePhoto ? [profilePhoto, ...galleryPhotos] : galleryPhotos;
+  
+  // Safety check for photos
+  const showPhotosTo = profile.safetySettings?.showPhotosTo || 'all';
+  const isViewerVerified = false; // TODO: Connect to actual auth session
+  
+  const shouldHidePhotos = showPhotosTo === 'verified-only' && !isViewerVerified;
+  const filteredPhotos = shouldHidePhotos ? (profilePhoto ? [profilePhoto] : []) : allPhotos;
 
 
   return (
@@ -105,7 +114,13 @@ export default async function ProfilePage({
                     {user.fullName}
                   </CardTitle>
                   <div className="mt-2 flex items-center gap-4 text-muted-foreground md:mt-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-end gap-2">
+                      <ProfileBadges 
+                        idVerified={user.profile?.idVerified} 
+                        verificationTier={user.profile?.verificationTier}
+                        verifiedAt={user.profile?.verifiedAt}
+                        seriousnessScore={user.profile?.seriousnessScore}
+                      />
                       <MembershipBadge tier={user.membership || 'Free'} />
                     </div>
                     <div className="flex items-center gap-2">
@@ -171,10 +186,21 @@ export default async function ProfilePage({
               </div>
 
               <div className="relative min-h-[400px] p-4 md:p-8 md:order-1">
-                {allPhotos.length > 0 ? (
+                {shouldHidePhotos && galleryPhotos.length > 0 ? (
+                  <div className="flex h-full flex-col items-center justify-center bg-muted/50 p-8 text-center rounded-lg border-2 border-dashed">
+                    <ShieldCheck className="mb-4 h-12 w-12 text-primary opacity-50" />
+                    <h4 className="mb-2 font-bold">Photos Restricted</h4>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      This user has restricted their full gallery to verified members only.
+                    </p>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="/settings">Verify my account to view</Link>
+                    </Button>
+                  </div>
+                ) : filteredPhotos.length > 0 ? (
                     <Carousel className="w-full">
                     <CarouselContent>
-                        {allPhotos.map((photo: string, index: number) => (
+                        {filteredPhotos.map((photo: string, index: number) => (
                         <CarouselItem key={index}>
                             <div className="relative aspect-square w-full">
                             <Image
@@ -189,8 +215,12 @@ export default async function ProfilePage({
                         </CarouselItem>
                         ))}
                     </CarouselContent>
-                    <CarouselPrevious className="left-2" />
-                    <CarouselNext className="right-2" />
+                    {filteredPhotos.length > 1 && (
+                      <>
+                        <CarouselPrevious className="left-2" />
+                        <CarouselNext className="right-2" />
+                      </>
+                    )}
                     </Carousel>
                 ) : (
                      <div className="relative aspect-square w-full">
