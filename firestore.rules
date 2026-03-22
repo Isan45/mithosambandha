@@ -9,32 +9,32 @@ service cloud.firestore {
     }
 
     function isSuperAdmin(uid) {
-      // In a real app, this would be a separate collection or custom claim
-      // For now, we can check against a simple collection of admins
       return exists(/databases/$(database)/documents/admins/$(uid));
     }
 
     function isAdmin(uid) {
-      // Admins have all moderator permissions plus more
-      return isSuperAdmin(uid); // Simplified for now
+      return isSuperAdmin(uid);
     }
 
     function isModerator(uid) {
-      // Moderators can manage reports and verifications
       return exists(/databases/$(database)/documents/moderators/$(uid)) || isAdmin(uid);
     }
-    
-    // Profiles can be read publicly if approved, or by their owner, or by an admin.
-    // Users can only update their own profile, and cannot touch verification or role fields.
-    match /profiles/{uid} {
-      allow read: if resource.data.visibility == 'public' 
-                   || isUser(uid) 
-                   || isAdmin(request.auth.uid);
-                   
-      allow create: if request.auth.uid != null;
 
-      allow update: if isUser(uid) && !('verification' in request.resource.data) && !('role' in request.resource.data)
+    // ---- PRIMARY USER COLLECTION ----
+    // This is the main collection used by the app for user profiles.
+    // Users can read approved profiles, their own profile, or admins can read any.
+    // Users can only update their own profile and cannot modify role or profileStatus fields.
+    match /users/{uid} {
+      allow read: if resource.data.profileStatus == 'approved'
+                   || isUser(uid)
                    || isAdmin(request.auth.uid);
+
+      allow create: if request.auth.uid == uid;
+
+      allow update: if (isUser(uid) && !('role' in request.resource.data) && !('profileStatus' in request.resource.data))
+                   || isAdmin(request.auth.uid);
+
+      allow delete: if isAdmin(request.auth.uid);
     }
 
     // A separate collection for user data that should be private.
@@ -57,9 +57,9 @@ service cloud.firestore {
     // Audit logs are write-only for server-side (Admin SDK) operations, and read-only for admins.
     match /auditLogs/{logId} {
       allow read: if isAdmin(request.auth.uid);
-      allow write: if false; // Should only be written from a trusted server environment
+      allow write: if false; // Only written from trusted server environment (Admin SDK)
     }
-    
+
     // Configuration can be read by any authenticated user, but only written by a super admin.
     match /config/{configId} {
       allow read: if request.auth.uid != null;
@@ -71,13 +71,12 @@ service cloud.firestore {
       allow read: if request.auth.uid in resource.data.uids || isAdmin(request.auth.uid);
       allow create, update, delete: if false; // Matches created by server functions
     }
-    
-    // Placeholder for admin/moderator role collections.
-    // These documents would contain the UIDs of users with those roles.
+
+    // Admin/moderator role collections.
     match /admins/{uid} {
       allow read, write: if isSuperAdmin(request.auth.uid);
     }
-    
+
     match /moderators/{uid} {
       allow read, write: if isAdmin(request.auth.uid);
     }

@@ -19,6 +19,10 @@ export type AdminAction =
 async function getCurrentAdminUid() {
     // In a proper setup, you'd get this from the session.
     // As a placeholder, let's find our default admin user.
+    if (!auth) {
+        console.error("Firebase Admin Auth is not initialized. Cannot determine admin UID.");
+        return 'UNKNOWN_ADMIN';
+    }
     try {
         const adminUser = await auth.getUserByEmail('admin@mithosambandha.com');
         return adminUser.uid;
@@ -41,6 +45,11 @@ export async function logAdminAction({
   reason?: string;
 }) {
   try {
+    if (!adminDb) {
+      console.error('Firebase Admin Firestore is not initialized. Cannot write audit log.');
+      return;
+    }
+
     const adminUid = await getCurrentAdminUid();
 
     const logEntry = {

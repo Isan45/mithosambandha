@@ -37,6 +37,9 @@ export type UserProfile = {
     | 'suspended';
   onboardingReason?: 'life-partner' | 'for-someone-else' | 'browsing';
   profileCompletion: number;
+  membership: 'Free' | 'Gold' | 'Platinum';
+  membershipExpiresAt?: any; // Firebase Timestamp
+  matchesRemaining?: number;
   profile?: {
     gender?: string;
     dob?: string; // Stored as ISO string
@@ -61,12 +64,13 @@ export type UserProfile = {
     dietaryHabits?: 'vegetarian' | 'non-vegetarian' | 'eggetarian' | 'vegan';
     smokingHabits?: 'no' | 'yes' | 'occasionally';
     drinkingHabits?: 'no' | 'yes' | 'occasionally';
+    visaStatus?: string;
+    familyBackground?: string;
     bio?: string;
     profilePhoto?: string;
     galleryPhotos?: string[];
     idDocument?: string;
     idVerified?: boolean;
-    membership?: 'Free' | 'Gold' | 'Platinum';
     
     education?: {
       highestEducation?: string;

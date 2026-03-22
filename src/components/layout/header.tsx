@@ -1,13 +1,13 @@
 
 'use client';
 
-import Link from 'next/link';
+import { Link, usePathname, useRouter } from '@/i18n/routing';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/use-auth';
 import { auth } from '@/lib/firebase/client';
 import { signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
 import {
   LogOut,
   LayoutDashboard,
@@ -16,9 +16,15 @@ import {
   Settings,
   User,
   Menu,
+  Languages,
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Sheet,
   SheetContent,
@@ -31,6 +37,8 @@ export function Header() {
   const { user, isAdmin } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const locale = useLocale();
+  const t = useTranslations('Navbar');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const handleLogout = async () => {
@@ -55,14 +63,14 @@ export function Header() {
       {isAdmin ? (
         <Button variant="ghost" asChild>
           <Link href="/admin" className={navLinkClasses('/admin')}>
-            <LayoutDashboard /> Admin Dashboard
+            <LayoutDashboard /> {t('admin')}
           </Link>
         </Button>
       ) : (
         <>
           <Button variant="ghost" asChild>
             <Link href="/dashboard" className={navLinkClasses('/dashboard')}>
-              <LayoutDashboard /> Dashboard
+              <LayoutDashboard /> {t('dashboard')}
             </Link>
           </Button>
           <Button variant="ghost" asChild>
@@ -70,29 +78,29 @@ export function Header() {
               href="/onboarding/create-profile"
               className={navLinkClasses('/onboarding/create-profile')}
             >
-              <User /> My Profile
+              <User /> {t('profile')}
             </Link>
           </Button>
           <Button variant="ghost" asChild>
             <Link href="/discover" className={navLinkClasses('/discover')}>
-              <Compass /> Discover
+              <Compass /> {t('discover')}
             </Link>
           </Button>
           <Button variant="ghost" asChild>
             <Link href="/search" className={navLinkClasses('/search')}>
-              <Search /> Search
+              <Search /> {t('search')}
             </Link>
           </Button>
           <Button variant="ghost" asChild>
             <Link href="/settings" className={navLinkClasses('/settings')}>
-              <Settings /> Settings
+              <Settings /> {t('settings')}
             </Link>
           </Button>
         </>
       )}
       <Button variant="ghost" onClick={handleLogout}>
         <LogOut className="mr-2 h-4 w-4" />
-        Logout
+        {t('logout')}
       </Button>
     </>
   );
@@ -101,32 +109,24 @@ export function Header() {
     <>
       <Button variant="ghost" asChild>
         <Link href="/" className={navLinkClasses('/')}>
-          Home
+          {t('home')}
         </Link>
       </Button>
       <Button variant="ghost" asChild>
         <Link href="/about" className={navLinkClasses('/about')}>
-          About
-        </Link>
-      </Button>
-      <Button variant="ghost" asChild>
-        <Link
-          href="/#how-it-works"
-          className={navLinkClasses('/#how-it-works')}
-        >
-          How It Works
+          {t('about')}
         </Link>
       </Button>
       <Button variant="ghost" asChild>
         <Link href="/login" className={navLinkClasses('/login')}>
-          Login
+          {t('login')}
         </Link>
       </Button>
       <Button
         asChild
         className="bg-accent text-accent-foreground hover:bg-accent/90"
       >
-        <Link href="/join">Join Free</Link>
+        <Link href="/join">{t('join')}</Link>
       </Button>
     </>
   );
@@ -136,7 +136,7 @@ export function Header() {
       {isAdmin ? (
         <SheetClose asChild>
           <Link href="/admin" className={mobileNavLinkClasses('/admin')}>
-            <LayoutDashboard /> Admin
+            <LayoutDashboard /> {t('admin')}
           </Link>
         </SheetClose>
       ) : (
@@ -146,7 +146,7 @@ export function Header() {
               href="/dashboard"
               className={mobileNavLinkClasses('/dashboard')}
             >
-              <LayoutDashboard /> Dashboard
+              <LayoutDashboard /> {t('dashboard')}
             </Link>
           </SheetClose>
           <SheetClose asChild>
@@ -154,29 +154,29 @@ export function Header() {
               href="/onboarding/create-profile"
               className={mobileNavLinkClasses('/onboarding/create-profile')}
             >
-              <User /> My Profile
+              <User /> {t('profile')}
             </Link>
           </SheetClose>
           <SheetClose asChild>
             <Link href="/discover" className={mobileNavLinkClasses('/discover')}>
-              <Compass /> Discover
+              <Compass /> {t('discover')}
             </Link>
           </SheetClose>
           <SheetClose asChild>
             <Link href="/search" className={mobileNavLinkClasses('/search')}>
-              <Search /> Search
+              <Search /> {t('search')}
             </Link>
           </SheetClose>
           <SheetClose asChild>
             <Link href="/settings" className={mobileNavLinkClasses('/settings')}>
-              <Settings /> Settings
+              <Settings /> {t('settings')}
             </Link>
           </SheetClose>
         </>
       )}
       <SheetClose asChild>
         <button onClick={handleLogout} className={cn(mobileNavLinkClasses(''), 'w-full')}>
-          <LogOut /> Logout
+          <LogOut /> {t('logout')}
         </button>
       </SheetClose>
     </>
@@ -186,12 +186,12 @@ export function Header() {
     <>
       <SheetClose asChild>
         <Link href="/" className={mobileNavLinkClasses('/')}>
-          Home
+          {t('home')}
         </Link>
       </SheetClose>
       <SheetClose asChild>
         <Link href="/about" className={mobileNavLinkClasses('/about')}>
-          About
+          {t('about')}
         </Link>
       </SheetClose>
       <SheetClose asChild>
@@ -199,17 +199,17 @@ export function Header() {
           href="/#how-it-works"
           className={mobileNavLinkClasses('/#how-it-works')}
         >
-          How It Works
+          {t('home')} {/* Fallback or add new key */}
         </Link>
       </SheetClose>
       <SheetClose asChild>
         <Link href="/login" className={mobileNavLinkClasses('/login')}>
-          Login
+          {t('login')}
         </Link>
       </SheetClose>
        <SheetClose asChild>
         <Link href="/join" className={cn(mobileNavLinkClasses('/join'), 'bg-primary text-primary-foreground')}>
-          Join Free
+          {t('join')}
         </Link>
       </SheetClose>
     </>
@@ -237,6 +237,24 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-2 md:flex">
           {user ? <UserNavLinks /> : <PublicNavLinks />}
+          <div className="ml-2 border-l border-primary/10 pl-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <Languages className="h-4 w-4" />
+                  <span className="uppercase">{locale}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => router.replace(pathname, { locale: 'en' })}>
+                  English
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.replace(pathname, { locale: 'ne' })}>
+                  नेपाली (Nepali)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </nav>
 
         {/* Mobile Navigation */}

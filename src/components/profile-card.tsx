@@ -1,6 +1,7 @@
 
 import type { UserProfile } from '@/types';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { MembershipBadge } from '@/components/premium/membership-badge';
 import Image from 'next/image';
 import {
   Card,
@@ -47,6 +48,11 @@ export function ProfileCard({ profile }: ProfileCardProps) {
             className="rounded-t-lg"
             data-ai-hint="portrait person"
           />
+          {profile.membership && (
+            <div className="absolute top-3 right-3 z-10">
+              <MembershipBadge tier={profile.membership} />
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-4 md:p-6">

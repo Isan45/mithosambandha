@@ -4,6 +4,7 @@
 import { db, auth } from '@/lib/firebase-admin';
 import type { UserProfile } from '@/types';
 import { logAdminAction } from './audit';
+import { sendNotification } from '../notifications';
 import { revalidatePath } from 'next/cache';
 import type * as admin from 'firebase-admin';
 
@@ -209,9 +210,157 @@ export async function suspendUser(uid: string, reason: string): Promise<void> {
         newValue: 'suspended',
       },
     });
+
+    // Send Notification
+    await sendNotification({
+      recipientUid: uid,
+      type: 'ACCOUNT_SUSPENDED',
+      title: 'Your account has been suspended',
+      body: `Reason: ${reason}. Please contact support for more information.`,
+      sendEmail: true
+    });
   } catch (error) {
     console.error(`Failed to suspend user ${uid}:`, error);
     throw new Error('Could not suspend user.');
+  }
+}
+
+export async function updateMembership(
+  uid: string, 
+  plan: 'Free' | 'Gold' | 'Platinum',
+  months: number = 1
+): Promise<void> {
+  if (!db) {
+    console.error('Firebase Admin SDK not initialized.');
+    throw new Error('Admin services not available.');
+  }
+
+  try {
+    const userRef = db.collection('users').doc(uid);
+    const userDoc = await userRef.get();
+    if (!userDoc.exists) throw new Error("User not found.");
+
+    const oldPlan = userDoc.data()?.membership || 'Free';
+    
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + months);
+
+    // Default quotas based on plan
+    const matchesRemaining = plan === 'Platinum' ? 999 : (plan === 'Gold' ? 10 : 0);
+
+    const updateData = {
+      membership: plan,
+      membershipExpiresAt: expiryDate,
+      matchesRemaining: matchesRemaining
+    };
+
+    await userRef.update(updateData);
+
+    await logAdminAction({
+      action: 'PROFILE_EDIT',
+      targetUid: uid,
+      changes: { oldValue: { membership: oldPlan }, newValue: updateData },
+      reason: `Membership upgraded to ${plan} for ${months} months.`
+    });
+
+    // Notify user
+    await sendNotification({
+      recipientUid: uid,
+      type: 'PROFILE_APPROVED', // Reuse type or add new one
+      title: 'Membership Upgraded!',
+      body: `Your account has been upgraded to ${plan}. Validity: ${expiryDate.toLocaleDateString()}.`,
+      sendEmail: true
+    });
+
+  } catch (error) {
+    console.error(`Failed to update membership for ${uid}:`, error);
+    throw new Error('Could not update membership.');
+  }
+}
+
+/**
+ * Helper to check if a user has access to a specific feature based on their membership.
+ */
+export async function checkFeatureAccess(uid: string, feature: 'CHAT' | 'CONTACT_INFO' | 'AI_SUGGESTIONS'): Promise<boolean> {
+  if (!db) return false;
+
+  const userDoc = await db.collection('users').doc(uid).get();
+  if (!userDoc.exists) return false;
+
+  const userData = userDoc.data();
+  const plan = userData?.membership || 'Free';
+  const expiresAt = userData?.membershipExpiresAt?.toDate();
+
+  // Check for expiration
+  if (expiresAt && expiresAt < new Date()) {
+    return false;
+  }
+
+  switch (feature) {
+    case 'CHAT':
+      return plan === 'Gold' || plan === 'Platinum';
+    case 'CONTACT_INFO':
+    case 'AI_SUGGESTIONS':
+      return plan === 'Platinum';
+    default:
+      return false;
+  }
+}
+
+export async function updateLastActive(uid: string): Promise<void> {
+    if (!db) return;
+    try {
+        await db.collection('users').doc(uid).update({
+            lastActiveAt: new Date(),
+        });
+    } catch (error) {
+        console.error(`Failed to update last active for user ${uid}:`, error);
+    }
+}
+
+export async function unsuspendUser(uid: string, reason: string): Promise<void> {
+  if (!db || !auth) {
+    console.error('Firebase Admin SDK not initialized. Cannot unsuspend user.');
+    throw new Error('Admin services not available.');
+  }
+  try {
+    const userRef = db.collection('users').doc(uid);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      throw new Error('User not found.');
+    }
+
+    const oldStatus = userDoc.data()?.profileStatus;
+
+    // Set the user's profile status back to approved in Firestore
+    await userRef.update({ profileStatus: 'approved' });
+
+    // Enable the user in Firebase Auth
+    await auth.updateUser(uid, { disabled: false });
+    
+    // Log the action
+    await logAdminAction({
+      action: 'USER_UNSUSPEND',
+      targetUid: uid,
+      reason: reason,
+      changes: {
+        oldValue: oldStatus,
+        newValue: 'approved',
+      },
+    });
+
+    // Send Notification
+    await sendNotification({
+        recipientUid: uid,
+        type: 'PROFILE_APPROVED',
+        title: 'Account Unsuspended',
+        body: 'Your account has been re-enabled. You can now login and explore matches.',
+        sendEmail: true
+    });
+  } catch (error) {
+    console.error(`Failed to unsuspend user ${uid}:`, error);
+    throw new Error('Could not unsuspend user.');
   }
 }
 
@@ -222,12 +371,24 @@ export async function approveProfile(uid: string): Promise<void> {
   }
   try {
     const userRef = db.collection('users').doc(uid);
-    await userRef.update({ profileStatus: 'approved' });
+    await userRef.update({ 
+      profileStatus: 'approved',
+      'profile.idVerified': true
+    });
 
     await logAdminAction({
       action: 'VERIFICATION_APPROVE',
       targetUid: uid,
       reason: 'Profile approved from verification queue.',
+    });
+
+    // Send Notification
+    await sendNotification({
+        recipientUid: uid,
+        type: 'PROFILE_APPROVED',
+        title: 'Profile Approved!',
+        body: 'Congratulations! Your profile has been approved and is now visible on Mitho Sambandha.',
+        sendEmail: true
     });
   } catch (error) {
     console.error(`Failed to approve profile ${uid}:`, error);
@@ -248,6 +409,15 @@ export async function rejectProfile(uid: string, reason: string): Promise<void> 
       action: 'VERIFICATION_REJECT',
       targetUid: uid,
       reason: `Profile rejected from verification queue: ${reason}`,
+    });
+
+    // Send Notification
+    await sendNotification({
+        recipientUid: uid,
+        type: 'PROFILE_REJECTED',
+        title: 'Profile Update Required',
+        body: `Unfortunately, your profile could not be approved at this time. Reason: ${reason}. Please update your details and resubmit.`,
+        sendEmail: true
     });
   } catch (error) {
     console.error(`Failed to reject profile ${uid}:`, error);

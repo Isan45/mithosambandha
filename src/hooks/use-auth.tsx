@@ -14,10 +14,11 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   profileStatus: UserProfile['profileStatus'] | null;
+  membership: UserProfile['membership'] | null;
   getIdToken: () => Promise<string | null>;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isAdmin: false, profileStatus: null, getIdToken: async () => null });
+const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isAdmin: false, profileStatus: null, membership: null, getIdToken: async () => null });
 
 const PROTECTED_ROUTES = ['/dashboard', '/admin', '/discover', '/search', '/settings', '/onboarding'];
 const PUBLIC_ONLY_ROUTES = ['/login', '/join'];
@@ -37,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [profileStatus, setProfileStatus] = useState<UserProfile['profileStatus'] | null>(null);
+  const [membership, setMembership] = useState<UserProfile['membership'] | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -56,14 +58,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userDocRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
-            setProfileStatus(userDoc.data().profileStatus || 'incomplete');
+            const data = userDoc.data() as UserProfile;
+            setProfileStatus(data.profileStatus || 'incomplete');
+            setMembership(data.membership || 'Free');
         } else {
-            setProfileStatus('incomplete'); // New user who hasn't had a doc created yet
+            setProfileStatus('incomplete');
+            setMembership('Free');
         }
       } else {
         setUser(null);
         setIsAdmin(false);
         setProfileStatus(null);
+        setMembership(null);
       }
       setLoading(false);
     });
@@ -114,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, profileStatus, getIdToken }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, profileStatus, membership, getIdToken }}>
       {children}
     </AuthContext.Provider>
   );

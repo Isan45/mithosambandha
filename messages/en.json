@@ -1,0 +1,30 @@
+{
+  "HomePage": {
+    "title": "Find Your Perfect Life Partner",
+    "subtitle": "Discover meaningful connections in the Nepali community with Mitho Sambandha.",
+    "cta": "Join Now",
+    "viewProfiles": "View Profiles"
+  },
+  "Navbar": {
+    "home": "Home",
+    "discover": "Discover",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Login",
+    "join": "Join Free",
+    "admin": "Admin Dashboard",
+    "dashboard": "Dashboard",
+    "profile": "My Profile",
+    "search": "Search",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "Common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit"
+  }
+}

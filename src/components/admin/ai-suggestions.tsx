@@ -16,32 +16,8 @@ import {
 import { Loader2, Wand2, Lightbulb } from 'lucide-react';
 import { getUsers } from '@/lib/server-actions/users';
 
-// Server action to call the AI flow with real user data
-async function getAiSuggestions() {
-  'use server';
-  const allUsers = await getUsers();
-  const approvedUsers = allUsers.filter(user => user.profileStatus === 'approved');
-
-  // Map UserProfile to the format expected by the AI flow
-  const profilesForAI = approvedUsers.map(user => {
-    const p = (user as any).profile || {};
-    return {
-      name: user.fullName,
-      gender: p.gender || 'Not specified',
-      age: p.dob ? new Date().getFullYear() - new Date(p.dob).getFullYear() : 0,
-      location: p.currentLocation || 'N/A',
-      bio: p.bio || '',
-      partnerPreferences: p.partnerPreferences?.additionalPreferences || '',
-    };
-  });
-  
-  if (profilesForAI.length < 2) {
-      throw new Error("Not enough approved profiles to generate matches.");
-  }
-
-  const result = await suggestMatches(profilesForAI);
-  return result;
-}
+import { getAiSuggestionsAction } from '@/lib/server-actions/ai';
+import { Link } from '@/i18n/routing';
 
 export function AiSuggestions() {
   const [suggestions, setSuggestions] = useState<SuggestMatchesOutput>([]);
@@ -53,7 +29,7 @@ export function AiSuggestions() {
     setError(null);
     setSuggestions([]);
     try {
-      const result = await getAiSuggestions();
+      const result = await getAiSuggestionsAction();
       if(result.length === 0) {
         setError("The AI couldn't find any strong matches at this time.");
       }
@@ -94,9 +70,19 @@ export function AiSuggestions() {
           {suggestions.map((match, index) => (
             <Card key={index} className="bg-secondary">
               <CardHeader>
-                <CardTitle className="font-headline text-xl text-primary">
-                  {match.profile1} &amp; {match.profile2}
-                </CardTitle>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                    <CardTitle className="font-headline text-xl text-primary">
+                      {match.profile1Name} &amp; {match.profile2Name}
+                    </CardTitle>
+                    <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" asChild>
+                            <Link href={`/admin/users/${match.profile1Id}`}>View {match.profile1Name}</Link>
+                        </Button>
+                        <Button variant="ghost" size="sm" asChild>
+                            <Link href={`/admin/users/${match.profile2Id}`}>View {match.profile2Name}</Link>
+                        </Button>
+                    </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="flex items-start gap-3">

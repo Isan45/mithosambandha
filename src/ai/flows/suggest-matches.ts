@@ -19,21 +19,27 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const ProfileSchema = z.object({
+  id: z.string().describe('The UID of the user.'),
   name: z.string().describe('The name of the user.'),
-  gender: z.string().describe('The gender of the user. Important for suggesting male-female matches.'),
+  gender: z.string().describe('The gender of the user.'),
   age: z.number().describe('The age of the user.'),
-  location: z.string().describe('The location of the user.'),
-  bio: z.string().describe('A detailed biography of the user.'),
-  partnerPreferences: z.string().describe('The stated partner preferences of the user.'),
+  location: z.string().describe('Current location.'),
+  bio: z.string().describe('User biography.'),
+  education: z.string().optional().describe('Highest education/college.'),
+  profession: z.string().optional().describe('Current job/profession.'),
+  visaStatus: z.string().optional().describe('Visa status (e.g. PR, Student, Citizen).'),
+  partnerPreferences: z.string().describe('Stated partner preferences.'),
 });
 
 const SuggestMatchesInputSchema = z.array(ProfileSchema).describe('An array of user profiles to analyze for match suggestions.');
 export type SuggestMatchesInput = z.infer<typeof SuggestMatchesInputSchema>;
 
 const MatchSuggestionSchema = z.object({
-  profile1: z.string().describe('The name of the first profile in the match.'),
-  profile2: z.string().describe('The name of the second profile in the match.'),
-  reason: z.string().describe('The AI explanation for why these profiles are a good match.'),
+  profile1Id: z.string().describe('The ID of the first profile.'),
+  profile1Name: z.string().describe('The name of the first profile.'),
+  profile2Id: z.string().describe('The ID of the second profile.'),
+  profile2Name: z.string().describe('The name of the second profile.'),
+  reason: z.string().describe('The AI explanation for the match.'),
 });
 
 const SuggestMatchesOutputSchema = z.array(MatchSuggestionSchema).describe('An array of suggested matches with reasons.');
@@ -51,18 +57,22 @@ const suggestMatchesPrompt = ai.definePrompt({
 
 Profiles:
 {{#each this}}
-Name: {{name}}
-Gender: {{gender}}
-Age: {{age}}
-Location: {{location}}
-Bio: {{bio}}
-Preferences: {{partnerPreferences}}
+- ID: {{id}}
+- Name: {{name}}
+- Gender: {{gender}}
+- Age: {{age}}
+- Location: {{location}}
+- Education: {{education}}
+- Profession: {{profession}}
+- Visa Status: {{visaStatus}}
+- Bio: {{bio}}
+- Preferences: {{partnerPreferences}}
 \n
 {{/each}}
 
-Suggest potential matches based on shared interests, compatible preferences, and complementary backgrounds. Explain your reasoning for each suggested match.
+Suggest potential matches based on shared interests, compatible preferences (like age range and location), and complementary backgrounds (Education, Profession, Visa Status are very important in Nepali matrimony). Explain your reasoning for each suggested match specifically citing these matching factors.
 
-Format your output as a JSON array of objects, where each object contains profile1, profile2, and reason fields. Only suggest matches between a male and a female. Do not suggest same-gender matches. If you cannot find any suitable matches, return an empty array.
+Format your output as a JSON array where each object contains profile1Id, profile1Name, profile2Id, profile2Name, and reason fields. Only suggest matches between a male and a female. Do not suggest same-gender matches. If you cannot find any suitable matches, return an empty array.
 `,
 });
 
