@@ -24,7 +24,6 @@ import {
 import { getUsers } from '@/lib/server-actions/users';
 import { ProfileCard } from '@/components/profile-card';
 import { SuccessStoryCard } from '@/components/success-story-card';
-import { mockSuccessStories } from '@/lib/mock-data';
 import { SearchForm } from '@/components/search/search-form';
 import { getSuccessStories } from '@/lib/server-actions/stories';
 

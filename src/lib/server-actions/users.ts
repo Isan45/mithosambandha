@@ -454,7 +454,7 @@ export async function updateUser(uid: string, data: { fullName: string; role: 'u
   }
 }
 
-export function calculateSeriousnessScore(user: UserProfile): number {
+export async function calculateSeriousnessScore(user: UserProfile): Promise<number> {
   let score = 0;
   
   // 1. Profile Completeness (up to 40 points)
