@@ -9,7 +9,7 @@ import { revalidatePath } from 'next/cache';
 import type * as admin from 'firebase-admin';
 
 // Helper to calculate age from DOB string
-function calculateAge(dob?: string): number {
+async function calculateAge(dob?: string): Promise<number> {
   if (!dob) return 0;
   const birthDate = new Date(dob);
   const today = new Date();
