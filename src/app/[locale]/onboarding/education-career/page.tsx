@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/client';
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import {
   Select,
   SelectContent,

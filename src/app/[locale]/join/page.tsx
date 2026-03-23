@@ -34,7 +34,7 @@ import { ArrowRight } from 'lucide-react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/client';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 import Image from 'next/image';
 
 const step1Schema = z.object({
